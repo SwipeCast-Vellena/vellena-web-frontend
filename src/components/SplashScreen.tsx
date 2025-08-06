@@ -41,7 +41,7 @@ const SplashScreen: React.FC<SplashScreenProps> = ({ onComplete }) => {
           </div>
           <div className="absolute -inset-4 bg-white/10 rounded-3xl blur-xl"></div>
         </div>
-        <h1 className="text-4xl font-bold text-white mb-2 tracking-tight">ModelSwipe</h1>
+        <h1 className="text-4xl font-bold text-white mb-2 tracking-tight">yo_work</h1>
         <p className="text-slate-300 text-lg font-medium">Connessioni Professionali per Talenti</p>
       </div>
 

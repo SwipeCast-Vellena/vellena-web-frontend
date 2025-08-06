@@ -31,25 +31,25 @@ const OnboardingScreen: React.FC<OnboardingScreenProps> = ({ onSignUp, onLogin }
   ];
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-50 to-slate-100 flex flex-col relative">
+    <div  className="min-h-screen max-h-screen flex flex-col bg-gradient-to-br from-slate-50 to-slate-100 px-6 py-6">
       {/* Language Selector */}
       <div className="absolute top-8 right-6 z-10">
         <LanguageSelector />
       </div>
       
       {/* Header */}
-      <div className="pt-16 pb-8 px-6 text-center">
+      <div className="pt-3 pb-2 px-6 text-center">
         <div className="w-16 h-16 bg-slate-900 rounded-2xl mx-auto mb-6 flex items-center justify-center">
           <Video className="w-8 h-8 text-white" />
         </div>
-        <h1 className="text-3xl font-bold text-slate-900 mb-3">{t('onboarding.title')}</h1>
+        <h1 className="text-3xl font-bold text-slate-900 mb-2">{t('onboarding.title')}</h1>
         <p className="text-slate-600 text-lg leading-relaxed max-w-sm mx-auto">
           {t('onboarding.subtitle')}
         </p>
       </div>
 
       {/* Features */}
-      <div className="flex-1 px-6 py-8">
+      <div className="flex-1 px-2 py-8 mt-[-15px]">
         <div className="space-y-6 max-w-md mx-auto">
           {features.map((feature, index) => (
             <div key={index} className="bg-white rounded-2xl p-6 shadow-sm border border-slate-200 animate-fade-in">

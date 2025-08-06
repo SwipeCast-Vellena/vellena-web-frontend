@@ -238,7 +238,7 @@ const ProfileSettingsScreen: React.FC<ProfileSettingsScreenProps> = ({ onBack, o
 
         {/* App Info */}
         <div className="text-center py-4">
-          <p className="text-sm text-slate-500">ModelSwipe v1.0.0</p>
+          <p className="text-sm text-slate-500">yo_work v1.0.0</p>
           <p className="text-xs text-slate-400 mt-1">Piattaforma Professionale per il Matching di Talenti</p>
         </div>
       </div>

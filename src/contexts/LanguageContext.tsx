@@ -39,10 +39,10 @@ export const LanguageProvider: React.FC<LanguageProviderProps> = ({ children }) 
 const translations = {
   it: {
     // Splash Screen
-    'splash.title': 'ModelSwipe',
+    'splash.title': 'yo_work',
     
     // Walkthrough
-    'walkthrough.welcome.title': 'Benvenuto su ModelSwipe',
+    'walkthrough.welcome.title': 'Benvenuto su yo_work',
     'walkthrough.welcome.description': 'La piattaforma che connette modelli, hostess e agenzie attraverso presentazioni video professionali.',
     'walkthrough.profile.title': 'Crea il tuo Profilo Video',
     'walkthrough.profile.description': 'Registra un video di presentazione di 30 secondi per mostrare la tua personalità e le tue competenze professionali.',
@@ -57,7 +57,7 @@ const translations = {
     'walkthrough.start': 'Inizia',
     
     // Onboarding
-    'onboarding.title': 'Benvenuto su ModelSwipe',
+    'onboarding.title': 'Benvenuto su yo_work',
     'onboarding.subtitle': 'La piattaforma professionale che connette modelli, hostess e agenzie di marketing attraverso presentazioni video.',
     'onboarding.feature1.title': 'Profili Video',
     'onboarding.feature1.description': 'Video professionali di presentazione da 30 secondi',
@@ -67,7 +67,7 @@ const translations = {
     'onboarding.feature3.description': 'Tutti gli utenti verificati solo per scopi professionali',
     'onboarding.startNow': 'Inizia Ora',
     'onboarding.haveAccount': 'Ho Già un Account',
-    'onboarding.terms': 'ModelSwipe è esclusivamente per scopi professionali. Continuando, accetti i nostri Termini di Servizio e l\'Informativa sulla Privacy.',
+    'onboarding.terms': 'yo_work è esclusivamente per scopi professionali. Continuando, accetti i nostri Termini di Servizio e l\'Informativa sulla Privacy.',
     
     // Auth
     'auth.signUp': 'Registrati',
@@ -172,10 +172,10 @@ const translations = {
   },
   en: {
     // Splash Screen
-    'splash.title': 'ModelSwipe',
+    'splash.title': 'yo_work',
     
     // Walkthrough
-    'walkthrough.welcome.title': 'Welcome to ModelSwipe',
+    'walkthrough.welcome.title': 'Welcome to yo_work',
     'walkthrough.welcome.description': 'The platform that connects models, hostesses and agencies through professional video presentations.',
     'walkthrough.profile.title': 'Create Your Video Profile',
     'walkthrough.profile.description': 'Record a 30-second presentation video to showcase your personality and professional skills.',
@@ -190,7 +190,7 @@ const translations = {
     'walkthrough.start': 'Start',
     
     // Onboarding
-    'onboarding.title': 'Welcome to ModelSwipe',
+    'onboarding.title': 'Welcome to yo_work',
     'onboarding.subtitle': 'The professional platform that connects models, hostesses and marketing agencies through video presentations.',
     'onboarding.feature1.title': 'Video Profiles',
     'onboarding.feature1.description': '30-second professional presentation videos',
@@ -200,7 +200,7 @@ const translations = {
     'onboarding.feature3.description': 'All users verified for professional purposes only',
     'onboarding.startNow': 'Start Now',
     'onboarding.haveAccount': 'I Already Have an Account',
-    'onboarding.terms': 'ModelSwipe is exclusively for professional purposes. By continuing, you agree to our Terms of Service and Privacy Policy.',
+    'onboarding.terms': 'yo_work is exclusively for professional purposes. By continuing, you agree to our Terms of Service and Privacy Policy.',
     
     // Auth
     'auth.signUp': 'Sign Up',

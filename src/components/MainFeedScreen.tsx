@@ -127,7 +127,7 @@ const MainFeedScreen: React.FC<MainFeedScreenProps> = ({ onMatch, onOpenChat, on
       {/* Header */}
       <div className="relative z-10 flex items-center justify-between px-6 pt-12 pb-2">
         <div>
-          <h1 className="text-xl font-bold text-white">ModelSwipe</h1>
+          <h1 className="text-xl font-bold text-white">yo_work</h1>
         </div>
         <button
           onClick={onOpenChat}
