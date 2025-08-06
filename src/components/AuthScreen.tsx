@@ -2,6 +2,7 @@
 import React, { useState } from 'react';
 import { ArrowLeft, Eye, EyeOff } from 'lucide-react';
 import { useLanguage } from '../contexts/LanguageContext';
+import LanguageSelector from './LanguageSelector';
 
 interface AuthScreenProps {
   isLogin: boolean;
@@ -16,7 +17,8 @@ const AuthScreen: React.FC<AuthScreenProps> = ({ isLogin, onBack, onSuccess }) =
   const [formData, setFormData] = useState({
     fullName: '',
     email: '',
-    password: ''
+    password: '',
+    role: ''
   });
 
   const handleSubmit = (e: React.FormEvent) => {
@@ -39,27 +41,62 @@ const AuthScreen: React.FC<AuthScreenProps> = ({ isLogin, onBack, onSuccess }) =
         </h1>
       </div>
 
-      <div className="flex-1 px-6">
+      <div className="absolute top-8 right-6 z-10">
+        <LanguageSelector />
+      </div>
+
+      <div className="flex-1 px-6 mt-[-50px]">
         <div className="max-w-md mx-auto">
-          <p className="text-slate-600 mb-8">
-            {isLogin 
-              ? 'Accedi per accedere alla tua rete professionale'
-              : 'Unisciti alla piattaforma professionale per il matching di talenti'
-            }
-          </p>
+        <p className="font-bold text-slate-900 mb-8">
+          {isLogin 
+            ? t('auth.title.2')
+            : t('auth.title.1')
+          }
+        </p>
 
           <form onSubmit={handleSubmit} className="space-y-6">
+            <div className="relative">
+              <label className="block text-sm font-medium text-slate-700 mb-2">
+                {t('auth.joinAs')}
+              </label>
+
+              <select
+                value={formData.role}
+                onChange={(e) => setFormData({ ...formData, role: e.target.value })}
+                className="w-full px-4 py-4 pr-10 bg-white border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-slate-900 focus:border-transparent appearance-none"
+                required
+              >
+                <option value="">{t('auth.selectRole')}</option>
+                <option value="model">{t('auth.role.model')}</option>
+                <option value="agency">{t('auth.role.agency')}</option>
+              </select>
+
+              {/* Custom Arrow */}
+              <div className="pointer-events-none absolute inset-y-0 right-5 top-7 flex items-center">
+                <svg
+                  className="w-5 h-5 text-slate-500"
+                  fill="none"
+                  stroke="currentColor"
+                  viewBox="0 0 24 24"
+                >
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+                </svg>
+              </div>
+            </div>
+
+
+
             {!isLogin && (
               <div>
                 <label className="block text-sm font-medium text-slate-700 mb-2">
-                  Nome Completo
+                  {t('auth.fullName')}
                 </label>
                 <input
                   type="text"
                   value={formData.fullName}
                   onChange={(e) => setFormData({...formData, fullName: e.target.value})}
                   className="w-full px-4 py-4 bg-white border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-slate-900 focus:border-transparent"
-                  placeholder="Inserisci il tuo nome completo"
+                  placeholder={t('auth.name.placeholder')}
                   required
                 />
               </div>
@@ -67,14 +104,14 @@ const AuthScreen: React.FC<AuthScreenProps> = ({ isLogin, onBack, onSuccess }) =
 
             <div>
               <label className="block text-sm font-medium text-slate-700 mb-2">
-                Indirizzo Email
+                {t('auth.email') }
               </label>
               <input
                 type="email"
                 value={formData.email}
                 onChange={(e) => setFormData({...formData, email: e.target.value})}
                 className="w-full px-4 py-4 bg-white border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-slate-900 focus:border-transparent"
-                placeholder="Inserisci la tua email"
+                placeholder={t('auth.email.placeholder')}
                 required
               />
             </div>
@@ -89,7 +126,7 @@ const AuthScreen: React.FC<AuthScreenProps> = ({ isLogin, onBack, onSuccess }) =
                   value={formData.password}
                   onChange={(e) => setFormData({...formData, password: e.target.value})}
                   className="w-full px-4 py-4 bg-white border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-slate-900 focus:border-transparent pr-12"
-                  placeholder="Inserisci la tua password"
+                  placeholder={t('auth.password.placeholder')}
                   required
                 />
                 <button
@@ -113,7 +150,7 @@ const AuthScreen: React.FC<AuthScreenProps> = ({ isLogin, onBack, onSuccess }) =
                   required
                 />
                 <label htmlFor="terms" className="text-sm text-slate-600 leading-relaxed">
-                  Accetto i Termini di Servizio e l'Informativa sulla Privacy, e confermo che questo account è esclusivamente per uso professionale.
+                  {t('auth.term')}
                 </label>
               </div>
             )}
@@ -122,7 +159,7 @@ const AuthScreen: React.FC<AuthScreenProps> = ({ isLogin, onBack, onSuccess }) =
               type="submit"
               className="w-full bg-slate-900 text-white py-4 rounded-xl font-semibold text-lg hover:bg-slate-800 transition-colors"
             >
-              {isLogin ? 'Accedi' : 'Crea Account'}
+              {isLogin ? t('auth.login') : t('auth.create')}
             </button>
           </form>
 
@@ -133,7 +170,7 @@ const AuthScreen: React.FC<AuthScreenProps> = ({ isLogin, onBack, onSuccess }) =
                 <div className="w-full border-t border-slate-200"></div>
               </div>
               <div className="relative flex justify-center text-sm">
-                <span className="px-4 bg-slate-50 text-slate-500">O continua con</span>
+                <span className="px-4 bg-slate-50 text-slate-500">{t('auth.continue')}</span>
               </div>
             </div>
 
@@ -149,12 +186,12 @@ const AuthScreen: React.FC<AuthScreenProps> = ({ isLogin, onBack, onSuccess }) =
 
           <div className="mt-8 text-center">
             <p className="text-slate-600">
-              {isLogin ? "Non hai un account? " : "Hai già un account? "}
+              {isLogin ? "Non hai un account? " : t('auth.haveAccount')}
               <button
                 onClick={onBack}
                 className="font-semibold text-slate-900 hover:underline"
               >
-                {isLogin ? 'Registrati' : 'Accedi'}
+                {isLogin ? t('auth.signUp') : t('auth.login')}
               </button>
             </p>
           </div>

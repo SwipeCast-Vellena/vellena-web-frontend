@@ -69,10 +69,27 @@ const translations = {
     'onboarding.haveAccount': 'Ho Già un Account',
     'onboarding.terms': 'yo_work è esclusivamente per scopi professionali. Continuando, accetti i nostri Termini di Servizio e l\'Informativa sulla Privacy.',
     
+    // Auth Screen
+    'auth.signUp.1': 'Registrati',
+    'auth.title.1': "Unisciti alla piattaforma professionale per il matching di talenti",
+    'auth.title.2': "Accedi per accedere alla tua rete professionale",
+    'auth.fullName': 'Nome completo',
+    'auth.email': 'Indirizzo Email',
+    'auth.name.placeholder': 'Inserisci il tuo nome completo',
+    'auth.email.placeholder': 'Inserisci la tua email',
+    'auth.password.placeholder': 'Inserisci la tua password',
+    'auth.term': "Accetto i Termini di Servizio e l'Informativa sulla Privacy, e confermo che questo account è esclusivamente per uso professionale.",
+    'auth.login': 'Accedi',
+    'auth.create': 'crea Account',
+    'auth.continue': 'Continua', 
+    "auth.joinAs": "Iscriviti come",
+    "auth.selectRole": "Seleziona un ruolo",
+    "auth.role.model": "Modello",
+    "auth.role.agency": "Agenzia",
+
+
     // Auth
     'auth.signUp': 'Registrati',
-    'auth.login': 'Accedi',
-    'auth.email': 'Email',
     'auth.password': 'Password',
     'auth.forgotPassword': 'Password dimenticata?',
     'auth.noAccount': 'Non hai un account?',
@@ -202,10 +219,26 @@ const translations = {
     'onboarding.haveAccount': 'I Already Have an Account',
     'onboarding.terms': 'yo_work is exclusively for professional purposes. By continuing, you agree to our Terms of Service and Privacy Policy.',
     
-    // Auth
+    // Auth Screen
     'auth.signUp': 'Sign Up',
+    'auth.title.1': "Join the professional platform for talent matching",
+    'auth.title.2': "Log in to access your professional network",
+    'auth.fullName': 'Full name',
+    'auth.email': 'Email Address',
+    'auth.name.placeholder': 'Enter your full name',
+    'auth.email.placeholder': 'Enter your email address',
+    'auth.password.placeholder': 'Enter your password',
+    'auth.term': "I accept the Terms of Service and Privacy Policy, and confirm that this account is for professional use only.",
     'auth.login': 'Login',
-    'auth.email': 'Email',
+    'auth.create': 'create Account',
+    'auth.continue': 'Continue',
+    "auth.joinAs": "Join as",
+    "auth.selectRole": "Select a role",
+    "auth.role.model": "Model",
+    "auth.role.agency": "Agency",
+
+    
+    // Auth
     'auth.password': 'Password',
     'auth.forgotPassword': 'Forgot password?',
     'auth.noAccount': 'Don\'t have an account?',
