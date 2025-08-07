@@ -1,6 +1,6 @@
 // src/services/loginUser.ts
 
-const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'http://localhost:3000';
+import { getBaseUrl } from './utils/baseUrl';
 
 export interface LoginFormData {
   email: string;
@@ -9,20 +9,25 @@ export interface LoginFormData {
 }
 
 export const loginUser = async (formData: LoginFormData) => {
-  console.log("Sending login data to backend:", formData);
+  const baseUrl = await getBaseUrl();
+  const isMock = baseUrl.includes('mockapi');
 
-  const response = await fetch(`${API_BASE_URL}/api/auth/login`, {
-    method: 'POST',
-    headers: {
-      'Content-Type': 'application/json',
-    },
-    body: JSON.stringify(formData),
-  });
+  const response = await fetch(
+    isMock ? `${baseUrl}/users` : `${baseUrl}/api/auth/login`,
+    {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify(formData),
+    }
+  );
+
+  const data = await response.json();
 
   if (!response.ok) {
-    const errorData = await response.json();
-    throw new Error(errorData?.msg || 'Login failed');
+    throw new Error(data?.msg || 'Login failed');
   }
 
-  return response.json(); // expected to include { token, user, msg }
+  return data; // expected to include { token, user, msg }
 };

@@ -1,5 +1,5 @@
 // src/services/registerUser.ts
-
+import { getBaseUrl } from './utils/baseUrl';
 const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'http://localhost:3000';
 
 export interface RegisterFormData {
@@ -10,22 +10,25 @@ export interface RegisterFormData {
 }
 
 export const registerUser = async (formData: RegisterFormData) => {
-  console.log("Sending to backend:", formData);
+  const baseUrl = await getBaseUrl();
+  const isMock = baseUrl.includes('mockapi');
 
-  const response = await fetch(`${API_BASE_URL}/api/auth/register`, {
-    method: 'POST',
-    headers: {
-      'Content-Type': 'application/json',
-    },
-    body: JSON.stringify(formData),
-  });
+    const response = await fetch(
+    isMock ? `${baseUrl}/users` : `${baseUrl}/api/auth/register`,
+    {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(formData),
+    }
+    );
 
-  const errorData = await response.json();
+  const data = await response.json();
 
   if (!response.ok) {
-    throw new Error(errorData?.msg || 'Registration failed');
+    throw new Error(data?.msg || 'Registration failed');
   }
 
-  return errorData; // probably includes token and user info
+  return data;
 };
+
 
