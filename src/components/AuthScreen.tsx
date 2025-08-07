@@ -3,6 +3,8 @@ import React, { useState } from 'react';
 import { ArrowLeft, Eye, EyeOff } from 'lucide-react';
 import { useLanguage } from '../contexts/LanguageContext';
 import LanguageSelector from './LanguageSelector';
+import { registerUser, RegisterFormData } from '../services/registerUser';
+import { loginUser, LoginFormData } from '../services/loginUser';
 
 interface AuthScreenProps {
   isLogin: boolean;
@@ -14,17 +16,52 @@ const AuthScreen: React.FC<AuthScreenProps> = ({ isLogin, onBack, onSuccess }) =
   const [showPassword, setShowPassword] = useState(false);
   const { t } = useLanguage();
   const [acceptTerms, setAcceptTerms] = useState(false);
+  const [error, setError] = useState('');
   const [formData, setFormData] = useState({
-    fullName: '',
+    name: '',
     email: '',
     password: '',
     role: ''
   });
 
-  const handleSubmit = (e: React.FormEvent) => {
+
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    onSuccess();
+
+    try {
+      if (isLogin) {
+        const loginData: LoginFormData = {
+          email: formData.email,
+          password: formData.password,
+          role: formData.role,
+        };
+
+        const res = await loginUser(loginData);
+        console.log('Logged in:', res);
+
+        // Maybe store token in localStorage or context
+        // localStorage.setItem('token', res.token);
+
+      } else {
+        const registerData: RegisterFormData = {
+          name: formData.name,
+          email: formData.email,
+          password: formData.password,
+          role: formData.role,
+        };
+
+        const res = await registerUser(registerData);
+        console.log('Registered:', res);
+      }
+
+      onSuccess(); // navigate or show success
+    } catch (err: any) {
+    const errorMsg = err.message || 'Something went wrong';
+    setError(errorMsg);
+    console.error(errorMsg);
+  }
   };
+
 
   return (
     <div className="min-h-screen bg-slate-50 flex flex-col">
@@ -55,6 +92,7 @@ const AuthScreen: React.FC<AuthScreenProps> = ({ isLogin, onBack, onSuccess }) =
         </p>
 
           <form onSubmit={handleSubmit} className="space-y-6">
+            {error && <p style={{ color: 'red', marginTop: '10px' }}>{error}</p>}
             <div className="relative">
               <label className="block text-sm font-medium text-slate-700 mb-2">
                 {t('auth.joinAs')}
@@ -93,8 +131,8 @@ const AuthScreen: React.FC<AuthScreenProps> = ({ isLogin, onBack, onSuccess }) =
                 </label>
                 <input
                   type="text"
-                  value={formData.fullName}
-                  onChange={(e) => setFormData({...formData, fullName: e.target.value})}
+                  value={formData.name}
+                  onChange={(e) => setFormData({...formData, name: e.target.value})}
                   className="w-full px-4 py-4 bg-white border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-slate-900 focus:border-transparent"
                   placeholder={t('auth.name.placeholder')}
                   required
