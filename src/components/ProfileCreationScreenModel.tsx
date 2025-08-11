@@ -1,6 +1,8 @@
 
 import React, { useState } from 'react';
 import { ArrowLeft, Upload, Video, User } from 'lucide-react';
+import { useLanguage } from '../contexts/LanguageContext';
+import LanguageSelector from './LanguageSelector';
 
 interface ProfileCreationScreenProps {
   onBack: () => void;
@@ -17,6 +19,7 @@ const ProfileCreationScreen: React.FC<ProfileCreationScreenProps> = ({ onBack, o
     bio: ''
   });
   const [videoUploaded, setVideoUploaded] = useState(false);
+  const { t } = useLanguage();
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -39,9 +42,13 @@ const ProfileCreationScreen: React.FC<ProfileCreationScreenProps> = ({ onBack, o
           >
             <ArrowLeft className="w-5 h-5 text-slate-700" />
           </button>
-          <h1 className="text-2xl font-bold text-slate-900 ml-4">Crea Profilo</h1>
+          <h1 className="text-2xl font-bold text-slate-900 ml-4">{t('Page.title')}</h1>
         </div>
-        <p className="text-slate-600">Costruisci il tuo profilo professionale per iniziare a connetterti</p>
+        <p className="text-slate-600">{t('page.subtitle')}</p>
+      </div>
+
+      <div className="absolute top-8 right-6 z-10">
+        <LanguageSelector />
       </div>
 
       <form onSubmit={handleSubmit} className="px-6 py-6 space-y-6">
@@ -49,25 +56,25 @@ const ProfileCreationScreen: React.FC<ProfileCreationScreenProps> = ({ onBack, o
         <div className="bg-white rounded-2xl p-6 shadow-sm border border-slate-200">
           <h2 className="text-lg font-semibold text-slate-900 mb-4 flex items-center">
             <User className="w-5 h-5 mr-2" />
-            Informazioni di Base
+            {t('page.info')}
           </h2>
           
           <div className="space-y-4">
             <div>
-              <label className="block text-sm font-medium text-slate-700 mb-2">Nome</label>
+              <label className="block text-sm font-medium text-slate-700 mb-2">{t('profile-creation.name')}</label>
               <input
                 type="text"
                 value={formData.name}
                 onChange={(e) => setFormData({...formData, name: e.target.value})}
                 className="w-full px-4 py-3 border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-slate-900"
-                placeholder="Il tuo nome professionale"
+                placeholder={t('profile-creation.name.placeholder')}
                 required
               />
             </div>
 
             <div className="grid grid-cols-2 gap-4">
               <div>
-                <label className="block text-sm font-medium text-slate-700 mb-2">Età</label>
+                <label className="block text-sm font-medium text-slate-700 mb-2">{t('profile-creation.age')}</label>
                 <input
                   type="number"
                   value={formData.age}
@@ -78,7 +85,7 @@ const ProfileCreationScreen: React.FC<ProfileCreationScreenProps> = ({ onBack, o
                 />
               </div>
               <div>
-                <label className="block text-sm font-medium text-slate-700 mb-2">Altezza</label>
+                <label className="block text-sm font-medium text-slate-700 mb-2">{t('profile-creation.height')}</label>
                 <input
                   type="text"
                   value={formData.height}
@@ -91,22 +98,22 @@ const ProfileCreationScreen: React.FC<ProfileCreationScreenProps> = ({ onBack, o
             </div>
 
             <div>
-              <label className="block text-sm font-medium text-slate-700 mb-2">Genere</label>
+              <label className="block text-sm font-medium text-slate-700 mb-2">{t('profile-creation.gender')}</label>
               <select
                 value={formData.gender}
                 onChange={(e) => setFormData({...formData, gender: e.target.value})}
                 className="w-full px-4 py-3 border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-slate-900"
                 required
               >
-                <option value="">Seleziona genere</option>
-                <option value="female">Femmina</option>
-                <option value="male">Maschio</option>
-                <option value="non-binary">Non-binario</option>
+                <option value="">{t('profile-creation.gender.select')}</option>
+                <option value="female">{t('profile-creation.gender.female')}</option>
+                <option value="male">{t('profile-creation.gender.male')}</option>
+                <option value="non-binary">{t('profile-creation.gender.other')}</option>
               </select>
             </div>
 
             <div>
-              <label className="block text-sm font-medium text-slate-700 mb-2">Località</label>
+              <label className="block text-sm font-medium text-slate-700 mb-2">{t('profile-creation.location')}</label>
               <input
                 type="text"
                 value={formData.location}
@@ -118,12 +125,12 @@ const ProfileCreationScreen: React.FC<ProfileCreationScreenProps> = ({ onBack, o
             </div>
 
             <div>
-              <label className="block text-sm font-medium text-slate-700 mb-2">Bio Professionale</label>
+              <label className="block text-sm font-medium text-slate-700 mb-2">{t('profile-creation.bio')}</label>
               <textarea
                 value={formData.bio}
                 onChange={(e) => setFormData({...formData, bio: e.target.value})}
                 className="w-full px-4 py-3 border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-slate-900 h-24 resize-none"
-                placeholder="Breve descrizione della tua esperienza e specialità..."
+                placeholder={t('profile-creation.bio.placeholder')}
                 required
               />
             </div>
@@ -134,7 +141,7 @@ const ProfileCreationScreen: React.FC<ProfileCreationScreenProps> = ({ onBack, o
         <div className="bg-white rounded-2xl p-6 shadow-sm border border-slate-200">
           <h2 className="text-lg font-semibold text-slate-900 mb-4 flex items-center">
             <Video className="w-5 h-5 mr-2" />
-            Video Professionale (Obbligatorio)
+            {t('profile-creation.video')}
           </h2>
           
           <div className="border-2 border-dashed border-slate-300 rounded-xl p-8 text-center">
@@ -154,22 +161,21 @@ const ProfileCreationScreen: React.FC<ProfileCreationScreenProps> = ({ onBack, o
             ) : (
               <div>
                 <Upload className="w-12 h-12 text-slate-400 mx-auto mb-3" />
-                <p className="font-medium text-slate-900 mb-2">Carica il tuo video di presentazione</p>
-                <p className="text-sm text-slate-600 mb-4">Massimo 30 secondi • Supportati MP4, MOV</p>
+                <p className="font-medium text-slate-900 mb-2">{t('profile-creation.record')}</p>
+                <p className="text-sm text-slate-600 mb-4">{t('profile-creation.video.length')}</p>
                 <button
                   type="button"
                   onClick={handleVideoUpload}
                   className="bg-slate-900 text-white px-6 py-3 rounded-xl font-medium hover:bg-slate-800 transition-colors"
                 >
-                  Scegli File Video
+                  {t('profile-creation.record.button')}
                 </button>
               </div>
             )}
           </div>
           
           <p className="text-xs text-slate-500 mt-3 leading-relaxed">
-            Il tuo video dovrebbe mostrare professionalmente il tuo aspetto, personalità e capacità di comunicazione. 
-            Mantienilo appropriato per il business e coinvolgente.
+            {t('profile-creation.record.info')}
           </p>
         </div>
 
@@ -180,7 +186,7 @@ const ProfileCreationScreen: React.FC<ProfileCreationScreenProps> = ({ onBack, o
             disabled={!videoUploaded}
             className="w-full bg-slate-900 text-white py-4 rounded-xl font-semibold text-lg hover:bg-slate-800 transition-colors disabled:bg-slate-300 disabled:cursor-not-allowed"
           >
-            Completa Configurazione Profilo
+            {t('profile-creation.complete')}
           </button>
         </div>
       </form>
