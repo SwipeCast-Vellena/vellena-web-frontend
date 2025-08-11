@@ -28,6 +28,11 @@ export const registerUser = async (formData: RegisterFormData) => {
     throw new Error(data?.msg || 'Registration failed');
   }
 
+    // ✅ Store token if it exists
+  if (data.token) {
+    localStorage.setItem('token', data.token);
+  }
+
   return data;
 };
 

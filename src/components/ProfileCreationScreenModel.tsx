@@ -3,6 +3,7 @@ import React, { useState } from 'react';
 import { ArrowLeft, Upload, Video, User } from 'lucide-react';
 import { useLanguage } from '../contexts/LanguageContext';
 import LanguageSelector from './LanguageSelector';
+import { createOrUpdateModelProfile } from '../services/createOrUpdateModelProfile';
 
 interface ProfileCreationScreenProps {
   onBack: () => void;
@@ -21,10 +22,28 @@ const ProfileCreationScreen: React.FC<ProfileCreationScreenProps> = ({ onBack, o
   const [videoUploaded, setVideoUploaded] = useState(false);
   const { t } = useLanguage();
 
-  const handleSubmit = (e: React.FormEvent) => {
-    e.preventDefault();
+const handleSubmit = async (e: React.FormEvent) => {
+  e.preventDefault();
+
+  try {
+    await createOrUpdateModelProfile({
+      name: formData.name,
+      age: Number(formData.age),
+      genre: formData.gender,
+      height: formData.height,
+      location: formData.location,
+      description: formData.bio,
+      video_portfolio: videoUploaded ? 'video.mp4' : null,
+    });
+
+    alert("Profile saved!");
     onComplete();
-  };
+
+  } catch (error: any) {
+    alert(error.message || "Error saving profile");
+  }
+};
+
 
   const handleVideoUpload = () => {
     // Simulate video upload
