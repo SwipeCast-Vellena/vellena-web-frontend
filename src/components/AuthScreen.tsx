@@ -9,7 +9,7 @@ import { loginUser, LoginFormData } from '../services/loginUser';
 interface AuthScreenProps {
   isLogin: boolean;
   onBack: () => void;
-  onSuccess: () => void;
+  onSuccess: (role: string) => void; // ✅ allow passing the role
 }
 
 const AuthScreen: React.FC<AuthScreenProps> = ({ isLogin, onBack, onSuccess }) => {
@@ -54,7 +54,7 @@ const AuthScreen: React.FC<AuthScreenProps> = ({ isLogin, onBack, onSuccess }) =
         console.log('Registered:', res);
       }
 
-      onSuccess(); // navigate or show success
+      onSuccess(formData.role);
     } catch (err: any) {
     const errorMsg = err.message || 'Something went wrong';
     setError(errorMsg);
