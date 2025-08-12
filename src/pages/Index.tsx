@@ -4,7 +4,8 @@ import SplashScreen from "../components/SplashScreen";
 import WalkthroughScreen from "../components/WalkthroughScreen";
 import OnboardingScreen from "../components/OnboardingScreen";
 import AuthScreen from "../components/AuthScreen";
-import ProfileCreationScreen from "../components/ProfileCreationScreenModel";
+import ProfileCreationScreenModel from "../components/ProfileCreationScreenModel";
+import ProfileCreationScreenAgency from "../components/ProfileCreationScreenAgency";
 import MainFeedScreen from "../components/MainFeedScreen";
 import CampaignListScreen from "../components/CampaignListScreen";
 import CampaignDetailScreen from "../components/CampaignDetailScreen";
@@ -46,7 +47,8 @@ export const SignUpRoute = () => {
       onSuccess={(role: "model" | "agency") => {
         if (role === "model") {
           navigate("/model/profile-creation");
-        } else {
+        } 
+        else {
           navigate("/agency/profile-creation");
         }
       }}
@@ -69,7 +71,17 @@ export const LoginRoute = () => {
 export const ProfileCreationRouteModel = () => {
   const navigate = useNavigate();
   return (
-    <ProfileCreationScreen
+    <ProfileCreationScreenModel
+      onBack={() => navigate("/signup")}
+      onComplete={() => navigate("/feed")}
+    />
+  );
+};
+
+export const ProfileCreationRouteAgency = () => {
+  const navigate = useNavigate();
+  return (
+    <ProfileCreationScreenAgency
       onBack={() => navigate("/signup")}
       onComplete={() => navigate("/feed")}
     />
