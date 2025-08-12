@@ -1,9 +1,10 @@
 
-import React, { useState } from 'react';
+import React, { useState, useRef } from 'react';
 import { ArrowLeft, Upload, Video, User } from 'lucide-react';
 import { useLanguage } from '../contexts/LanguageContext';
 import LanguageSelector from './LanguageSelector';
 import { createOrUpdateModelProfile } from '../services/createOrUpdateModelProfile';
+import { uploadVideo } from '../services/uploadVideo'
 
 interface ProfileCreationScreenProps {
   onBack: () => void;
@@ -22,33 +23,67 @@ const ProfileCreationScreenModel: React.FC<ProfileCreationScreenProps> = ({ onBa
   const [videoUploaded, setVideoUploaded] = useState(false);
   const { t } = useLanguage();
 
-const handleSubmit = async (e: React.FormEvent) => {
-  e.preventDefault();
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
 
-  try {
-    await createOrUpdateModelProfile({
-      name: formData.name,
-      age: Number(formData.age),
-      genre: formData.gender,
-      height: formData.height,
-      location: formData.location,
-      description: formData.bio,
-      video_portfolio: videoUploaded ? 'video.mp4' : null,
-    });
+    try {
+      await createOrUpdateModelProfile({
+        name: formData.name,
+        age: Number(formData.age),
+        genre: formData.gender,
+        height: formData.height,
+        location: formData.location,
+        description: formData.bio,
+        video_portfolio: videoUrl,
+      });
 
-    alert("Profile saved!");
-    onComplete();
+      alert("Profile saved!");
+      onComplete();
 
-  } catch (error: any) {
-    alert(error.message || "Error saving profile");
-  }
-};
+    } catch (error: any) {
+      alert(error.message || "Error saving profile");
+    }
+  };
 
 
   const handleVideoUpload = () => {
     // Simulate video upload
     setVideoUploaded(true);
   };
+
+  const [videoUrl, setVideoUrl] = useState<string | null>(null);
+  const fileInputRef = useRef<HTMLInputElement>(null);
+
+  const handleVideoUploadClick = () => {
+    fileInputRef.current?.click(); // Trigger hidden file input click
+  };
+
+  const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    // Validate file size (max 30MB)
+    if (file.size > 30 * 1024 * 1024) {
+      alert("File size exceeds 30MB limit");
+      return;
+    }
+
+    try {
+      const token = localStorage.getItem('token'); // or your auth context/store
+      if (!token) {
+        alert("You must be logged in to upload a video");
+        return;
+      }
+
+      const data = await uploadVideo(file, token);
+      setVideoUrl(data.videoUrl); // Backend returns video path/url
+      setVideoUploaded(true);
+    } catch (err: any) {
+      alert(err.message || "Video upload failed");
+    }
+  };
+
+
 
   return (
     <div className="min-h-screen bg-slate-50">
@@ -182,13 +217,24 @@ const handleSubmit = async (e: React.FormEvent) => {
                 <Upload className="w-12 h-12 text-slate-400 mx-auto mb-3" />
                 <p className="font-medium text-slate-900 mb-2">{t('profile-creation.record')}</p>
                 <p className="text-sm text-slate-600 mb-4">{t('profile-creation.video.length')}</p>
+                <input
+                  type="file"
+                  accept="video/*"
+                  ref={fileInputRef}
+                  onChange={handleFileChange}
+                  style={{ display: "none" }}
+                  required
+                />
+
+                {/* Update your button: */}
                 <button
                   type="button"
-                  onClick={handleVideoUpload}
+                  onClick={handleVideoUploadClick}
                   className="bg-slate-900 text-white px-6 py-3 rounded-xl font-medium hover:bg-slate-800 transition-colors"
                 >
                   {t('profile-creation.record.button')}
                 </button>
+
               </div>
             )}
           </div>
