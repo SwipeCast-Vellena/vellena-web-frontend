@@ -3,22 +3,22 @@ import React, { useState } from 'react';
 import { ArrowLeft, Upload, Video, User } from 'lucide-react';
 import { useLanguage } from '../contexts/LanguageContext';
 import LanguageSelector from './LanguageSelector';
-import { createOrUpdateModelProfile } from '../services/createOrUpdateModelProfile';
+import { createOrUpdateAgencyProfile } from '../services/createOrUpdateAgencyProfile'
 
 interface ProfileCreationScreenProps {
   onBack: () => void;
   onComplete: () => void;
 }
 
-const ProfileCreationScreenModel: React.FC<ProfileCreationScreenProps> = ({ onBack, onComplete }) => {
-  const [formData, setFormData] = useState({
-    name: '',
-    age: '',
-    height: '',
-    gender: '',
-    location: '',
-    bio: ''
-  });
+const ProfileCreationScreenAgency: React.FC<ProfileCreationScreenProps> = ({ onBack, onComplete }) => {
+    const [formData, setFormData] = useState({
+      name: '',
+      operating_years: '',
+      no_of_employees: '',
+      location: '',
+      professional_bio: '',
+      website: ''
+    });
   const [videoUploaded, setVideoUploaded] = useState(false);
   const { t } = useLanguage();
 
@@ -26,14 +26,13 @@ const handleSubmit = async (e: React.FormEvent) => {
   e.preventDefault();
 
   try {
-    await createOrUpdateModelProfile({
+    await createOrUpdateAgencyProfile({
       name: formData.name,
-      age: Number(formData.age),
-      genre: formData.gender,
-      height: formData.height,
+      operating_years: Number(formData.operating_years),
+      no_of_employees: Number(formData.no_of_employees),
       location: formData.location,
-      description: formData.bio,
-      video_portfolio: videoUploaded ? 'video.mp4' : null,
+      professional_bio: formData.professional_bio,
+      website: formData.website || null,
     });
 
     alert("Profile saved!");
@@ -43,6 +42,7 @@ const handleSubmit = async (e: React.FormEvent) => {
     alert(error.message || "Error saving profile");
   }
 };
+
 
 
   const handleVideoUpload = () => {
@@ -80,55 +80,51 @@ const handleSubmit = async (e: React.FormEvent) => {
           
           <div className="space-y-4">
             <div>
-              <label className="block text-sm font-medium text-slate-700 mb-2">{t('profile-creation.name')}</label>
+              <label className="block text-sm font-medium text-slate-700 mb-2">{t('profile-creation.agency.name')}</label>
               <input
                 type="text"
                 value={formData.name}
                 onChange={(e) => setFormData({...formData, name: e.target.value})}
                 className="w-full px-4 py-3 border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-slate-900"
-                placeholder={t('profile-creation.name.placeholder')}
+                placeholder={t('profile-creation.agency.name.placeholder')}
                 required
               />
             </div>
 
             <div className="grid grid-cols-2 gap-4">
               <div>
-                <label className="block text-sm font-medium text-slate-700 mb-2">{t('profile-creation.age')}</label>
+                <label className="block text-sm font-medium text-slate-700 mb-2">{t('profile-creation.years')}</label>
                 <input
                   type="number"
-                  value={formData.age}
-                  onChange={(e) => setFormData({...formData, age: e.target.value})}
+                  value={formData.operating_years}
+                  onChange={(e) => setFormData({...formData, operating_years: e.target.value})}
                   className="w-full px-4 py-3 border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-slate-900"
                   placeholder="25"
                   required
                 />
               </div>
               <div>
-                <label className="block text-sm font-medium text-slate-700 mb-2">{t('profile-creation.height')}</label>
+                <label className="block text-sm font-medium text-slate-700 mb-2">{t('profile-creation.employee')}</label>
                 <input
                   type="text"
-                  value={formData.height}
-                  onChange={(e) => setFormData({...formData, height: e.target.value})}
+                  value={formData.no_of_employees}
+                  onChange={(e) => setFormData({...formData, no_of_employees: e.target.value})}
                   className="w-full px-4 py-3 border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-slate-900"
-                  placeholder="1,75m"
+                  placeholder="15"
                   required
                 />
               </div>
             </div>
 
             <div>
-              <label className="block text-sm font-medium text-slate-700 mb-2">{t('profile-creation.gender')}</label>
-              <select
-                value={formData.gender}
-                onChange={(e) => setFormData({...formData, gender: e.target.value})}
+              <label className="block text-sm font-medium text-slate-700 mb-2">{t('profile-creation.agency.website')}</label>
+              <input
+                type="text"
+                value={formData.website}
+                onChange={(e) => setFormData({...formData, website: e.target.value})}
                 className="w-full px-4 py-3 border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-slate-900"
-                required
-              >
-                <option value="">{t('profile-creation.gender.select')}</option>
-                <option value="female">{t('profile-creation.gender.female')}</option>
-                <option value="male">{t('profile-creation.gender.male')}</option>
-                <option value="non-binary">{t('profile-creation.gender.other')}</option>
-              </select>
+                placeholder={t('profile-creation.agency.website.placeholder')}
+              />
             </div>
 
             <div>
@@ -146,8 +142,8 @@ const handleSubmit = async (e: React.FormEvent) => {
             <div>
               <label className="block text-sm font-medium text-slate-700 mb-2">{t('profile-creation.bio')}</label>
               <textarea
-                value={formData.bio}
-                onChange={(e) => setFormData({...formData, bio: e.target.value})}
+                value={formData.professional_bio}
+                onChange={(e) => setFormData({...formData, professional_bio: e.target.value})}
                 className="w-full px-4 py-3 border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-slate-900 h-24 resize-none"
                 placeholder={t('profile-creation.bio.placeholder')}
                 required
@@ -213,4 +209,4 @@ const handleSubmit = async (e: React.FormEvent) => {
   );
 };
 
-export default ProfileCreationScreenModel;
+export default ProfileCreationScreenAgency;
