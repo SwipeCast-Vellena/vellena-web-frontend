@@ -12,6 +12,7 @@ import {
   SignUpRoute,
   LoginRoute,
   ProfileCreationRouteModel,
+  ProfileCreationRouteAgency,
   FeedRoute,
   CampaignsRoute,
   CampaignDetailRoute,
@@ -55,6 +56,7 @@ const App = () => (
           <Route path="/user/:id" element={<UserDetailRoute />} />
 
           {/* Agency */}
+          <Route path="/agency/profile-creation" element={<ProfileCreationRouteAgency />} />
 
           {/* Fallback */}
           <Route path="*" element={<NotFound />} />
