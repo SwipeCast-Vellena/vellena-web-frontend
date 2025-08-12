@@ -97,7 +97,7 @@ const translations = {
     'auth.signUpHere': 'Registrati qui',
     'auth.loginHere': 'Accedi qui',
     
-    // Profile Creation
+    // Profile Creation Model
     'Page.title': 'Crea Profilo',
     'page.subtitle': 'Costruisci il tuo profilo professionale per iniziare a connetterti',
     'page.info': 'Informazioni di Base',
@@ -120,6 +120,16 @@ const translations = {
     'profile-creation.record.button': 'Scegli File Video',
     'profile-creation.record.info': 'Il tuo video dovrebbe mostrare professionalmente il tuo aspetto, personalità e capacità di comunicazione. Mantienilo appropriato per il business e coinvolgente.',
     'profile-creation.complete': 'Completa Configurazione Profilo',
+
+    // Profile Creation Agency
+    'profile-creation.agency.name': "Nome dell'agenzia",
+    'profile-creation.agency.name.placeholder': 'Il nome completo della tua agenzia',
+    'profile-creation.years': 'Anni di esercizio',
+    'profile-creation.employee': 'Numero di dipendenti',
+    'profile-creation.agency.website': 'piattaforma di social media',
+    'profile-creation.agency.website.placeholder': "collegamento all'account",
+
+
     
     // Main Feed
     'feed.title': 'Scopri',
@@ -256,29 +266,36 @@ const translations = {
     'auth.loginHere': 'Login here',
     
     // Profile Creation
-  "Page.title": "Create Profile",
-  "page.subtitle": "Build your professional profile to start connecting.",
-  "page.info": "Basic Information",
-  "profile-creation.name": "Full Name",
-  "profile-creation.name.placeholder": "Your professional name",
-  "profile-creation.age": "Age",
-  "profile-creation.height": "Height",
-  "profile-creation.gender": "Gender",
-  "profile-creation.gender.select": "Select gender",
-  "profile-creation.gender.male": "Male",
-  "profile-creation.gender.female": "Female",
-  "profile-creation.gender.other": "Non-binary",
-  "profile-creation.gender.agnecy": "Agency",
-  "profile-creation.location": "Location",
-  "profile-creation.bio": "Professional Bio",
-  "profile-creation.bio.placeholder": "Brief description of your experience and specialties...",
-  "profile-creation.video": "Professional Video (Required)",
-  "profile-creation.record": "Upload your introduction video",
-  "profile-creation.video.length": "Maximum 30 seconds • Supported MP4, MOV",
-  "profile-creation.record.button": "Choose Video File",
-  "profile-creation.record.info": "Your video should professionally showcase your appearance, personality, and communication skills. Keep it business-appropriate and engaging.",
-  "profile-creation.complete": "Complete Profile Setup",
-    
+    "Page.title": "Create Profile",
+    "page.subtitle": "Build your professional profile to start connecting.",
+    "page.info": "Basic Information",
+    "profile-creation.name": "Full Name",
+    "profile-creation.name.placeholder": "Your professional name",
+    "profile-creation.age": "Age",
+    "profile-creation.height": "Height",
+    "profile-creation.gender": "Gender",
+    "profile-creation.gender.select": "Select gender",
+    "profile-creation.gender.male": "Male",
+    "profile-creation.gender.female": "Female",
+    "profile-creation.gender.other": "Non-binary",
+    "profile-creation.gender.agnecy": "Agency",
+    "profile-creation.location": "Location",
+    "profile-creation.bio": "Professional Bio",
+    "profile-creation.bio.placeholder": "Brief description of your experience and specialties...",
+    "profile-creation.video": "Professional Video (Required)",
+    "profile-creation.record": "Upload your introduction video",
+    "profile-creation.video.length": "Maximum 30 seconds • Supported MP4, MOV",
+    "profile-creation.record.button": "Choose Video File",
+    "profile-creation.record.info": "Your video should professionally showcase your appearance, personality, and communication skills. Keep it business-appropriate and engaging.",
+    "profile-creation.complete": "Complete Profile Setup",
+
+    // Profile Creation Agency
+    'profile-creation.agency.name': "Agency Name",
+    'profile-creation.agency.name.placeholder': "The full name of your agency",
+    'profile-creation.years': "Years of Operation",
+    'profile-creation.employee': "Number of Employees",
+    'profile-creation.agency.website': "Social Media Platform",
+    'profile-creation.agency.website.placeholder': "Link to your account",    
     
     // Main Feed
     'feed.title': 'Discover',
