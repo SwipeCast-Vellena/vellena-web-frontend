@@ -13,7 +13,8 @@ import {
   LoginRoute,
   ProfileCreationRouteModel,
   ProfileCreationRouteAgency,
-  FeedRoute,
+  ModelFeedRoute,
+  AgencyFeedRoute,
   CampaignsRoute,
   CampaignDetailRoute,
   CampaignCreateRoute,
@@ -43,11 +44,9 @@ const App = () => (
 
           {/* Model */}
           <Route path="/model/profile-creation" element={<ProfileCreationRouteModel />} />
+          <Route path="/model/feed" element={<ModelFeedRoute />} />
 
           {/* Main Routes */}
-          <Route path="/feed" element={<FeedRoute />} />
-          <Route path="/campaigns" element={<CampaignsRoute />} />
-          <Route path="/campaign/:id" element={<CampaignDetailRoute />} />
           <Route path="/campaign-create" element={<CampaignCreateRoute />} />
           <Route path="/match" element={<MatchRoute />} />
           <Route path="/chat" element={<ChatRoute />} />
@@ -57,6 +56,9 @@ const App = () => (
 
           {/* Agency */}
           <Route path="/agency/profile-creation" element={<ProfileCreationRouteAgency />} />
+          <Route path="/agency/feed" element={<AgencyFeedRoute />} />
+          <Route path="/model/campaigns" element={<CampaignsRoute />} />
+          <Route path="/model/campaign/:id" element={<CampaignDetailRoute />} />
 
           {/* Fallback */}
           <Route path="*" element={<NotFound />} />
