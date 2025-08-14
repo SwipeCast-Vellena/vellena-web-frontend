@@ -16,7 +16,7 @@ import {
   ModelFeedRoute,
   AgencyFeedRoute,
   CampaignsRoute,
-  CampaignDetailRoute,
+  CampaignDetailRouteWrapper,
   CampaignCreateRoute,
   MatchRoute,
   ChatRoute,
@@ -58,7 +58,7 @@ const App = () => (
           <Route path="/agency/profile-creation" element={<ProfileCreationRouteAgency />} />
           <Route path="/agency/feed" element={<AgencyFeedRoute />} />
           <Route path="/model/campaigns" element={<CampaignsRoute />} />
-          <Route path="/model/campaign/:id" element={<CampaignDetailRoute />} />
+          <Route path="/model/campaign/:id" element={<CampaignDetailRouteWrapper />} />
 
           {/* Fallback */}
           <Route path="*" element={<NotFound />} />

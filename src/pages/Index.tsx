@@ -9,7 +9,7 @@ import ProfileCreationScreenAgency from "../components/ProfileCreationScreenAgen
 import MainFeedScreenModel from "../components/MainFeedScreenModel"
 import MainFeedScreenAgency from "../components/MainFeedScreenAgency";
 import CampaignListScreen from "../components/CampaignListScreen";
-import CampaignDetailScreen from "../components/CampaignDetailScreen";
+import { CampaignDetailRoute } from "../components/CampaignDetailRoute";
 import CampaignCreationScreen from "../components/CampaignCreationScreen";
 import MatchConfirmationScreen from "../components/MatchConfirmationScreen";
 import ChatScreen from "../components/ChatScreen";
@@ -138,7 +138,7 @@ export const CampaignsRoute = () => {
   return (
     <>
       <CampaignListScreen
-        onBack={() => navigate("/model/feed")} // ✅ Added
+        onBack={() => navigate("/model/feed")}
         onCampaignSelect={(c) => navigate(`/model/campaign/${c.id}`)}
       />
       <Navbarmodel
@@ -149,39 +149,15 @@ export const CampaignsRoute = () => {
   );
 };
 
-export const CampaignDetailRoute = () => {
-  const { id } = useParams();
+export const CampaignDetailRouteWrapper = () => {
   const navigate = useNavigate();
-
-  // Temporary placeholder until you fetch from API
-  const campaign = {
-    id: Number(id),
-    title: "Fashion Week Milano",
-    agency: "Elite Models",
-    description:
-      "Campagna per la settimana della moda di Milano, cerchiamo modelle/i professionisti per sfilate ed eventi correlati.",
-    deadline: "2025-08-31",
-    timeLeft: "3 giorni",
-    requirements: {
-      ageRange: "18-30",
-      height: "Minimo 170cm",
-      gender: "Qualsiasi",
-      location: "Milano, Italia",
-    },
-    budget: "€2000",
-    applicants: 15,
-  };
-
   return (
-    <CampaignDetailScreen
-      campaign={campaign}
+    <CampaignDetailRoute
       onBack={() => navigate("/model/campaigns")}
       onApply={() => navigate("/model/campaigns")}
     />
   );
 };
-
-
 
 export const CampaignCreateRoute = () => {
   const navigate = useNavigate();
