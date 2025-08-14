@@ -18,6 +18,7 @@ const ProfileCreationScreenModel: React.FC<ProfileCreationScreenProps> = ({ onBa
     height: '',
     gender: '',
     location: '',
+    category:'',
     bio: ''
   });
   const [videoUploaded, setVideoUploaded] = useState(false);
@@ -33,6 +34,7 @@ const ProfileCreationScreenModel: React.FC<ProfileCreationScreenProps> = ({ onBa
         genre: formData.gender,
         height: formData.height,
         location: formData.location,
+        category: formData.category,
         description: formData.bio,
         video_portfolio: videoUrl,
       });
@@ -126,7 +128,7 @@ const ProfileCreationScreenModel: React.FC<ProfileCreationScreenProps> = ({ onBa
               />
             </div>
 
-            <div className="grid grid-cols-2 gap-4">
+            <div className="grid grid-cols-2 gap-10">
               <div>
                 <label className="block text-sm font-medium text-slate-700 mb-2">{t('profile-creation.age')}</label>
                 <input
@@ -151,19 +153,39 @@ const ProfileCreationScreenModel: React.FC<ProfileCreationScreenProps> = ({ onBa
               </div>
             </div>
 
-            <div>
-              <label className="block text-sm font-medium text-slate-700 mb-2">{t('profile-creation.gender')}</label>
-              <select
-                value={formData.gender}
-                onChange={(e) => setFormData({...formData, gender: e.target.value})}
-                className="w-full px-4 py-3 border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-slate-900"
-                required
-              >
-                <option value="">{t('profile-creation.gender.select')}</option>
-                <option value="female">{t('profile-creation.gender.female')}</option>
-                <option value="male">{t('profile-creation.gender.male')}</option>
-                <option value="non-binary">{t('profile-creation.gender.other')}</option>
-              </select>
+            <div className="grid grid-cols-2 gap-10">
+              <div>
+                <label className="block text-sm font-medium text-slate-700 mb-2">{t('profile-creation.gender')}</label>
+                <select
+                  value={formData.gender}
+                  onChange={(e) => setFormData({...formData, gender: e.target.value})}
+                  className="w-full px-4 py-3 border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-slate-900"
+                  required
+                >
+                  <option value="">{t('profile-creation.gender.select')}</option>
+                  <option value="female">{t('profile-creation.gender.female')}</option>
+                  <option value="male">{t('profile-creation.gender.male')}</option>
+                  <option value="non-binary">{t('profile-creation.gender.other')}</option>
+                </select>
+              </div>
+
+              <div>
+                <label className="block text-sm font-medium text-slate-700 mb-2">{t('profile-creation.category')}</label>
+                <select
+                  value={formData.category}
+                  onChange={(e) => setFormData({...formData, category: e.target.value})}
+                  className="w-full px-4 py-3 border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-slate-900"
+                  required
+                >
+                  <option value="">{t('profile-creation.category.select')}</option>
+                  <option value="Hostess">{t('profile-creation.category.hostess')}</option>
+                  <option value="Model">{t('profile-creation.category.model')}</option>
+                  <option value="Photographer">{t('profile-creation.category.photographer')}</option>
+                  <option value="Promoter">{t('profile-creation.category.promotar')}</option>
+                  <option value="Waiter">{t('profile-creation.category.waiter')}</option>
+                  <option value="Other">{t('profile-creation.category.other')}</option>
+                </select>
+              </div>
             </div>
 
             <div>

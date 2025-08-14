@@ -8,6 +8,7 @@ export interface ModelProfileFormData {
   genre: string; // maps from "gender" in form
   height: string;
   location: string;
+  category: string;
   description: string; // maps from "bio" in form
   video_portfolio?: string | null;
 }

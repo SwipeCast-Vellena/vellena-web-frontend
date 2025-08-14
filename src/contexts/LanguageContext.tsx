@@ -120,6 +120,14 @@ const translations = {
     'profile-creation.record.button': 'Scegli File Video',
     'profile-creation.record.info': 'Il tuo video dovrebbe mostrare professionalmente il tuo aspetto, personalità e capacità di comunicazione. Mantienilo appropriato per il business e coinvolgente.',
     'profile-creation.complete': 'Completa Configurazione Profilo',
+    'profile-creation.category': 'Categoria',
+    'profile-creation.category.select': 'Seleziona una categoria',
+    'profile-creation.category.hostess': 'Hostess',
+    'profile-creation.category.model': 'Modello', // use "Modella" for feminine
+    'profile-creation.category.photographer': 'Fotografo', // use "Fotografa" for feminine
+    'profile-creation.category.promotar': 'Promoter', // same term in Italian
+    'profile-creation.category.waiter': 'Cameriere', // use "Cameriera" for feminine
+    'profile-creation.category.other': 'Altro',
 
     // Profile Creation Agency
     'profile-creation.agency.name': "Nome dell'agenzia",
@@ -288,7 +296,15 @@ const translations = {
     "profile-creation.record.button": "Choose Video File",
     "profile-creation.record.info": "Your video should professionally showcase your appearance, personality, and communication skills. Keep it business-appropriate and engaging.",
     "profile-creation.complete": "Complete Profile Setup",
-
+    'profile-creation.category': 'Category',
+    'profile-creation.category.select': 'Select a category',
+    'profile-creation.category.hostess': 'Hostess',
+    'profile-creation.category.model': 'Model',
+    'profile-creation.category.photographer': 'Photographer',
+    'profile-creation.category.promotar': 'Promoter', // kept spelling as in your code
+    'profile-creation.category.waiter': 'Waiter',
+    'profile-creation.category.other': 'Other',
+    
     // Profile Creation Agency
     'profile-creation.agency.name': "Agency Name",
     'profile-creation.agency.name.placeholder': "The full name of your agency",
