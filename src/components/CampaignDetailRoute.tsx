@@ -2,6 +2,8 @@ import React from "react";
 import { useParams } from "react-router-dom";
 import CampaignDetailScreen from "../components/CampaignDetailScreen";
 import { useCampaignStore } from "../stores/campaignStore"; // ✅ Zustand store
+import { applyToCampaign } from "../services/applicationService"; // import service
+
 
 export const CampaignDetailRoute = ({
   onBack,
@@ -53,5 +55,18 @@ export const CampaignDetailRoute = ({
     applicants: campaignData.application_count,
   };
 
-  return <CampaignDetailScreen campaign={campaign} onBack={onBack} onApply={onApply} />;
+  const handleApply = async () => {
+  if (!campaignData) return;
+  try {
+    await applyToCampaign(campaignData.id); // call backend
+    alert("Candidatura inviata con successo!");
+    
+    // Optional: update applicants in Zustand
+    useCampaignStore.getState().updateApplicationCount(campaignData.id);
+  } catch (err: any) {
+    alert(err.message || "Errore nell'inviare la candidatura");
+  }
+};
+
+  return <CampaignDetailScreen campaign={campaign} onBack={onBack} onApply={handleApply} />;
 };

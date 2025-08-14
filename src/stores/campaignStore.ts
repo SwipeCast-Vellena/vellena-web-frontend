@@ -8,6 +8,7 @@ interface CampaignState {
   error: string | null;
   fetchCampaigns: () => Promise<void>;
   getCampaignById: (id: number) => Campaign | undefined;
+  updateApplicationCount: (id: number) => void;
 }
 
 export const useCampaignStore = create<CampaignState>((set, get) => ({
@@ -30,4 +31,13 @@ export const useCampaignStore = create<CampaignState>((set, get) => ({
   getCampaignById: (id: number) => {
     return get().campaigns.find((c) => c.id === id);
   },
+
+  updateApplicationCount: (id: number) => {
+  set((state) => ({
+    campaigns: state.campaigns.map((c) =>
+      c.id === id ? { ...c, application_count: c.application_count + 1 } : c
+    ),
+  }));
+},
+
 }));
