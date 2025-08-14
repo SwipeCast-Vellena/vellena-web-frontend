@@ -92,9 +92,6 @@ export const ModelFeedRoute = () => {
   return (
     <>
       <MainFeedScreenModel
-        onMatch={() => navigate("/match")}
-        onOpenChat={() => navigate("/chat")}
-        onUserSelect={(id) => navigate(`/user/${id}`)}
       />
       <Navbarmodel
         activeTab="feed"
