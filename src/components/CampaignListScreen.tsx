@@ -1,6 +1,8 @@
-
-import React from 'react';
-import { ArrowLeft, Clock, MapPin, Users, Calendar, Plus } from 'lucide-react';
+// src/screens/CampaignListScreen.tsx
+import React, { useEffect, useState } from 'react';
+import { ArrowLeft, MapPin, Users, Calendar, Plus } from 'lucide-react';
+import { getCampaigns } from '../services/getCampaigns';
+import { CalendarDays } from "lucide-react";
 
 interface Campaign {
   id: number;
@@ -10,10 +12,10 @@ interface Campaign {
   deadline: string;
   timeLeft: string;
   requirements: {
-    ageRange: string;
-    height: string;
     gender: string;
     location: string;
+    startDate: string;  // ✅ added
+    endDate: string;   
   };
   budget: string;
   applicants: number;
@@ -25,57 +27,66 @@ interface CampaignListScreenProps {
   onCreateCampaign?: () => void;
 }
 
-const CampaignListScreen: React.FC<CampaignListScreenProps> = ({ onBack, onCampaignSelect, onCreateCampaign }) => {
-  const campaigns: Campaign[] = [
-    {
-      id: 1,
-      title: "Fashion Week Estate 2024",
-      agency: "Elite Fashion Agency",
-      description: "Cerchiamo modelle professionali per sfilate e servizi fotografici di alta moda per la fashion week.",
-      deadline: "15 Marzo 2024",
-      timeLeft: "5 giorni rimasti",
-      requirements: {
-        ageRange: "18-28",
-        height: "1,72m - 1,83m",
-        gender: "Femminile",
-        location: "Milano, Italia"
-      },
-      budget: "€2.500 - €5.000",
-      applicants: 47
-    },
-    {
-      id: 2,
-      title: "Evento Lancio Prodotto Tech",
-      agency: "Corporate Events Pro",
-      description: "Hostess professionali necessarie per evento di lancio prodotto e networking di importante azienda tech.",
-      deadline: "20 Marzo 2024",
-      timeLeft: "10 giorni rimasti",
-      requirements: {
-        ageRange: "22-35",
-        height: "1,65m - 1,78m",
-        gender: "Qualsiasi",
-        location: "Roma, Italia"
-      },
-      budget: "€800 - €1.200",
-      applicants: 23
-    },
-    {
-      id: 3,
-      title: "Brand Ambassador Lusso",
-      agency: "Premium Marketing Group",
-      description: "Brand ambassador per campagna gioielli di lusso inclusi servizi fotografici ed eventi promozionali.",
-      deadline: "25 Marzo 2024",
-      timeLeft: "15 giorni rimasti",
-      requirements: {
-        ageRange: "25-35",
-        height: "1,68m - 1,80m",
-        gender: "Femminile",
-        location: "Firenze, Italia"
-      },
-      budget: "€3.000 - €7.500",
-      applicants: 31
-    }
-  ];
+const CampaignListScreen: React.FC<CampaignListScreenProps> = ({
+  onBack,
+  onCampaignSelect,
+  onCreateCampaign,
+}) => {
+  const [campaigns, setCampaigns] = useState<Campaign[]>([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    const fetchCampaigns = async () => {
+      try {
+        const data = await getCampaigns();
+        const mapped = data.map((item: any) => {
+          // Calculate time left until deadline
+          const deadlineDate = new Date(item.deadline);
+          const diffTime = deadlineDate.getTime() - new Date().getTime();
+          const daysLeft = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+          const timeLeft =
+            daysLeft > 0 ? `${daysLeft} giorni rimasti` : 'Scaduto';
+
+          return {
+            id: item.id,
+            title: item.title,
+            agency: item.agency_name,
+            description: item.description,
+            deadline: item.deadline,
+            timeLeft,
+            requirements: {
+              gender:
+                item.gender_preference === 'any'
+                  ? 'Qualsiasi'
+                  : item.gender_preference === 'women'
+                  ? 'Femminile'
+                  : 'Maschile',
+              location: `${item.city}${item.address ? ', ' + item.address : ''}`,
+              startDate: item.start_date,   // ✅ added
+              endDate: item.end_date || '', // ✅ added (empty string if null)
+            },
+            budget: `€${item.compensation}`,
+            applicants: item.required_people, // mapped from DB
+          };
+        });
+        setCampaigns(mapped);
+      } catch (error) {
+        console.error('Failed to load campaigns', error);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchCampaigns();
+  }, []);
+
+  if (loading) {
+    return (
+      <div className="min-h-screen flex items-center justify-center">
+        <p>Caricamento campagne...</p>
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen bg-slate-50 pb-20">
@@ -91,19 +102,13 @@ const CampaignListScreen: React.FC<CampaignListScreenProps> = ({ onBack, onCampa
             </button>
             <h1 className="text-xl font-bold text-slate-900">Campagne</h1>
           </div>
-          <button
-            onClick={onCreateCampaign}
-            className="w-8 h-8 bg-slate-900 rounded-lg flex items-center justify-center"
-          >
-            <Plus className="w-4 h-4 text-white" />
-          </button>
         </div>
       </div>
 
       {/* Campaign List */}
       <div className="px-6 py-4 space-y-4">
         {campaigns.map((campaign) => (
-          <div 
+          <div
             key={campaign.id}
             className="bg-white rounded-2xl p-6 shadow-sm border border-slate-200 hover:shadow-md transition-shadow cursor-pointer"
             onClick={() => onCampaignSelect(campaign)}
@@ -111,7 +116,9 @@ const CampaignListScreen: React.FC<CampaignListScreenProps> = ({ onBack, onCampa
             {/* Header */}
             <div className="flex items-start justify-between mb-4">
               <div className="flex-1">
-                <h3 className="text-lg font-bold text-slate-900 mb-1">{campaign.title}</h3>
+                <h3 className="text-lg font-bold text-slate-900 mb-1">
+                  {campaign.title}
+                </h3>
                 <p className="text-slate-600 font-medium">{campaign.agency}</p>
               </div>
               <div className="text-right">
@@ -122,18 +129,12 @@ const CampaignListScreen: React.FC<CampaignListScreenProps> = ({ onBack, onCampa
             </div>
 
             {/* Description */}
-            <p className="text-slate-700 mb-4 leading-relaxed">{campaign.description}</p>
+            <p className="text-slate-700 mb-4 leading-relaxed">
+              {campaign.description}
+            </p>
 
             {/* Requirements Grid */}
             <div className="grid grid-cols-2 gap-4 mb-4">
-              <div className="flex items-center text-sm text-slate-600">
-                <Users className="w-4 h-4 mr-2" />
-                <span>Età: {campaign.requirements.ageRange}</span>
-              </div>
-              <div className="flex items-center text-sm text-slate-600">
-                <span className="w-4 h-4 mr-2 text-center">📏</span>
-                <span>Altezza: {campaign.requirements.height}</span>
-              </div>
               <div className="flex items-center text-sm text-slate-600">
                 <span className="w-4 h-4 mr-2 text-center">👤</span>
                 <span>{campaign.requirements.gender}</span>
@@ -141,6 +142,31 @@ const CampaignListScreen: React.FC<CampaignListScreenProps> = ({ onBack, onCampa
               <div className="flex items-center text-sm text-slate-600">
                 <MapPin className="w-4 h-4 mr-2" />
                 <span>{campaign.requirements.location}</span>
+              </div>
+            </div>
+
+            <div className="grid grid-cols-2 gap-4 mb-4">
+              <div className="flex items-center space-x-2">
+                  <CalendarDays className="w-5 h-5 text-blue-500" />
+                  <span>
+                  Start: {new Date(campaign.requirements.startDate).toLocaleDateString('en-US', {
+                    year: 'numeric',
+                    month: 'short',
+                    day: 'numeric'
+                  })}
+                </span>
+              </div>
+
+              <div className="flex items-center space-x-2">
+                  <CalendarDays className="w-5 h-5 text-red-500" />
+                  <span>
+                    End: {new Date(campaign.requirements.endDate).toLocaleDateString('en-US', {
+                      year: 'numeric',
+                      month: 'short',
+                      day: 'numeric'
+                    })}
+                  </span>
+
               </div>
             </div>
 
@@ -166,26 +192,6 @@ const CampaignListScreen: React.FC<CampaignListScreenProps> = ({ onBack, onCampa
             </button>
           </div>
         ))}
-      </div>
-
-      {/* Filter/Sort Options */}
-      <div className="px-6 pb-6">
-        <div className="bg-white rounded-2xl p-4 shadow-sm border border-slate-200">
-          <div className="flex items-center justify-between">
-            <span className="text-slate-700 font-medium">Filtra e Ordina</span>
-            <div className="flex space-x-2">
-              <button className="px-4 py-2 bg-slate-100 text-slate-700 rounded-lg text-sm font-medium">
-                Località
-              </button>
-              <button className="px-4 py-2 bg-slate-100 text-slate-700 rounded-lg text-sm font-medium">
-                Budget
-              </button>
-              <button className="px-4 py-2 bg-slate-100 text-slate-700 rounded-lg text-sm font-medium">
-                Scadenza
-              </button>
-            </div>
-          </div>
-        </div>
       </div>
     </div>
   );
