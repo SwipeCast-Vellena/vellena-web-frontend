@@ -6,7 +6,8 @@ import OnboardingScreen from "../components/OnboardingScreen";
 import AuthScreen from "../components/AuthScreen";
 import ProfileCreationScreenModel from "../components/ProfileCreationScreenModel";
 import ProfileCreationScreenAgency from "../components/ProfileCreationScreenAgency";
-import MainFeedScreen from "../components/MainFeedScreen";
+import MainFeedScreenModel from "../components/MainFeedScreenModel"
+import MainFeedScreenAgency from "../components/MainFeedScreenAgency";
 import CampaignListScreen from "../components/CampaignListScreen";
 import CampaignDetailScreen from "../components/CampaignDetailScreen";
 import CampaignCreationScreen from "../components/CampaignCreationScreen";
@@ -16,6 +17,7 @@ import SearchScreen from "../components/SearchScreen";
 import ProfileSettingsScreen from "../components/ProfileSettingsScreen";
 import UserDetailScreen from "../components/UserDetailScreen";
 import NavigationBar from "../components/NavigationBar";
+import Navbarmodel from "../components/NavBarModel"
 
 export const SplashRoute = () => {
   const navigate = useNavigate();
@@ -63,7 +65,14 @@ export const LoginRoute = () => {
     <AuthScreen
       isLogin={true}
       onBack={() => navigate("/onboarding")}
-      onSuccess={() => navigate("/feed")}
+            onSuccess={(role: "model" | "agency") => {
+        if (role === "model") {
+          navigate("/model/feed");
+        } 
+        else {
+          navigate("/agency/feed");
+        }
+      }}
     />
   );
 };
@@ -73,31 +82,53 @@ export const ProfileCreationRouteModel = () => {
   return (
     <ProfileCreationScreenModel
       onBack={() => navigate("/signup")}
-      onComplete={() => navigate("/feed")}
+      onComplete={() => navigate("/model/feed")}
     />
   );
 };
+
+export const ModelFeedRoute = () => {
+  const navigate = useNavigate();
+  return (
+    <>
+      <MainFeedScreenModel
+        onMatch={() => navigate("/match")}
+        onOpenChat={() => navigate("/chat")}
+        onUserSelect={(id) => navigate(`/user/${id}`)}
+      />
+      <Navbarmodel
+        activeTab="feed"
+        onTabChange={(tab) => navigate(`/model/${tab}`)}
+      />
+    </>
+  );
+};  
+
 
 export const ProfileCreationRouteAgency = () => {
   const navigate = useNavigate();
   return (
     <ProfileCreationScreenAgency
       onBack={() => navigate("/signup")}
-      onComplete={() => navigate("/feed")}
+      onComplete={() => navigate("/agency/feed")}
     />
   );
 };
 
-export const FeedRoute = () => {
+export const AgencyFeedRoute = () => {
   const navigate = useNavigate();
   return (
     <>
-      <MainFeedScreen
+      <MainFeedScreenAgency
         onMatch={() => navigate("/match")}
         onOpenChat={() => navigate("/chat")}
         onUserSelect={(id) => navigate(`/user/${id}`)}
       />
-      <NavigationBar activeTab="feed" onTabChange={(tab) => navigate(`/${tab}`)} />
+      <NavigationBar
+        activeTab="agency/feed"
+        onTabChange={(tab) => navigate(`/agency/${tab}`)}
+      />
+
     </>
   );
 };
@@ -107,10 +138,13 @@ export const CampaignsRoute = () => {
   return (
     <>
       <CampaignListScreen
-        onBack={() => navigate("/feed")} // ✅ Added
-        onCampaignSelect={(c) => navigate(`/campaign/${c.id}`)}
+        onBack={() => navigate("/model/feed")} // ✅ Added
+        onCampaignSelect={(c) => navigate(`/model/campaign/${c.id}`)}
       />
-      <NavigationBar activeTab="campaigns" onTabChange={(tab) => navigate(`/${tab}`)} />
+      <Navbarmodel
+        activeTab="campaigns"
+        onTabChange={(tab) => navigate(`/model/${tab}`)}
+      />
     </>
   );
 };
@@ -141,8 +175,8 @@ export const CampaignDetailRoute = () => {
   return (
     <CampaignDetailScreen
       campaign={campaign}
-      onBack={() => navigate("/campaigns")}
-      onApply={() => navigate("/campaigns")}
+      onBack={() => navigate("/model/campaigns")}
+      onApply={() => navigate("/model/campaigns")}
     />
   );
 };
@@ -161,7 +195,7 @@ export const MatchRoute = () => {
   return (
     <MatchConfirmationScreen
       onStartChat={() => navigate("/chat")}
-      onContinueSwiping={() => navigate("/feed")}
+      onContinueSwiping={() => navigate("/agency/feed")}
     />
   );
 };
