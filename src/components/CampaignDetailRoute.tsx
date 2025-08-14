@@ -39,8 +39,6 @@ export const CampaignDetailRoute = ({
     deadline: campaignData.deadline,
     timeLeft,
     requirements: {
-      ageRange: "18-35",
-      height: "Minimo 170cm",
       gender:
         campaignData.gender_preference === "any"
           ? "Qualsiasi"
@@ -48,6 +46,8 @@ export const CampaignDetailRoute = ({
           ? "Femminile"
           : "Maschile",
       location: `${campaignData.city}${campaignData.address ? ", " + campaignData.address : ""}`,
+      startDate: campaignData.start_date,
+      endDate: campaignData.end_date,
     },
     budget: `€${campaignData.compensation}`,
     applicants: campaignData.application_count,

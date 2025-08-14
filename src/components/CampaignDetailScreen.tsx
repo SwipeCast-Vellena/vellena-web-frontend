@@ -10,10 +10,10 @@ interface Campaign {
   deadline: string;
   timeLeft: string;
   requirements: {
-    ageRange: string;
-    height: string;
     gender: string;
     location: string;
+    startDate: string;
+    endDate: string;   
   };
   budget: string;
   applicants: number;
@@ -84,51 +84,59 @@ const CampaignDetailScreen: React.FC<CampaignDetailScreenProps> = ({ campaign, o
               <Calendar className="w-5 h-5 text-slate-600 mr-3" />
               <span className="font-medium text-slate-700">Scadenza Candidature</span>
             </div>
-            <span className="font-bold text-slate-900">{campaign.deadline}</span>
+            <span className="font-bold text-slate-900">
+              {new Date(campaign.deadline).toLocaleDateString("en-US", {
+                day: "numeric",
+                month: "long",
+                year: "numeric",
+              })}
+            </span>
+
           </div>
         </div>
 
-        {/* Description */}
         <div className="bg-white rounded-2xl p-6 shadow-sm border border-slate-200 mb-6">
           <h3 className="text-lg font-bold text-slate-900 mb-4">Descrizione Campagna</h3>
           <p className="text-slate-700 leading-relaxed mb-6">{campaign.description}</p>
-          
+
           <div className="space-y-4">
             <h4 className="font-semibold text-slate-900">Cosa cerchiamo:</h4>
             <ul className="space-y-2">
-              <li className="flex items-start">
-                <CheckCircle className="w-5 h-5 text-green-500 mr-3 mt-0.5 flex-shrink-0" />
-                <span className="text-slate-700">Esperienza professionale nel modeling o hosting eventi</span>
-              </li>
-              <li className="flex items-start">
-                <CheckCircle className="w-5 h-5 text-green-500 mr-3 mt-0.5 flex-shrink-0" />
-                <span className="text-slate-700">Eccellenti capacità di comunicazione e presentazione</span>
-              </li>
-              <li className="flex items-start">
-                <CheckCircle className="w-5 h-5 text-green-500 mr-3 mt-0.5 flex-shrink-0" />
-                <span className="text-slate-700">Aspetto professionale e etica del lavoro affidabile</span>
-              </li>
-              <li className="flex items-start">
-                <CheckCircle className="w-5 h-5 text-green-500 mr-3 mt-0.5 flex-shrink-0" />
-                <span className="text-slate-700">Disponibile per l'intera durata della campagna</span>
-              </li>
+              {campaign.description
+                .split(".") // split paragraph into sentences
+                .map((sentence, index) => {
+                  const trimmed = sentence.trim();
+                  if (!trimmed) return null; // skip empty parts
+                  return (
+                    <li key={index} className="flex items-start">
+                      <CheckCircle className="w-5 h-5 text-green-500 mr-3 mt-0.5 flex-shrink-0" />
+                      <span className="text-slate-700">{trimmed}</span>
+                    </li>
+                  );
+                })}
             </ul>
           </div>
         </div>
 
+
         {/* Requirements */}
-        <div className="bg-white rounded-2xl p-6 shadow-sm border border-slate-200 mb-8">
+        <div className="bg-white rounded-2xl p-6 shadow-sm border border-slate-200 mb-32">
           <h3 className="text-lg font-bold text-slate-900 mb-4">Requisiti</h3>
           
-          <div className="grid grid-cols-1 gap-4">
-            <div className="flex items-center justify-between p-4 bg-slate-50 rounded-xl">
-              <span className="font-medium text-slate-700">Fascia di Età</span>
-              <span className="font-semibold text-slate-900">{campaign.requirements.ageRange} anni</span>
+          <div className="grid grid-cols-1 gap-4 mb-6">
+           <div className="flex items-center justify-between p-4 bg-slate-50 rounded-xl">
+              <span className="font-medium text-slate-700">Start Date</span>
+              <span className="font-semibold text-slate-900">
+                {new Date(campaign.requirements.startDate).toLocaleDateString("it-IT")}
+              </span>
             </div>
             <div className="flex items-center justify-between p-4 bg-slate-50 rounded-xl">
-              <span className="font-medium text-slate-700">Requisiti di Altezza</span>
-              <span className="font-semibold text-slate-900">{campaign.requirements.height}</span>
+              <span className="font-medium text-slate-700">End Date</span>
+              <span className="font-semibold text-slate-900">
+                {new Date(campaign.requirements.endDate).toLocaleDateString("it-IT")}
+              </span>
             </div>
+
             <div className="flex items-center justify-between p-4 bg-slate-50 rounded-xl">
               <span className="font-medium text-slate-700">Genere</span>
               <span className="font-semibold text-slate-900">{campaign.requirements.gender}</span>

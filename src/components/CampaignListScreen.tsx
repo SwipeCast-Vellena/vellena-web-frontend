@@ -162,7 +162,13 @@ const CampaignListScreen: React.FC<CampaignListScreenProps> = ({
                 <div className="flex items-center space-x-4">
                   <div className="flex items-center text-sm text-slate-600">
                     <Calendar className="w-4 h-4 mr-1" />
-                    <span>Scadenza: {campaign.deadline}</span>
+                    <span className="font-bold text-slate-900">
+                      {new Date(campaign.deadline).toLocaleDateString("en-US", {
+                        day: "numeric",
+                        month: "long",
+                        year: "numeric",
+                      })}
+                    </span>
                   </div>
                   <div className="text-sm text-slate-600">
                     {campaign.applicants} candidati
