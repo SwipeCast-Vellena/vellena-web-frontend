@@ -13,6 +13,7 @@ import { CampaignDetailRoute } from "../components/CampaignDetailRoute";
 import CampaignCreationScreen from "../components/CampaignCreationScreen";
 import MatchConfirmationScreen from "../components/MatchConfirmationScreen";
 import ChatScreen from "../components/ChatScreen";
+
 import SearchScreen from "../components/SearchScreen";
 import ProfileSettingsScreen from "../components/ProfileSettingsScreen";
 import UserDetailScreen from "../components/UserDetailScreen";
@@ -177,8 +178,8 @@ export const ChatRoute = () => {
   const navigate = useNavigate();
   return (
     <>
-      <ChatScreen onBack={() => navigate("/feed")} />
-      <NavigationBar activeTab="chat" onTabChange={(tab) => navigate(`/${tab}`)} />
+      <ChatScreen onBack={() => navigate("/model/feed")} />
+      <NavigationBar activeTab="chat" onTabChange={(tab) => navigate(`/chat/:chatId`)} />
     </>
   );
 };

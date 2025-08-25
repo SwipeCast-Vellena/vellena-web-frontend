@@ -24,6 +24,8 @@ export const loginUser = async (formData: LoginFormData) => {
   );
 
   const data = await response.json();
+  localStorage.setItem("user", JSON.stringify(data.user));
+  
 
   if (!response.ok) {
     throw new Error(data?.msg || 'Login failed');

@@ -24,6 +24,7 @@ import { Input } from "@/components/ui/input";
 import { Progress } from "@/components/ui/progress";
 import { Badge } from "@/components/ui/badge";
 import { Switch } from "@/components/ui/switch";
+import AlertsCard from "./AlertCard";
 
 // --- Types ---
 interface Campaign {
@@ -244,7 +245,8 @@ export default function MainFeedScreenModel() {
               </div>
             </CardContent>
           </Card>
-          <Card>
+          <AlertsCard />
+          {/* <Card>
             <CardContent className="p-5">
               <div className="flex items-center justify-between mb-2">
                 <div className="font-semibold text-slate-900">Job alerts</div>
@@ -252,11 +254,19 @@ export default function MainFeedScreenModel() {
               </div>
               <p className="text-sm text-slate-600">Get notified when jobs match your profile or location.</p>
               <div className="mt-4 space-y-2 text-sm">
+              <div className="flex items-center gap-2">
+            <Bell className="w-4 h-4 text-amber-600" />
+            Notifications {notifyMatches ? "enabled" : "disabled"}
+          </div>
+          <div className="flex items-center gap-2">
+            <CalendarDays className="w-4 h-4 text-blue-600" />
+            You’ll get a toast when a new chat appears.
+          </div>
                 <div className="flex items-center gap-2"><Bell className="w-4 h-4 text-amber-600"/> 2 new matches near <strong>Milano</strong></div>
                 <div className="flex items-center gap-2"><CalendarDays className="w-4 h-4 text-blue-600"/> 3 deadlines within 7 days</div>
               </div>
             </CardContent>
-          </Card>
+          </Card> */}
         </div>
 
         {/* Video uploader */}
