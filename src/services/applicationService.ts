@@ -14,6 +14,7 @@ export const applyToCampaign = async (campaignId: number) => {
   });
 
   const data = await response.json();
+  console.log("📦 Raw response from backend:", data);  // 👈 log here
   if (!response.ok) throw new Error(data.msg || 'Failed to apply');
   return data;
 };

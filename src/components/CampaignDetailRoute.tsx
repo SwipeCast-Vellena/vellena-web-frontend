@@ -1,6 +1,7 @@
 import React from "react";
 import { useParams } from "react-router-dom";
 import CampaignDetailScreen from "../components/CampaignDetailScreen";
+import MatchConfirmationScreen from "../components/MatchConfirmationScreen";
 import { useCampaignStore } from "../stores/campaignStore"; // ✅ Zustand store
 import { applyToCampaign } from "../services/applicationService"; // import service
 
@@ -14,6 +15,7 @@ export const CampaignDetailRoute = ({
 }) => {
   const { id } = useParams<{ id: string }>();
   const campaigns = useCampaignStore((state) => state.campaigns); // get all campaigns
+  const [matchData, setMatchData] = React.useState<any>(null);
 
   // Find the campaign from store
   const campaignData = campaigns.find((c) => c.id === Number(id));
@@ -56,17 +58,28 @@ export const CampaignDetailRoute = ({
   };
 
   const handleApply = async () => {
-  if (!campaignData) return;
-  try {
-    await applyToCampaign(campaignData.id); // call backend
-    alert("Candidatura inviata con successo!");
-    
-    // Optional: update applicants in Zustand
-    useCampaignStore.getState().updateApplicationCount(campaignData.id);
-  } catch (err: any) {
-    alert(err.message || "Errore nell'inviare la candidatura");
-  }
-};
+    try {
+      const res = await applyToCampaign(campaignData.id);
+
+      if (res.match?.matched) {
+        setMatchData(res.match);   // ✅ save match
+      } else {
+        alert("Candidatura inviata con successo!");
+        useCampaignStore.getState().updateApplicationCount(campaignData.id);
+      }
+    } catch (err: any) {
+      alert(err.message || "Errore nell'inviare la candidatura");
+    }
+  };
+
+  if (matchData) {
+  return (
+    <MatchConfirmationScreen
+      onStartChat={() => console.log("Start chat")}
+      onContinueSwiping={() => console.log("Back to feed")}
+    />
+  );
+}
 
   return <CampaignDetailScreen campaign={campaign} onBack={onBack} onApply={handleApply} />;
 };

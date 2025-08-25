@@ -45,10 +45,10 @@ const App = () => (
           {/* Model */}
           <Route path="/model/profile-creation" element={<ProfileCreationRouteModel />} />
           <Route path="/model/feed" element={<ModelFeedRoute />} />
+          <Route path="/model/match" element={<MatchRoute />} />
 
           {/* Main Routes */}
           <Route path="/campaign-create" element={<CampaignCreateRoute />} />
-          <Route path="/match" element={<MatchRoute />} />
           <Route path="/chat" element={<ChatRoute />} />
           <Route path="/search" element={<SearchRoute />} />
           <Route path="/profile" element={<ProfileRoute />} />

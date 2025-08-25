@@ -5,6 +5,8 @@ import { useLanguage } from '../contexts/LanguageContext';
 import LanguageSelector from './LanguageSelector';
 import { registerUser, RegisterFormData } from '../services/registerUser';
 import { loginUser, LoginFormData } from '../services/loginUser';
+import { useAuthStore } from "../stores/authStore";
+import { useUserStore } from "../stores/userStore";
 
 interface AuthScreenProps {
   isLogin: boolean;
@@ -24,43 +26,54 @@ const AuthScreen: React.FC<AuthScreenProps> = ({ isLogin, onBack, onSuccess }) =
     role: ''
   });
 
+// inside AuthScreen component
+const setAuth = useAuthStore((s) => s.setAuth);
+const fetchProfile = useUserStore((s) => s.fetchProfile);
 
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
+const handleSubmit = async (e: React.FormEvent) => {
+  e.preventDefault();
 
-    try {
-      if (isLogin) {
-        const loginData: LoginFormData = {
-          email: formData.email,
-          password: formData.password,
-          role: formData.role,
-        };
+  try {
+    if (isLogin) {
+      const loginData: LoginFormData = {
+        email: formData.email,
+        password: formData.password,
+        role: formData.role,
+      };
 
-        const res = await loginUser(loginData);
-        console.log('Logged in:', res);
+      const res = await loginUser(loginData);
+      console.log("Logged in:", res);
 
-        // Maybe store token in localStorage or context
-        // localStorage.setItem('token', res.token);
+      // ✅ Save to authStore
+      setAuth(res.token, res.user);
 
-      } else {
-        const registerData: RegisterFormData = {
-          name: formData.name,
-          email: formData.email,
-          password: formData.password,
-          role: formData.role,
-        };
+      // ✅ Fetch user profile from correct table
+      await fetchProfile();
+    } else {
+      const registerData: RegisterFormData = {
+        name: formData.name,
+        email: formData.email,
+        password: formData.password,
+        role: formData.role,
+      };
 
-        const res = await registerUser(registerData);
-        console.log('Registered:', res);
-      }
+      const res = await registerUser(registerData);
+      console.log("Registered:", res);
 
-      onSuccess(formData.role);
-    } catch (err: any) {
-    const errorMsg = err.message || 'Something went wrong';
+      // after registering, you might want to log them in automatically
+      setAuth(res.token, res.user);
+      await fetchProfile();
+    }
+
+    // Notify parent component (so you can redirect)
+    onSuccess(formData.role);
+  } catch (err: any) {
+    const errorMsg = err.message || "Something went wrong";
     setError(errorMsg);
     console.error(errorMsg);
   }
-  };
+};
+
 
 
   return (

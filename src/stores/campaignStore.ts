@@ -35,7 +35,7 @@ export const useCampaignStore = create<CampaignState>((set, get) => ({
   updateApplicationCount: (id: number) => {
   set((state) => ({
     campaigns: state.campaigns.map((c) =>
-      c.id === id ? { ...c, application_count: c.application_count + 1 } : c
+      c.id === id ? { ...c, application_count: c.application_count - 1 } : c
     ),
   }));
 },
