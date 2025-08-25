@@ -1,36 +1,8 @@
-// ChatScreen.tsx (uses singular /api/chat/... endpoints)
+// ChatScreen.tsx (refactored with service)
 import React, { useEffect, useRef, useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { ArrowLeft, Send, Phone, Video, MoreVertical } from "lucide-react";
-
-type ServerMessage = {
-  id: string;
-  text: string;
-  senderUid?: string;
-  senderBackendId?: number;
-  type?: "text" | "image" | "file";
-  attachmentUrl?: string | null;
-  createdAt?: { seconds: number; nanoseconds: number } | string | null;
-  readBy?: string[];
-};
-
-type MessageView = { id: string; text: string; isMe: boolean; timestamp: string };
-
-const API_BASE = import.meta.env.VITE_API_BASE_URL as string;
-
-
-function formatTimestamp(createdAt: any) {
-  if (!createdAt) return "";
-  if (typeof createdAt === "object" && createdAt.seconds != null) {
-    const d = new Date(createdAt.seconds * 1000 + (createdAt.nanoseconds || 0) / 1e6);
-    return d.toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" });
-  }
-  if (typeof createdAt === "string") {
-    const d = new Date(createdAt);
-    if (!isNaN(d.getTime())) return d.toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" });
-  }
-  try { const d = new Date(createdAt); return !isNaN(d.getTime()) ? d.toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" }) : ""; } catch { return ""; }
-}
+import { ChatService, MessageView } from "../services/chatService";
 
 export default function ChatScreen({ onBack }: { onBack?: () => void }) {
   
@@ -45,133 +17,73 @@ export default function ChatScreen({ onBack }: { onBack?: () => void }) {
 
   const scrollRef = useRef<HTMLDivElement | null>(null);
 
-  const token = localStorage.getItem("token") || "";
-  
-
-  const headers = { "Content-Type": "application/json", ...(token ? { Authorization: `Bearer ${token}` } : {}) } as Record<string,string>;
-
-  const toViewMessage = (m: ServerMessage): MessageView => {
-    const currentUser = JSON.parse(localStorage.getItem("user") || "{}");
-  
-    const isMe =
-      (typeof m.senderBackendId === "number" && m.senderBackendId === currentUser.id) ||
-      (typeof m.senderUid === "string" && m.senderUid === `u${currentUser.id}`);
-  
-    return {
-      id: m.id,
-      text: m.text || (m.attachmentUrl ? "(attachment)" : ""),
-      isMe,
-      timestamp: formatTimestamp(m.createdAt),
-    };
+  const scrollToBottom = () => {
+    setTimeout(() => scrollRef.current?.scrollTo({ top: scrollRef.current.scrollHeight, behavior: "smooth" }), 50);
   };
-
-  async function safeParse(res: Response) {
-    const ct = res.headers.get("content-type") || "";
-    if (ct.includes("application/json")) {
-      try { return { ok: true, json: await res.json(), text: null }; } catch (err) { return { ok: false, json: null, text: await res.text() }; }
-    } else {
-      const text = await res.text();
-      return { ok: false, json: null, text };
-    }
-  }
 
   // fetch ONCE on mount, no polling
-const fetchMessages = async () => {
-  if (!chatId) return;
-  try {
+  const fetchMessages = async () => {
+    if (!chatId) return;
+    
     setLoading(true);
-    const url = `${API_BASE}/api/chat/${encodeURIComponent(chatId)}/messages`;
-    const res = await fetch(url, { headers });
-    const parsed = await safeParse(res);
-
-    if (!res.ok || !parsed.ok || !parsed.json) {
-      console.error("fetchMessages error:", parsed);
-      setLoading(false);
-      return;
-    }
-
-    const j = parsed.json;
-    if (!j.success || !Array.isArray(j.messages)) {
-      console.error("fetchMessages bad shape:", j);
-      setLoading(false);
-      return;
-    }
-
-    if (j.title) setTitle(j.title);
-    setMessages(j.messages.map((m: ServerMessage) => toViewMessage(m)));
+    const result = await ChatService.fetchMessages(chatId);
     setLoading(false);
-    setTimeout(() => scrollRef.current?.scrollTo({ top: scrollRef.current.scrollHeight, behavior: "smooth" }), 50);
-  } catch (err) {
-    console.error("fetchMessages error:", err);
-    setLoading(false);
-  }
-};
 
-useEffect(() => {
-  if (!chatId) return;
-  void fetchMessages();
-}, [chatId]);
-
-// ==== sendMessage with optimistic update ====
-const sendMessage = async () => {
-  const text = newMessage.trim();
-  if (!text) return;
-
-  // create optimistic tmp msg
-  const tmpId = `tmp-${Date.now()}`;
-  const optimisticMsg: MessageView = {
-    id: tmpId,
-    text,
-    isMe: true,
-    timestamp: new Date().toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" }),
-  };
-  setMessages(prev => [...prev, optimisticMsg]);
-  setNewMessage("");
-  setTimeout(() => scrollRef.current?.scrollTo({ top: scrollRef.current.scrollHeight, behavior: "smooth" }), 50);
-
-  try {
-    const url = `${API_BASE}/api/chat/${encodeURIComponent(chatId)}/message`;
-    const res = await fetch(url, {
-      method: "POST",
-      headers,
-      body: JSON.stringify({ text, type: "text" }),
-    });
-
-    const ct = res.headers.get("content-type") || "";
-    if (ct.includes("application/json")) {
-      const j = await res.json();
-      if (res.ok && j && j.ok) {
-        // replace optimistic msg with real one
-        const newMsg: MessageView = {
-          id: j.messageId,
-          text,
-          isMe: true,
-          timestamp: new Date().toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" }),
-        };
-        setMessages(prev => prev.map(m => (m.id === tmpId ? newMsg : m)));
-      } else {
-        console.error("sendMessage failed:", j);
-        setMessages(prev => prev.filter(m => m.id !== tmpId)); // remove optimistic
-      }
+    if (result.success) {
+      if (result.title) setTitle(result.title);
+      if (result.messages) setMessages(result.messages);
+      scrollToBottom();
     } else {
-      const body = await res.text();
-      console.error("sendMessage non-json:", res.status, body.slice(0, 200));
-      setMessages(prev => prev.filter(m => m.id !== tmpId));
+      console.error("Failed to fetch messages:", result.error);
     }
-  } catch (err) {
-    console.error("sendMessage error:", err);
-    setMessages(prev => prev.filter(m => m.id !== tmpId));
-  }
-};
+  };
+
+  useEffect(() => {
+    if (!chatId) return;
+    void fetchMessages();
+  }, [chatId]);
+
+  // ==== sendMessage with optimistic update ====
+  const sendMessage = async () => {
+    const text = newMessage.trim();
+    if (!text) return;
+
+    // create optimistic tmp msg
+    const optimisticMsg = ChatService.createOptimisticMessage(text);
+    setMessages(prev => [...prev, optimisticMsg]);
+    setNewMessage("");
+    scrollToBottom();
+
+    const result = await ChatService.sendMessage(chatId, text);
+
+    if (result.success) {
+      // replace optimistic msg with real one
+      const newMsg: MessageView = {
+        id: result.messageId!,
+        text,
+        isMe: true,
+        timestamp: new Date().toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" }),
+      };
+      setMessages(prev => prev.map(m => (m.id === optimisticMsg.id ? newMsg : m)));
+    } else {
+      console.error("Failed to send message:", result.error);
+      setMessages(prev => prev.filter(m => m.id !== optimisticMsg.id)); // remove optimistic
+    }
+  };
 
   const handleKeyDown = (e: React.KeyboardEvent<HTMLTextAreaElement>) => {
-    if (e.key === "Enter" && !e.shiftKey) { e.preventDefault(); void sendMessage(); }
+    if (e.key === "Enter" && !e.shiftKey) { 
+      e.preventDefault(); 
+      void sendMessage(); 
+    }
   };
 
-  const back = () => { if (onBack) onBack(); else navigate(-1); };
+  const back = () => { 
+    if (onBack) onBack(); 
+    else navigate(-1); 
+  };
 
   return (
-    // ... (UI same as previous snippet) ...
     <div className="min-h-screen bg-slate-50 flex flex-col">
       {/* Header */}
       <div className="bg-white border-b border-slate-200 px-6 pt-16 pb-4">
@@ -210,7 +122,6 @@ const sendMessage = async () => {
       <div ref={scrollRef} className="flex-1 px-6 py-4 space-y-4 overflow-y-auto">
         {loading && <p className="text-center text-sm text-slate-500">Loading messages…</p>}
         {messages.map((msg) => (
-          
           <div key={msg.id} className={`flex ${msg.isMe ? "justify-end" : "justify-start"}`}>
             <div className={`max-w-xs lg:max-w-md px-4 py-3 rounded-2xl ${msg.isMe ? "bg-slate-900 text-white" : "bg-white text-slate-900 border border-slate-200"}`}>
               <p className="text-sm leading-relaxed">{msg.text}</p>
@@ -224,17 +135,30 @@ const sendMessage = async () => {
       <div className="bg-white border-t border-slate-200 px-6 py-4">
         <div className="flex items-end space-x-3">
           <div className="flex-1">
-            <textarea value={newMessage} onChange={(e) => setNewMessage(e.target.value)} onKeyDown={handleKeyDown}
-              placeholder="Scrivi il tuo messaggio professionale..." className="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-2xl resize-none focus:outline-none focus:ring-2 focus:ring-slate-900" rows={1} style={{ minHeight: 48, maxHeight: 120 }} />
+            <textarea 
+              value={newMessage} 
+              onChange={(e) => setNewMessage(e.target.value)} 
+              onKeyDown={handleKeyDown}
+              placeholder="Scrivi il tuo messaggio professionale..." 
+              className="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-2xl resize-none focus:outline-none focus:ring-2 focus:ring-slate-900" 
+              rows={1} 
+              style={{ minHeight: 48, maxHeight: 120 }} 
+            />
           </div>
-          <button onClick={() => void sendMessage()} disabled={!newMessage.trim()} className="w-12 h-12 bg-slate-900 text-white rounded-2xl flex items-center justify-center hover:bg-slate-800 disabled:bg-slate-300">
+          <button 
+            onClick={() => void sendMessage()} 
+            disabled={!newMessage.trim()} 
+            className="w-12 h-12 bg-slate-900 text-white rounded-2xl flex items-center justify-center hover:bg-slate-800 disabled:bg-slate-300"
+          >
             <Send className="w-5 h-5" />
           </button>
         </div>
-        <div className="mt-3"><p className="text-xs text-slate-500 text-center">Mantieni le comunicazioni professionali • Segnala comportamenti inappropriati</p></div>
+        <div className="mt-3">
+          <p className="text-xs text-slate-500 text-center">
+            Mantieni le comunicazioni professionali • Segnala comportamenti inappropriati
+          </p>
+        </div>
       </div>
     </div>
   );
 }
-
-

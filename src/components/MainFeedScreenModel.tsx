@@ -24,7 +24,6 @@ import { Input } from "@/components/ui/input";
 import { Progress } from "@/components/ui/progress";
 import { Badge } from "@/components/ui/badge";
 import { Switch } from "@/components/ui/switch";
-import AlertsCard from "./AlertCard";
 
 // --- Types ---
 interface Campaign {
@@ -245,8 +244,7 @@ export default function MainFeedScreenModel() {
               </div>
             </CardContent>
           </Card>
-          <AlertsCard />
-          {/* <Card>
+          <Card>
             <CardContent className="p-5">
               <div className="flex items-center justify-between mb-2">
                 <div className="font-semibold text-slate-900">Job alerts</div>
@@ -266,7 +264,7 @@ export default function MainFeedScreenModel() {
                 <div className="flex items-center gap-2"><CalendarDays className="w-4 h-4 text-blue-600"/> 3 deadlines within 7 days</div>
               </div>
             </CardContent>
-          </Card> */}
+          </Card>
         </div>
 
         {/* Video uploader */}
