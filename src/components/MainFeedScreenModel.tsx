@@ -1,4 +1,4 @@
-import React, { useMemo, useState } from "react";
+import React, { useEffect, useMemo, useState } from "react";
 import {
   Bell,
   CalendarDays,
@@ -23,7 +23,12 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Progress } from "@/components/ui/progress";
 import { Badge } from "@/components/ui/badge";
-import { Switch } from "@/components/ui/switch";
+
+import NotificationsCard from "./NotificationCard";
+import RecentMatches from "./RecentMatches";
+
+import { useCampaignStore } from '../stores/campaignStore';
+
 
 // --- Types ---
 interface Campaign {
@@ -43,98 +48,99 @@ interface Campaign {
   tags?: string[];
 }
 
-interface PaymentRow {
-  id: string;
-  campaignTitle: string;
-  amount: number;
-  currency: string;
-  status: "Pending" | "Processing" | "Paid";
-  dueDate?: string; // ISO
-}
 
-interface MatchThreadPreview {
-  id: string;
-  name: string;
-  avatarUrl?: string;
-  lastMessage: string;
-  unread: number;
-  linkedCampaign?: string;
-}
+// interface PaymentRow {
+//   id: string;
+//   campaignTitle: string;
+//   amount: number;
+//   currency: string;
+//   status: "Pending" | "Processing" | "Paid";
+//   dueDate?: string; // ISO
+// }
 
-// --- Mock Data ---
-const campaigns: Campaign[] = [
-  {
-    id: 101,
-    title: "Milano Fashion Lookbook",
-    agency: "Alta Moda Agency",
-    city: "Milano",
-    address: "Via Torino 21",
-    startDate: "2025-09-03",
-    endDate: "2025-09-05",
-    deadline: "2025-08-25",
-    compensation: 650,
-    currency: "€",
-    genderPreference: "women",
-    applicants: 23,
-    description:
-      "Shooting lookbook FW for boutique brand; requires confident runway walk and posing.",
-    tags: ["Lookbook", "Runway", "FW25"],
-  },
-  {
-    id: 102,
-    title: "Tech Expo Hostess",
-    agency: "ExpoWorks",
-    city: "Bologna",
-    startDate: "2025-09-12",
-    endDate: "2025-09-13",
-    deadline: "2025-09-01",
-    compensation: 300,
-    currency: "€",
-    genderPreference: "any",
-    applicants: 41,
-    description: "Assist stand visitors, basic product brief, shift-based scheduling.",
-    tags: ["Hostess", "Expo"],
-  },
-  {
-    id: 103,
-    title: "E-commerce Studio Model",
-    agency: "PixelHaus",
-    city: "Torino",
-    startDate: "2025-08-28",
-    deadline: "2025-08-20",
-    compensation: 400,
-    currency: "€",
-    genderPreference: "women",
-    applicants: 11,
-    description: "Half-day studio shoot for catalog images. Wardrobe provided.",
-    tags: ["Studio", "Catalog"],
-  },
-];
+// interface MatchThreadPreview {
+//   id: string;
+//   name: string;
+//   avatarUrl?: string;
+//   lastMessage: string;
+//   unread: number;
+//   linkedCampaign?: string;
+// }
 
-const payments: PaymentRow[] = [
-  { id: "p1", campaignTitle: "Streetwear Capsule", amount: 350, currency: "€", status: "Paid" },
-  { id: "p2", campaignTitle: "Cosmetics Launch", amount: 500, currency: "€", status: "Processing" },
-  { id: "p3", campaignTitle: "Boutique Editorial", amount: 420, currency: "€", status: "Pending", dueDate: "2025-08-18" },
-];
+// // --- Mock Data ---
+// const campaigns: Campaign[] = [
+//   {
+//     id: 101,
+//     title: "Milano Fashion Lookbook",
+//     agency: "Alta Moda Agency",
+//     city: "Milano",
+//     address: "Via Torino 21",
+//     startDate: "2025-09-03",
+//     endDate: "2025-09-05",
+//     deadline: "2025-08-25",
+//     compensation: 650,
+//     currency: "€",
+//     genderPreference: "women",
+//     applicants: 23,
+//     description:
+//       "Shooting lookbook FW for boutique brand; requires confident runway walk and posing.",
+//     tags: ["Lookbook", "Runway", "FW25"],
+//   },
+//   {
+//     id: 102,
+//     title: "Tech Expo Hostess",
+//     agency: "ExpoWorks",
+//     city: "Bologna",
+//     startDate: "2025-09-12",
+//     endDate: "2025-09-13",
+//     deadline: "2025-09-01",
+//     compensation: 300,
+//     currency: "€",
+//     genderPreference: "any",
+//     applicants: 41,
+//     description: "Assist stand visitors, basic product brief, shift-based scheduling.",
+//     tags: ["Hostess", "Expo"],
+//   },
+//   {
+//     id: 103,
+//     title: "E-commerce Studio Model",
+//     agency: "PixelHaus",
+//     city: "Torino",
+//     startDate: "2025-08-28",
+//     deadline: "2025-08-20",
+//     compensation: 400,
+//     currency: "€",
+//     genderPreference: "women",
+//     applicants: 11,
+//     description: "Half-day studio shoot for catalog images. Wardrobe provided.",
+//     tags: ["Studio", "Catalog"],
+//   },
+// ];
 
-const matches: MatchThreadPreview[] = [
-  {
-    id: "t1",
-    name: "Alta Moda Agency",
-    avatarUrl: "https://images.unsplash.com/photo-1544005313-94ddf0286df2",
-    lastMessage: "Ciao! Ti va una call breve per i dettagli?",
-    unread: 2,
-    linkedCampaign: "Milano Fashion Lookbook",
-  },
-  {
-    id: "t2",
-    name: "ExpoWorks",
-    avatarUrl: "https://images.unsplash.com/photo-1527980965255-d3b416303d12",
-    lastMessage: "Turni disponibili venerdì e sabato.",
-    unread: 0,
-    linkedCampaign: "Tech Expo Hostess",
-  },
-];
+// const payments: PaymentRow[] = [
+//   { id: "p1", campaignTitle: "Streetwear Capsule", amount: 350, currency: "€", status: "Paid" },
+//   { id: "p2", campaignTitle: "Cosmetics Launch", amount: 500, currency: "€", status: "Processing" },
+//   { id: "p3", campaignTitle: "Boutique Editorial", amount: 420, currency: "€", status: "Pending", dueDate: "2025-08-18" },
+// ];
+
+// const matches: MatchThreadPreview[] = [
+//   {
+//     id: "t1",
+//     name: "Alta Moda Agency",
+//     avatarUrl: "https://images.unsplash.com/photo-1544005313-94ddf0286df2",
+//     lastMessage: "Ciao! Ti va una call breve per i dettagli?",
+//     unread: 2,
+//     linkedCampaign: "Milano Fashion Lookbook",
+//   },
+//   {
+//     id: "t2",
+//     name: "ExpoWorks",
+//     avatarUrl: "https://images.unsplash.com/photo-1527980965255-d3b416303d12",
+//     lastMessage: "Turni disponibili venerdì e sabato.",
+//     unread: 0,
+//     linkedCampaign: "Tech Expo Hostess",
+//   },
+// ];
 
 // --- Utilities ---
 const daysUntil = (iso: string) => {
@@ -153,7 +159,13 @@ const money = (n: number, c = "€") => `${c}${n.toFixed(0)}`;
 export default function MainFeedScreenModel() {
   const [query, setQuery] = useState("");
   const [view, setView] = useState<"list" | "swipe">("list");
-  const [notifyMatches, setNotifyMatches] = useState(true);
+  // const [notifyMatches, setNotifyMatches] = useState(true);
+  const { campaigns, fetchCampaigns, loading } = useCampaignStore();
+ 
+  const filteredCampaigns = campaigns;
+  useEffect(() => {
+    fetchCampaigns(); // load campaigns on mount
+  }, [fetchCampaigns]);
 
   // Profile completion mock
   const profile = {
@@ -171,17 +183,17 @@ export default function MainFeedScreenModel() {
     return Math.round((fields.filter(Boolean).length / fields.length) * 100);
   }, [profile]);
 
-  const filteredCampaigns = useMemo(() => {
-    if (!query.trim()) return campaigns;
-    const q = query.toLowerCase();
-    return campaigns.filter(
-      (c) =>
-        c.title.toLowerCase().includes(q) ||
-        c.agency.toLowerCase().includes(q) ||
-        c.city.toLowerCase().includes(q) ||
-        c.description.toLowerCase().includes(q)
-    );
-  }, [query]);
+  // const filteredCampaigns = useMemo(() => {
+  //   if (!query.trim()) return campaigns;
+  //   const q = query.toLowerCase();
+  //   return campaigns.filter(
+  //     (c) =>
+  //       c.title.toLowerCase().includes(q) ||
+  //       c.agency.toLowerCase().includes(q) ||
+  //       c.city.toLowerCase().includes(q) ||
+  //       c.description.toLowerCase().includes(q)
+  //   );
+  // }, [query]);
 
   // --- Actions (placeholders) ---
   const applyToCampaign = (id: number) => {
@@ -244,7 +256,8 @@ export default function MainFeedScreenModel() {
               </div>
             </CardContent>
           </Card>
-          <Card>
+          <NotificationsCard/>
+          {/* <Card>
             <CardContent className="p-5">
               <div className="flex items-center justify-between mb-2">
                 <div className="font-semibold text-slate-900">Job alerts</div>
@@ -264,7 +277,7 @@ export default function MainFeedScreenModel() {
                 <div className="flex items-center gap-2"><CalendarDays className="w-4 h-4 text-blue-600"/> 3 deadlines within 7 days</div>
               </div>
             </CardContent>
-          </Card>
+          </Card> */}
         </div>
 
         {/* Video uploader */}
@@ -286,6 +299,152 @@ export default function MainFeedScreenModel() {
 
         {/* Jobs feed: toggle Swipe/List */}
         <div className="flex items-center justify-between">
+          <div className="font-semibold text-slate-900">Available Jobs</div>
+          <div className="flex items-center gap-2">
+            <Button variant={view === "list" ? "default" : "outline"} onClick={() => setView("list")}>List</Button>
+            <Button variant={view === "swipe" ? "default" : "outline"} onClick={() => setView("swipe")}>Swipe</Button>
+          </div>
+        </div>
+
+        {view === "list" ? (
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+          {filteredCampaigns.map((item) => {
+            // Calculate time left until deadline
+            const deadlineDate = new Date(item.deadline);
+            const diffTime = deadlineDate.getTime() - new Date().getTime();
+            const daysLeft = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+            const timeLeft =
+              daysLeft > 0 ? `${daysLeft} giorni rimasti` : "Scaduto";
+
+            return (
+              <div
+                key={item.id}
+                className="bg-white rounded-2xl p-6 shadow-sm border border-slate-200 hover:shadow-md transition-shadow"
+              >
+                {/* Header with title + agency + time left */}
+                <div className="flex items-start justify-between mb-4">
+                  <div className="flex-1">
+                    <h3 className="text-lg font-bold text-slate-900 mb-1">
+                      {item.title}
+                    </h3>
+                    <p className="text-slate-600 font-medium">
+                      {item.agency_name}
+                    </p>
+                  </div>
+                  <div className="text-right">
+                    <div className="bg-red-100 text-red-700 px-3 py-1 rounded-full text-sm font-medium">
+                      {timeLeft}
+                    </div>
+                  </div>
+                </div>
+
+                {/* Description */}
+                <p className="text-slate-700 mb-4 leading-relaxed">
+                  {item.description}
+                </p>
+
+                {/* Gender + Location */}
+                <div className="grid grid-cols-2 gap-4 mb-4">
+                  <div className="flex items-center text-sm text-slate-600">
+                    <span className="w-4 h-4 mr-2 text-center">👤</span>
+                    <span>
+                      {item.gender_preference === "any"
+                        ? "Qualsiasi"
+                        : item.gender_preference === "women"
+                        ? "Femminile"
+                        : "Maschile"}
+                    </span>
+                  </div>
+                  <div className="flex items-center text-sm text-slate-600">
+                    <MapPin className="w-4 h-4 mr-2" />
+                    <span>
+                      {item.city}
+                      {item.address ? `, ${item.address}` : ""}
+                    </span>
+                  </div>
+                </div>
+
+                {/* Start + End */}
+                <div className="grid grid-cols-2 gap-4 mb-4">
+                  <div className="flex items-center space-x-2">
+                    <CalendarDays className="w-5 h-5 text-blue-500" />
+                    <span>
+                      Start:{" "}
+                      {new Date(item.start_date).toLocaleDateString("en-US", {
+                        year: "numeric",
+                        month: "short",
+                        day: "numeric",
+                      })}
+                    </span>
+                  </div>
+
+                  {item.end_date && (
+                    <div className="flex items-center space-x-2">
+                      <CalendarDays className="w-5 h-5 text-red-500" />
+                      <span>
+                        End:{" "}
+                        {new Date(item.end_date).toLocaleDateString("en-US", {
+                          year: "numeric",
+                          month: "short",
+                          day: "numeric",
+                        })}
+                      </span>
+                    </div>
+                  )}
+                </div>
+
+                {/* Footer: deadline + applicants + budget */}
+                <div className="flex items-center justify-between pt-4 border-t border-slate-100">
+                  <div className="flex items-center space-x-4">
+                    <div className="flex items-center text-sm text-slate-600">
+                      <CalendarDays className="w-4 h-4 mr-1" />
+                      <span className="font-bold text-slate-900">
+                        {new Date(item.deadline).toLocaleDateString("en-US", {
+                          day: "numeric",
+                          month: "long",
+                          year: "numeric",
+                        })}
+                      </span>
+                    </div>
+                    <div className="text-sm text-slate-600">
+                      {item.application_count} candidati
+                    </div>
+                  </div>
+                  <div className="text-lg font-bold text-slate-900">
+                    €{item.compensation}
+                  </div>
+                </div>
+
+                {/* Buttons */}
+                <div className="flex items-center justify-between mt-4">
+                  <Button
+                    variant="outline"
+                    className="gap-2"
+                    onClick={() => skipCampaign(item.id)}
+                  >
+                    <ThumbsDown className="w-4 h-4" /> Skip
+                  </Button>
+                  <Button
+                    className="gap-2"
+                    onClick={() => applyToCampaign(item.id)}
+                  >
+                    <ThumbsUp className="w-4 h-4" /> Apply
+                  </Button>
+                </div>
+              </div>
+            );
+          })}
+        </div>
+      ) : (
+        <SwipeDeck
+          items={filteredCampaigns}
+          onApply={applyToCampaign}
+          onSkip={skipCampaign}
+        />
+      )}
+                                      {/* COMMENTED JOBS FEED */}
+      {/* Jobs feed: toggle Swipe/List */}
+      {/* <div className="flex items-center justify-between">
           <div className="font-semibold text-slate-900">Available Jobs</div>
           <div className="flex items-center gap-2">
             <Button variant={view === "list" ? "default" : "outline"} onClick={() => setView("list")}>List</Button>
@@ -325,11 +484,12 @@ export default function MainFeedScreenModel() {
           </div>
         ) : (
           <SwipeDeck items={filteredCampaigns} onApply={applyToCampaign} onSkip={skipCampaign} />
-        )}
+        )} */}
 
         {/* Matches / Chat preview */}
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-4 mb-40">
-          <Card className="lg:col-span-2">
+          <RecentMatches/>
+          {/* <Card className="lg:col-span-2">
             <CardContent className="p-5">
               <div className="flex items-center justify-between mb-4">
                 <div className="font-semibold text-slate-900 flex items-center gap-2"><MessageSquare className="w-5 h-5"/> Recent Matches</div>
@@ -354,7 +514,7 @@ export default function MainFeedScreenModel() {
                 ))}
               </div>
             </CardContent>
-          </Card>
+          </Card> */}
 
           {/*Rating*/}
           <Card>
