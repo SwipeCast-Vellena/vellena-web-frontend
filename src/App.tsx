@@ -47,11 +47,11 @@ const App = () => (
           <Route path="/model/feed" element={<ModelFeedRoute />} />
           <Route path="/model/match" element={<MatchRoute />} />
           <Route path="/model/chat/:chatId" element={<ChatRoute />} />
+          <Route path="/model/profile" element={<ProfileRoute />} />
 
           {/* Main Routes */}
           <Route path="/campaign-create" element={<CampaignCreateRoute />} />
           <Route path="/search" element={<SearchRoute />} />
-          <Route path="/profile" element={<ProfileRoute />} />
           <Route path="/user/:id" element={<UserDetailRoute />} />
 
           {/* Agency */}

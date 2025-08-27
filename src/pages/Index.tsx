@@ -199,10 +199,13 @@ export const ProfileRoute = () => {
   return (
     <>
       <ProfileSettingsScreen
-        onBack={() => navigate("/feed")}
+        onBack={() => navigate("/model/feed")}
         onLogout={() => navigate("/onboarding")}
       />
-      <NavigationBar activeTab="profile" onTabChange={(tab) => navigate(`/${tab}`)} />
+      <Navbarmodel
+        activeTab="profile"
+        onTabChange={(tab) => navigate(`/model/${tab}`)}
+      />
     </>
   );
 };
