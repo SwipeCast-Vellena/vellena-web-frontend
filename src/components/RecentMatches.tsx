@@ -54,13 +54,13 @@ export default function RecentMatches() {
                 >
                   <img
                     src={m.avatarUrl || "/default-avatar.png"}
-                    alt={m.modelName}
+                    alt={m.agencyName}
                     className="w-10 h-10 rounded-lg object-cover"
                   />
                   <div className="flex-1">
                     <div className="flex items-center justify-between">
                       <div className="font-medium text-slate-900">
-                        {m.modelName}
+                        {m.agencyName}
                       </div>
                     </div>
                     <div className="text-sm text-slate-600">
