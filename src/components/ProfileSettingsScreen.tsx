@@ -1,28 +1,99 @@
 
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { ArrowLeft, Edit3, Video, LogOut, Shield, FileText, HelpCircle, User, Camera } from 'lucide-react';
+import { getBaseUrl } from '@/services/utils/baseUrl';
+import axios from 'axios';
+
 
 interface ProfileSettingsScreenProps {
   onBack: () => void;
   onLogout: () => void;
 }
 
+
 const ProfileSettingsScreen: React.FC<ProfileSettingsScreenProps> = ({ onBack, onLogout }) => {
+
+  interface BackendProfile {
+    name: string;
+    age: number;
+    genre: string;
+    height: string;
+    location: string;
+    category: string;
+    description: string;
+    video_portfolio?: string;
+  }
   const [userProfile, setUserProfile] = useState({
-    name: 'Sarah Johnson',
-    email: 'sarah.johnson@email.com',
-    location: 'Milano, Italia',
-    bio: 'Modella professionale con oltre 3 anni di esperienza in moda e lavori commerciali',
-    age: 24,
-    height: "1,75m",
-    profession: 'Modella di Moda'
+    name: '',
+    email: '',
+    location: '',
+    bio: '',
+    age: 0,
+    height: "",
+    profession: '',
+    video:'',
+    genre:'',
   });
+
+  const handleEmail=async()=>{
+    
+  }
+
+  useEffect(() => {
+    const fetchProfile = async () => {
+      const baseUrl=await getBaseUrl();
+      try {
+        const token = localStorage.getItem("token"); // assuming you store JWT here
+        const res = await axios.get<BackendProfile>(`${baseUrl}/api/model/profile`, {
+          headers: { Authorization: `Bearer ${token}` }
+        });
+  
+        const profile = res.data;
+        setUserProfile({
+          name: profile.name,
+          email: "user@email.com", // you may get this from JWT or separate endpoint
+          location: profile.location,
+          bio: profile.description,
+          age: profile.age,
+          height: profile.height +" m",
+          profession: profile.category,
+          video: profile.video_portfolio,
+          genre:profile.genre,
+        });
+      } catch (err: any) {
+        console.error("Failed to load profile", err);
+      }
+    };
+  
+    fetchProfile();
+  }, []);
 
   const [isEditing, setIsEditing] = useState(false);
 
-  const handleUpdateProfile = () => {
-    setIsEditing(false);
-    // Handle profile update logic here
+  const handleUpdateProfile = async () => {
+    try {
+      const token = localStorage.getItem("token");
+      const baseUrl=await getBaseUrl();
+  
+      await axios.post(`${baseUrl}/api/model/profile`, {
+        name: userProfile.name,
+        age: userProfile.age,
+        genre: userProfile.genre, // pick from dropdown or state
+        height: userProfile.height,
+        location: userProfile.location,
+        category: userProfile.profession,
+        description: userProfile.bio,
+        video_portfolio: userProfile.video || null,
+      }, {
+        headers: { Authorization: `Bearer ${token}` }
+      });
+  
+      setIsEditing(false);
+      alert("Profilo aggiornato con successo!");
+    } catch (err: any) {
+      console.error("Error updating profile", err);
+      alert("Errore nell'aggiornamento del profilo");
+    }
   };
 
   return (
