@@ -48,18 +48,18 @@ const App = () => (
           <Route path="/model/match" element={<MatchRoute />} />
           <Route path="/model/chat/:chatId" element={<ChatRoute />} />
           <Route path="/model/profile" element={<ProfileRoute />} />
+          <Route path="/model/campaigns" element={<CampaignsRoute />} />
+          <Route path="/model/campaign/:id" element={<CampaignDetailRouteWrapper />} />
+
 
           {/* Main Routes */}
           <Route path="/campaign-create" element={<CampaignCreateRoute />} />
-          <Route path="/search" element={<SearchRoute />} />
           <Route path="/user/:id" element={<UserDetailRoute />} />
 
           {/* Agency */}
           <Route path="/agency/profile-creation" element={<ProfileCreationRouteAgency />} />
           <Route path="/agency/feed" element={<AgencyFeedRoute />} />
-          <Route path="/model/campaigns" element={<CampaignsRoute />} />
-          <Route path="/model/campaign/:id" element={<CampaignDetailRouteWrapper />} />
-
+          <Route path="/agency/search" element={<SearchRoute />} />
           {/* Fallback */}
           <Route path="*" element={<NotFound />} />
         </Routes>
