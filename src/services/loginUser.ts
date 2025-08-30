@@ -24,7 +24,9 @@ export const loginUser = async (formData: LoginFormData) => {
   );
 
   const data = await response.json();
+  localStorage.setItem("token",data.token);
   localStorage.setItem("user", JSON.stringify(data.user));
+  
   
 
   if (!response.ok) {

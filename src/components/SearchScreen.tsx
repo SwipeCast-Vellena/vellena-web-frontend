@@ -1,45 +1,107 @@
 
-import React, { useState } from 'react';
+import React, { useState,useEffect } from 'react';
 import { Search, Filter, MapPin, Briefcase } from 'lucide-react';
+import { getBaseUrl } from '@/services/utils/baseUrl';
+import axios from 'axios';
 
 interface SearchScreenProps {
   onUserSelect?: (userId: number) => void;
 }
 
+interface BackendModel {
+  id: number;
+  name: string;
+  location: string;
+  category: string;
+  description: string;
+  profession:string;
+  image:string;
+}
+
+
+interface BackendResponse {
+  success: boolean;
+  count: number;
+  models: BackendModel[];
+}
+
 const SearchScreen: React.FC<SearchScreenProps> = ({ onUserSelect }) => {
   const [searchQuery, setSearchQuery] = useState('');
   const [activeFilter, setActiveFilter] = useState<'all' | 'model' | 'hostess' | 'agency'>('all');
+  const [profiles, setProfiles] = useState<BackendModel[]>([]);
+  const [loading, setLoading] = useState(true);
+  
 
-  const searchResults = [
-    {
-      id: 1,
-      name: "Sarah Johnson",
-      profession: "Modella di Moda",
-      location: "Milano, Italia",
-      image: "https://images.unsplash.com/photo-1649972904349-6e44c42644a7",
-      category: 'model'
-    },
-    {
-      id: 2,
-      name: "Emma Davis", 
-      profession: "Hostess per Eventi",
-      location: "Roma, Italia",
-      image: "https://images.unsplash.com/photo-1581091226825-a6a2a5aee158",
-      category: 'hostess'
-    },
-    {
-      id: 3,
-      name: "Marketing Plus Agency",
-      profession: "Agenzia di Talenti",
-      location: "Napoli, Italia", 
-      image: "https://images.unsplash.com/photo-1488590528505-98d2b5aba04b",
-      category: 'agency'
+  useEffect(() => {
+  const fetchProfiles = async () => {
+    const baseUrl = await getBaseUrl();
+    try {
+      const token = localStorage.getItem("token");
+      const res = await axios.get<BackendResponse>(`${baseUrl}/api/agency/model-profiles`, {
+        headers: { Authorization: `Bearer ${token}` }
+      });
+
+      const backendModels = res.data.models;
+
+      setProfiles(
+        backendModels.map((m) => ({
+          id: m.id,
+          name: m.name,
+          profession: m.description || "Modella", // map description → profession
+          location: m.location,
+          category: m.category,
+          image: "https://images.unsplash.com/photo-1649972904349-6e44c42644a7" // placeholder
+        }))
+      );
+    } catch (error) {
+      console.error("Failed to load profiles", error);
+    } finally {
+      setLoading(false);
     }
-  ];
+  };
 
-  const filteredResults = activeFilter === 'all' 
-    ? searchResults 
-    : searchResults.filter(result => result.category === activeFilter);
+  fetchProfiles();
+}, []);
+
+  // const searchResults = [
+  //   {
+  //     id: 1,
+  //     name: "Sarah Johnson",
+  //     profession: "Modella di Moda",
+  //     location: "Milano, Italia",
+  //     image: "https://images.unsplash.com/photo-1649972904349-6e44c42644a7",
+  //     category: 'model'
+  //   },
+  //   {
+  //     id: 2,
+  //     name: "Emma Davis", 
+  //     profession: "Hostess per Eventi",
+  //     location: "Roma, Italia",
+  //     image: "https://images.unsplash.com/photo-1581091226825-a6a2a5aee158",
+  //     category: 'hostess'
+  //   },
+  //   {
+  //     id: 3,
+  //     name: "Marketing Plus Agency",
+  //     profession: "Agenzia di Talenti",
+  //     location: "Napoli, Italia", 
+  //     image: "https://images.unsplash.com/photo-1488590528505-98d2b5aba04b",
+  //     category: 'agency'
+  //   }
+  // ];
+
+  // 🔍 Apply search & filter
+  const filteredResults = profiles.filter((profile) => {
+    const matchesFilter = activeFilter === 'all' || profile.category === activeFilter;
+    const matchesSearch = profile.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
+                          profile.profession.toLowerCase().includes(searchQuery.toLowerCase()) ||
+                          profile.location.toLowerCase().includes(searchQuery.toLowerCase());
+    return matchesFilter && matchesSearch;
+  });
+
+  // const filteredResults = activeFilter === 'all' 
+  //   ? searchResults 
+  //   : searchResults.filter(result => result.category === activeFilter);
 
   const handleUserClick = (userId: number) => {
     if (onUserSelect) {
@@ -90,7 +152,9 @@ const SearchScreen: React.FC<SearchScreenProps> = ({ onUserSelect }) => {
 
       {/* Results */}
       <div className="px-6 py-6 space-y-4">
-        {filteredResults.map((result) => (
+        {loading ? (
+          <p className="text-center text-slate-500">Caricamento...</p>
+        ) : filteredResults.length > 0 ?(filteredResults.map((result) => (
           <div key={result.id} className="bg-white rounded-2xl p-4 shadow-sm border border-slate-200">
             <div className="flex items-center space-x-4">
               <img
@@ -123,7 +187,10 @@ const SearchScreen: React.FC<SearchScreenProps> = ({ onUserSelect }) => {
               </button>
             </div>
           </div>
-        ))}
+        ))
+      ): (
+        <p className="text-center text-slate-500">Nessun risultato trovato</p>
+      )}
       </div>
     </div>
   );
