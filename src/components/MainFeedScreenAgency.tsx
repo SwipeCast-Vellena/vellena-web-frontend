@@ -194,9 +194,11 @@ const MainFeedScreenAgency: React.FC<MainFeedScreenProps> = ({ onMatch, onOpenCh
 
           {/* Main Card (fills available height; no page scroll) */}
           <div
-            className={`flex-1 mx-1 sm:mx-2 bg-white/95 backdrop-blur-xl rounded-3xl overflow-hidden shadow-2xl border border-white/20 transition-all duration-500 ${
-              isAnimating ? 'scale-95 opacity-80' : 'scale-100'
-            }`}
+            className={`flex-1 mx-1 sm:mx-2 bg-white/95 backdrop-blur-xl 
+                        rounded-3xl overflow-hidden shadow-2xl border border-white/20 
+                        transition-all duration-500 
+                        ${isAnimating ? 'scale-95 opacity-80' : 'scale-100'} 
+                        flex flex-col min-h-0`}
             onPointerDown={onPointerDown}
             onPointerMove={onPointerMove}
             onPointerUp={onPointerUp}
@@ -249,23 +251,14 @@ const MainFeedScreenAgency: React.FC<MainFeedScreenProps> = ({ onMatch, onOpenCh
               <p className="text-gray-600 leading-relaxed mb-6 text-sm">{currentProfile.bio}</p>
 
               {/* Action Buttons */}
-              <div className="flex items-center justify-center gap-6">
-                <button
-                  onClick={() => handleAction('pass')}
-                  className="w-14 h-14 bg-gray-100 rounded-full flex items-center justify-center hover:bg-gray-200 hover:scale-110 transition-all duration-300 shadow-lg"
-                  aria-label="Pass"
-                >
-                  <X className="w-6 h-6 text-gray-600" />
-                </button>
-
-                <button
-                  onClick={() => handleAction('like')}
-                  className="w-16 h-16 bg-gradient-to-r from-pink-500 to-red-500 rounded-full flex items-center justify-center hover:scale-110 transition-all duration-300 shadow-xl"
-                  aria-label="Like"
-                >
-                  <Heart className="w-7 h-7 text-white" fill="currentColor" />
-                </button>
-              </div>
+              <div className="mt-4 flex items-center justify-center gap-6 shrink-0">
+                    <button className="w-14 h-14 bg-gray-100 rounded-full flex items-center justify-center hover:bg-gray-200 hover:scale-110 transition-all duration-300 shadow-lg">
+                      <X className="w-6 h-6 text-gray-600" />
+                    </button>
+                    <button className="w-16 h-16 bg-gradient-to-r from-pink-500 to-red-500 rounded-full flex items-center justify-center hover:scale-110 transition-all duration-300 shadow-xl">
+                      <Heart className="w-7 h-7 text-white" fill="currentColor" />
+                    </button>
+                  </div>
             </div>
           </div>
 
