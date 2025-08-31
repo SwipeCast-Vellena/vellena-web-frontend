@@ -14,7 +14,6 @@ interface BackendModel {
   location: string;
   category: string;
   description: string;
-  profession:string;
   image:string;
 }
 
@@ -47,7 +46,7 @@ const SearchScreen: React.FC<SearchScreenProps> = ({ onUserSelect }) => {
         backendModels.map((m) => ({
           id: m.id,
           name: m.name,
-          profession: m.description || "Modella", // map description → profession
+          description: m.description || "Modella", // map description → profession
           location: m.location,
           category: m.category,
           image: "https://images.unsplash.com/photo-1649972904349-6e44c42644a7" // placeholder
@@ -94,7 +93,7 @@ const SearchScreen: React.FC<SearchScreenProps> = ({ onUserSelect }) => {
   const filteredResults = profiles.filter((profile) => {
     const matchesFilter = activeFilter === 'all' || profile.category === activeFilter;
     const matchesSearch = profile.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-                          profile.profession.toLowerCase().includes(searchQuery.toLowerCase()) ||
+                          profile.description.toLowerCase().includes(searchQuery.toLowerCase()) ||
                           profile.location.toLowerCase().includes(searchQuery.toLowerCase());
     return matchesFilter && matchesSearch;
   });
@@ -172,7 +171,7 @@ const SearchScreen: React.FC<SearchScreenProps> = ({ onUserSelect }) => {
                 </h3>
                 <div className="flex items-center text-slate-600 mb-1">
                   <Briefcase className="w-4 h-4 mr-1" />
-                  <span className="text-sm">{result.profession}</span>
+                  <span className="text-sm">{result.description}</span>
                 </div>
                 <div className="flex items-center text-slate-600">
                   <MapPin className="w-4 h-4 mr-1" />
