@@ -10,6 +10,11 @@ import {
   MessageCircle,
 } from "lucide-react";
 import { getBaseUrl } from "@/services/utils/baseUrl";
+import {
+  isFavorite,
+  addFavorite,
+  removeFavorite,
+} from "@/services/favoriteService";
 
 interface UserDetailScreenProps {
   userId: number;
@@ -58,7 +63,34 @@ const UserDetailScreen: React.FC<UserDetailScreenProps> = ({
 
   const [model, setModel] = useState<Model | null>(null);
   const [loading, setLoading] = useState(true);
+  const [favorite, setFavorite] = useState(false); // rename state
+  const token = localStorage.getItem("token");
+
   const navigate = useNavigate();
+
+  useEffect(() => {
+    const fetchFavoriteStatus = async () => {
+      if (!token) return;
+      try {
+        const fav = await isFavorite(userId, token); // use imported function
+        setFavorite(fav);
+      } catch (err) {
+        console.error(err);
+      }
+    };
+    fetchFavoriteStatus();
+  }, [userId, token]);
+
+  const toggleFavorite = async () => {
+    if (!token) return;
+    try {
+      if (favorite) await removeFavorite(userId, token);
+      else await addFavorite(userId);
+      setFavorite(!favorite);
+    } catch (err) {
+      console.error(err);
+    }
+  };
 
   useEffect(() => {
     const fetchModel = async () => {
@@ -248,9 +280,14 @@ const UserDetailScreen: React.FC<UserDetailScreenProps> = ({
 
         {/* Action Buttons */}
         <div className="flex space-x-4">
-          <button className="flex-1 bg-red-500 text-white py-3 rounded-xl font-semibold flex items-center justify-center">
+          <button
+            onClick={toggleFavorite}
+            className={`flex-1 py-3 rounded-xl font-semibold flex items-center justify-center ${
+              favorite ? "bg-red-500 text-white" : "bg-gray-300 text-gray-700"
+            }`}
+          >
             <Heart className="w-5 h-5 mr-2" />
-            Mi Piace
+            {favorite ? "Aggiunto ai preferiti" : "Aggiungi ai preferiti"}
           </button>
           <button className="flex-1 bg-slate-900 text-white py-3 rounded-xl font-semibold flex items-center justify-center">
             <MessageCircle className="w-5 h-5 mr-2" />

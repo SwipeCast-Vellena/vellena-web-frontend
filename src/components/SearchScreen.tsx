@@ -48,7 +48,7 @@ const SearchScreen: React.FC<SearchScreenProps> = ({ onUserSelect }) => {
           name: m.name,
           description: m.description || "Modella", // map description → profession
           location: m.location,
-          category: m.category,
+          category: m.category.toLowerCase(),
           image: "https://images.unsplash.com/photo-1649972904349-6e44c42644a7" // placeholder
         }))
       );
@@ -132,7 +132,8 @@ const SearchScreen: React.FC<SearchScreenProps> = ({ onUserSelect }) => {
             { id: 'all', label: 'Tutti' },
             { id: 'model', label: 'Modelle' },
             { id: 'hostess', label: 'Hostess' },
-            { id: 'agency', label: 'Agenzie' }
+            { id: 'photographer', label: 'Fotografo' },
+            {id: 'other', label:'Altra'}
           ].map((filter) => (
             <button
               key={filter.id}

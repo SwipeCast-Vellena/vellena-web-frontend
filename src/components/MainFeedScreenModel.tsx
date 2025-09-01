@@ -28,6 +28,7 @@ import NotificationsCard from "./NotificationCard";
 import RecentMatches from "./RecentMatches";
 
 import { useCampaignStore } from '../stores/campaignStore';
+import { getModelProfile } from "@/services/modelService";
 
 
 // --- Types ---
@@ -161,10 +162,33 @@ export default function MainFeedScreenModel() {
   const [view, setView] = useState<"list" | "swipe">("list");
   // const [notifyMatches, setNotifyMatches] = useState(true);
   const { campaigns, fetchCampaigns, loading } = useCampaignStore();
+  //const [profile, setProfile] = useState<any | null>(null);
  
   const filteredCampaigns = campaigns;
   useEffect(() => {
     fetchCampaigns(); // load campaigns on mount
+    // fetch profile
+    // const loadProfile = async () => {
+    //   try {
+    //     const data = await getModelProfile();
+    //     setProfile( // wrap in array if profiles state expects an array
+    //       {
+    //         id: data.id,
+    //         name: data.name,
+    //         description: data.description || "Modella",
+    //         location: data.location,
+    //         category: data.category,
+    //         image: data.photo 
+    //           ? data.photo 
+    //           : "https://images.unsplash.com/photo-1649972904349-6e44c42644a7",
+    //       }
+    //     );
+    //   } catch (err) {
+    //     console.error("Error fetching model profile:", err);
+    //   }
+    // };
+
+    // loadProfile();
   }, [fetchCampaigns]);
 
   // Profile completion mock
@@ -179,7 +203,16 @@ export default function MainFeedScreenModel() {
   };
 
   const completion = useMemo(() => {
-    const fields = [profile.photo, !!profile.age, !!profile.height, !!profile.measurements, profile.video, !!profile.category];
+    if (!profile) return 0; // prevent crash until profile loads
+  
+    const fields = [
+      profile.photo,
+      !!profile.age,
+      !!profile.height,
+      !!profile.measurements,
+      profile.video,
+      !!profile.category,
+    ];
     return Math.round((fields.filter(Boolean).length / fields.length) * 100);
   }, [profile]);
 

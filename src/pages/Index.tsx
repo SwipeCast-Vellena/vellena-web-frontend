@@ -19,6 +19,8 @@ import ProfileSettingsScreen from "../components/ProfileSettingsScreen";
 import UserDetailScreen from "../components/UserDetailScreen";
 import NavigationBar from "../components/NavigationBar";
 import Navbarmodel from "../components/NavBarModel"
+import ProfileEditScreenAgency from "@/components/ProfileEditScreenAgency";
+import CampaignListScreenAgency from "@/components/CampaignListScreenAgency";
 
 export const SplashRoute = () => {
   const navigate = useNavigate();
@@ -147,6 +149,24 @@ export const CampaignsRoute = () => {
   );
 };
 
+
+
+export const AgencyCampaignRoute=()=>{
+  const navigate=useNavigate();
+  return (
+    <>
+    <CampaignListScreenAgency
+    onBack={() => navigate(-1)}
+    onCampaignSelect={(c) => navigate(`/agency/campaign/${c.id}`)} 
+    />
+    <Navbarmodel
+        activeTab="campaigns"
+        onTabChange={(tab) => navigate(`/agency/${tab}`)}
+      />
+    </>
+  )
+}
+
 export const CampaignDetailRouteWrapper = () => {
   const navigate = useNavigate();
   return (
@@ -209,6 +229,23 @@ export const ProfileRoute = () => {
     </>
   );
 };
+
+export const AgencyRoute=()=>{
+  const navigate=useNavigate();
+  return (
+    <>
+    <ProfileEditScreenAgency
+    onBack={()=>navigate(-1)}
+    onComplete={()=>navigate("")}/>
+    <Navbarmodel
+        activeTab="profile"
+        onTabChange={(tab) => navigate(`/agency/${tab}`)}
+      />
+
+    </>
+  )
+
+}
 
 export const UserDetailRoute = () => {
   const { id } = useParams();

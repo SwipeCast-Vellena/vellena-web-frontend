@@ -23,6 +23,8 @@ import {
   SearchRoute,
   ProfileRoute,
   UserDetailRoute,
+  AgencyRoute,
+  AgencyCampaignRoute
 } from "./pages/Index";
 
 const queryClient = new QueryClient();
@@ -60,6 +62,8 @@ const App = () => (
           <Route path="/agency/profile-creation" element={<ProfileCreationRouteAgency />} />
           <Route path="/agency/feed" element={<AgencyFeedRoute />} />
           <Route path="/agency/search" element={<SearchRoute />} />
+          <Route path="/agency/profile" element={<AgencyRoute />} />
+          <Route path="/agency/campaigns" element={<AgencyCampaignRoute/>} />
           {/* Fallback */}
           <Route path="*" element={<NotFound />} />
         </Routes>

@@ -1,18 +1,29 @@
-
-import React, { useEffect, useState } from 'react';
-import { ArrowLeft, Edit3, Video, LogOut, Shield, FileText, HelpCircle, User, Camera } from 'lucide-react';
-import { getBaseUrl } from '@/services/utils/baseUrl';
-import axios from 'axios';
-
+import React, { useEffect, useRef, useState } from "react";
+import {
+  ArrowLeft,
+  Edit3,
+  Video,
+  LogOut,
+  Shield,
+  FileText,
+  HelpCircle,
+  User,
+  Camera,
+  Upload,
+} from "lucide-react";
+import { getBaseUrl } from "@/services/utils/baseUrl";
+import { uploadVideo, deleteVideo,replaceVideo } from "@/services/uploadVideo";
+import axios from "axios";
 
 interface ProfileSettingsScreenProps {
   onBack: () => void;
   onLogout: () => void;
 }
 
-
-const ProfileSettingsScreen: React.FC<ProfileSettingsScreenProps> = ({ onBack, onLogout }) => {
-
+const ProfileSettingsScreen: React.FC<ProfileSettingsScreenProps> = ({
+  onBack,
+  onLogout,
+}) => {
   interface BackendProfile {
     name: string;
     age: number;
@@ -22,49 +33,83 @@ const ProfileSettingsScreen: React.FC<ProfileSettingsScreenProps> = ({ onBack, o
     category: string;
     description: string;
     video_portfolio?: string;
+    email: string;
   }
   const [userProfile, setUserProfile] = useState({
-    name: '',
-    email: '',
-    location: '',
-    bio: '',
+    name: "",
+    email: "",
+    location: "",
+    bio: "",
     age: 0,
     height: "",
-    profession: '',
-    video:'',
-    genre:'',
+    profession: "",
+    video_portfolio: null,
+    genre: "",
   });
 
-  const handleEmail=async()=>{
-    
-  }
+  const [videoUrl, setVideoUrl] = useState<string | null>(null);
+  const [videoUploaded, setVideoUploaded] = useState(false);
+  const fileInputRef = useRef<HTMLInputElement>(null);
+
+  const handleVideoUploadClick = () => fileInputRef.current?.click();
+
+  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    const token = localStorage.getItem('token');
+    if (!token) return alert('You must be logged in');
+  
+    uploadVideo(file, token, (err, data) => {
+      if (err) return alert(err.message || err);
+      setVideoUrl(data.videoUrl);
+      setVideoUploaded(true);
+    });
+  };
+
+  const handleDeleteVideo = () => {
+    const token = localStorage.getItem('token');
+    if (!token) return alert('You must be logged in');
+  
+    deleteVideo(token, (err, data) => {
+      if (err) return alert(err.message || err);
+      setVideoUrl(null);
+      setVideoUploaded(false);
+      setUserProfile({ ...userProfile, video_portfolio: '' });
+      alert('Video eliminato con successo!');
+    });
+  };
+
+  const handleReplaceVideoClick = () => fileInputRef.current?.click();
 
   useEffect(() => {
     const fetchProfile = async () => {
-      const baseUrl=await getBaseUrl();
+      const baseUrl = await getBaseUrl();
       try {
         const token = localStorage.getItem("token"); // assuming you store JWT here
-        const res = await axios.get<BackendProfile>(`${baseUrl}/api/model/profile`, {
-          headers: { Authorization: `Bearer ${token}` }
-        });
-  
+        const res = await axios.get<BackendProfile>(
+          `${baseUrl}/api/model/profile`,
+          {
+            headers: { Authorization: `Bearer ${token}` },
+          }
+        );
+
         const profile = res.data;
         setUserProfile({
           name: profile.name,
-          email: "user@email.com", // you may get this from JWT or separate endpoint
+          email: profile.email, // you may get this from JWT or separate endpoint
           location: profile.location,
           bio: profile.description,
           age: profile.age,
-          height: profile.height +" m",
+          height: profile.height + " m",
           profession: profile.category,
-          video: profile.video_portfolio,
-          genre:profile.genre,
+          video_portfolio: profile.video_portfolio,
+          genre: profile.genre,
         });
       } catch (err: any) {
         console.error("Failed to load profile", err);
       }
     };
-  
+
     fetchProfile();
   }, []);
 
@@ -73,21 +118,25 @@ const ProfileSettingsScreen: React.FC<ProfileSettingsScreenProps> = ({ onBack, o
   const handleUpdateProfile = async () => {
     try {
       const token = localStorage.getItem("token");
-      const baseUrl=await getBaseUrl();
-  
-      await axios.post(`${baseUrl}/api/model/profile`, {
-        name: userProfile.name,
-        age: userProfile.age,
-        genre: userProfile.genre, // pick from dropdown or state
-        height: userProfile.height,
-        location: userProfile.location,
-        category: userProfile.profession,
-        description: userProfile.bio,
-        video_portfolio: userProfile.video || null,
-      }, {
-        headers: { Authorization: `Bearer ${token}` }
-      });
-  
+      const baseUrl = await getBaseUrl();
+
+      await axios.post(
+        `${baseUrl}/api/model/profile`,
+        {
+          name: userProfile.name,
+          age: userProfile.age,
+          genre: userProfile.genre, // pick from dropdown or state
+          height: userProfile.height,
+          location: userProfile.location,
+          category: userProfile.profession,
+          description: userProfile.bio,
+          video_portfolio: videoUrl || userProfile.video_portfolio || null,
+        },
+        {
+          headers: { Authorization: `Bearer ${token}` },
+        }
+      );
+
       setIsEditing(false);
       alert("Profilo aggiornato con successo!");
     } catch (err: any) {
@@ -108,7 +157,9 @@ const ProfileSettingsScreen: React.FC<ProfileSettingsScreenProps> = ({ onBack, o
             >
               <ArrowLeft className="w-5 h-5 text-slate-700" />
             </button>
-            <h1 className="text-2xl font-bold text-slate-900">Profilo e Impostazioni</h1>
+            <h1 className="text-2xl font-bold text-slate-900">
+              Profilo e Impostazioni
+            </h1>
           </div>
           <button
             onClick={() => setIsEditing(!isEditing)}
@@ -125,8 +176,8 @@ const ProfileSettingsScreen: React.FC<ProfileSettingsScreenProps> = ({ onBack, o
           <div className="flex items-center space-x-4 mb-6">
             <div className="relative">
               <div className="w-20 h-20 bg-slate-200 rounded-2xl overflow-hidden">
-                <img 
-                  src="https://images.unsplash.com/photo-1649972904349-6e44c42644a7" 
+                <img
+                  src="https://images.unsplash.com/photo-1649972904349-6e44c42644a7"
                   alt="Profilo"
                   className="w-full h-full object-cover"
                 />
@@ -138,7 +189,9 @@ const ProfileSettingsScreen: React.FC<ProfileSettingsScreenProps> = ({ onBack, o
               )}
             </div>
             <div className="flex-1">
-              <h2 className="text-xl font-bold text-slate-900">{userProfile.name}</h2>
+              <h2 className="text-xl font-bold text-slate-900">
+                {userProfile.name}
+              </h2>
               <p className="text-slate-600">{userProfile.profession}</p>
               <p className="text-sm text-slate-500">{userProfile.location}</p>
             </div>
@@ -147,18 +200,24 @@ const ProfileSettingsScreen: React.FC<ProfileSettingsScreenProps> = ({ onBack, o
           {/* Editable Fields */}
           <div className="space-y-4">
             <div>
-              <label className="block text-sm font-medium text-slate-700 mb-2">Nome</label>
+              <label className="block text-sm font-medium text-slate-700 mb-2">
+                Nome
+              </label>
               <input
                 type="text"
                 value={userProfile.name}
-                onChange={(e) => setUserProfile({...userProfile, name: e.target.value})}
+                onChange={(e) =>
+                  setUserProfile({ ...userProfile, name: e.target.value })
+                }
                 disabled={!isEditing}
                 className="w-full px-4 py-3 border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-slate-900 disabled:bg-slate-50"
               />
             </div>
 
             <div>
-              <label className="block text-sm font-medium text-slate-700 mb-2">Email</label>
+              <label className="block text-sm font-medium text-slate-700 mb-2">
+                Email
+              </label>
               <input
                 type="email"
                 value={userProfile.email}
@@ -169,21 +228,32 @@ const ProfileSettingsScreen: React.FC<ProfileSettingsScreenProps> = ({ onBack, o
 
             <div className="grid grid-cols-2 gap-4">
               <div>
-                <label className="block text-sm font-medium text-slate-700 mb-2">Età</label>
+                <label className="block text-sm font-medium text-slate-700 mb-2">
+                  Età
+                </label>
                 <input
                   type="number"
                   value={userProfile.age}
-                  onChange={(e) => setUserProfile({...userProfile, age: parseInt(e.target.value)})}
+                  onChange={(e) =>
+                    setUserProfile({
+                      ...userProfile,
+                      age: parseInt(e.target.value),
+                    })
+                  }
                   disabled={!isEditing}
                   className="w-full px-4 py-3 border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-slate-900 disabled:bg-slate-50"
                 />
               </div>
               <div>
-                <label className="block text-sm font-medium text-slate-700 mb-2">Altezza</label>
+                <label className="block text-sm font-medium text-slate-700 mb-2">
+                  Altezza
+                </label>
                 <input
                   type="text"
                   value={userProfile.height}
-                  onChange={(e) => setUserProfile({...userProfile, height: e.target.value})}
+                  onChange={(e) =>
+                    setUserProfile({ ...userProfile, height: e.target.value })
+                  }
                   disabled={!isEditing}
                   className="w-full px-4 py-3 border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-slate-900 disabled:bg-slate-50"
                 />
@@ -191,21 +261,29 @@ const ProfileSettingsScreen: React.FC<ProfileSettingsScreenProps> = ({ onBack, o
             </div>
 
             <div>
-              <label className="block text-sm font-medium text-slate-700 mb-2">Località</label>
+              <label className="block text-sm font-medium text-slate-700 mb-2">
+                Località
+              </label>
               <input
                 type="text"
                 value={userProfile.location}
-                onChange={(e) => setUserProfile({...userProfile, location: e.target.value})}
+                onChange={(e) =>
+                  setUserProfile({ ...userProfile, location: e.target.value })
+                }
                 disabled={!isEditing}
                 className="w-full px-4 py-3 border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-slate-900 disabled:bg-slate-50"
               />
             </div>
 
             <div>
-              <label className="block text-sm font-medium text-slate-700 mb-2">Bio Professionale</label>
+              <label className="block text-sm font-medium text-slate-700 mb-2">
+                Bio Professionale
+              </label>
               <textarea
                 value={userProfile.bio}
-                onChange={(e) => setUserProfile({...userProfile, bio: e.target.value})}
+                onChange={(e) =>
+                  setUserProfile({ ...userProfile, bio: e.target.value })
+                }
                 disabled={!isEditing}
                 className="w-full px-4 py-3 border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-slate-900 disabled:bg-slate-50 h-24 resize-none"
               />
@@ -230,34 +308,68 @@ const ProfileSettingsScreen: React.FC<ProfileSettingsScreenProps> = ({ onBack, o
           </div>
         </div>
 
-        {/* Video Management */}
         <div className="bg-white rounded-2xl p-6 shadow-sm border border-slate-200">
-          <h3 className="text-lg font-semibold text-slate-900 mb-4 flex items-center">
-            <Video className="w-5 h-5 mr-2" />
-            Video Professionale
-          </h3>
-          
-          <div className="bg-slate-50 rounded-xl p-4 mb-4">
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="font-medium text-slate-900">Video Attuale</p>
-                <p className="text-sm text-slate-600">Presentazione professionale di 30 secondi</p>
-              </div>
-              <button className="bg-slate-900 text-white px-4 py-2 rounded-lg text-sm font-medium hover:bg-slate-800 transition-colors">
-                Anteprima
-              </button>
-            </div>
-          </div>
+  <h3 className="text-lg font-semibold text-slate-900 mb-4 flex items-center">
+    <Video className="w-5 h-5 mr-2" />
+    Video Professionale
+  </h3>
 
-          <div className="flex space-x-3">
-            <button className="flex-1 bg-slate-100 text-slate-700 py-3 rounded-xl font-medium hover:bg-slate-200 transition-colors">
-              Aggiorna Video
-            </button>
-            <button className="flex-1 bg-red-50 text-red-600 py-3 rounded-xl font-medium hover:bg-red-100 transition-colors">
-              Elimina Video
-            </button>
-          </div>
+  {/* Hidden file input always rendered */}
+  <input
+    type="file"
+    accept="video/*"
+    ref={fileInputRef}
+    onChange={handleFileChange}
+    style={{ display: "none" }}
+  />
+
+  <div className="border-2 border-dashed border-slate-300 rounded-xl p-6 text-center">
+    {videoUploaded || userProfile.video_portfolio ? (
+      <div>
+        <video
+          src={videoUrl || userProfile.video_portfolio||undefined}
+          controls
+          className="w-full rounded-xl mb-3"
+        />
+        <p className="text-sm text-slate-600 mb-3">
+          Presentazione professionale di 30 secondi
+        </p>
+        <div className="flex justify-center gap-3">
+          <button
+            type="button"
+            onClick={handleVideoUploadClick}
+            className="bg-slate-900 text-white px-6 py-3 rounded-xl font-medium hover:bg-slate-800 transition-colors"
+          >
+            Sostituisci Video
+          </button>
+          {/* Delete */}
+          <button
+            type="button"
+            onClick={handleDeleteVideo}
+            className="bg-red-50 text-red-600 px-6 py-3 rounded-xl font-medium hover:bg-red-100 transition-colors"
+          >
+            Elimina Video
+          </button>
         </div>
+      </div>
+    ) : (
+      <div>
+        <Upload className="w-12 h-12 text-slate-400 mx-auto mb-3" />
+        <p className="font-medium text-slate-900 mb-2">
+          Carica un video di presentazione
+        </p>
+        <button
+          type="button"
+          onClick={handleVideoUploadClick}
+          className="bg-slate-900 text-white px-6 py-3 rounded-xl font-medium hover:bg-slate-800 transition-colors"
+        >
+          Carica Video
+        </button>
+      </div>
+    )}
+  </div>
+</div>
+
 
         {/* Settings Menu */}
         <div className="bg-white rounded-2xl shadow-sm border border-slate-200 overflow-hidden">
@@ -265,31 +377,39 @@ const ProfileSettingsScreen: React.FC<ProfileSettingsScreenProps> = ({ onBack, o
             <button className="w-full px-6 py-4 flex items-center justify-between hover:bg-slate-50 transition-colors">
               <div className="flex items-center">
                 <Shield className="w-5 h-5 text-slate-600 mr-3" />
-                <span className="font-medium text-slate-900">Impostazioni Privacy</span>
+                <span className="font-medium text-slate-900">
+                  Impostazioni Privacy
+                </span>
               </div>
               <span className="text-slate-400">›</span>
             </button>
-            
+
             <button className="w-full px-6 py-4 flex items-center justify-between hover:bg-slate-50 transition-colors">
               <div className="flex items-center">
                 <FileText className="w-5 h-5 text-slate-600 mr-3" />
-                <span className="font-medium text-slate-900">Termini di Servizio</span>
+                <span className="font-medium text-slate-900">
+                  Termini di Servizio
+                </span>
               </div>
               <span className="text-slate-400">›</span>
             </button>
-            
+
             <button className="w-full px-6 py-4 flex items-center justify-between hover:bg-slate-50 transition-colors">
               <div className="flex items-center">
                 <FileText className="w-5 h-5 text-slate-600 mr-3" />
-                <span className="font-medium text-slate-900">Informativa sulla Privacy</span>
+                <span className="font-medium text-slate-900">
+                  Informativa sulla Privacy
+                </span>
               </div>
               <span className="text-slate-400">›</span>
             </button>
-            
+
             <button className="w-full px-6 py-4 flex items-center justify-between hover:bg-slate-50 transition-colors">
               <div className="flex items-center">
                 <HelpCircle className="w-5 h-5 text-slate-600 mr-3" />
-                <span className="font-medium text-slate-900">Aiuto e Supporto</span>
+                <span className="font-medium text-slate-900">
+                  Aiuto e Supporto
+                </span>
               </div>
               <span className="text-slate-400">›</span>
             </button>
@@ -310,7 +430,9 @@ const ProfileSettingsScreen: React.FC<ProfileSettingsScreenProps> = ({ onBack, o
         {/* App Info */}
         <div className="text-center py-4">
           <p className="text-sm text-slate-500">yo_work v1.0.0</p>
-          <p className="text-xs text-slate-400 mt-1">Piattaforma Professionale per il Matching di Talenti</p>
+          <p className="text-xs text-slate-400 mt-1">
+            Piattaforma Professionale per il Matching di Talenti
+          </p>
         </div>
       </div>
     </div>
