@@ -8,9 +8,11 @@ export interface Profile {
   age: number;
   location: string;
   bio: string;
-  videoThumbnail: string;
+  video_portfolio: string;
   description: string;
   category: 'model' | 'hostess' | 'agency'| 'photographer';
+  videoThumbnail:string;
+  
 }
 
 interface BackendModel {
@@ -19,6 +21,8 @@ interface BackendModel {
     description?: string;
     location: string;
     category: 'model' | 'hostess' | 'agency'| 'photographer';
+    video_portfolio:string;
+    videoThumbnail:string;
   }
   
   interface BackendResponse {
@@ -32,7 +36,7 @@ interface BackendModel {
     const res = await axios.get<BackendResponse>(`${baseUrl}/api/agency/model-profiles`, {
       headers: { Authorization: `Bearer ${token}` }
     });
-  
+    console.log(res.data.models);
     return res.data.models.map((m) => ({
       id: m.id,
       name: m.name,
@@ -41,7 +45,8 @@ interface BackendModel {
       category: m.category.toLowerCase() as 'model' | 'hostess' | 'agency' | 'photographer',
       bio: m.description,
       age: 0, // backend doesn’t give it → fallback
-      videoThumbnail: "https://images.unsplash.com/photo-1649972904349-6e44c42644a7"
+      videoThumbnail: "https://images.unsplash.com/photo-1649972904349-6e44c42644a7",
+      video_portfolio:m.video_portfolio
     }));
   };
 
@@ -66,7 +71,8 @@ interface BackendModel {
       category: (m.category || "model").toLowerCase() as 'model' | 'hostess' | 'agency' | 'photographer',
       bio: m.bio || m.description || "Awaiting approval",
       age: m.age || 0, // fallback
-      videoThumbnail: "https://images.unsplash.com/photo-1649972904349-6e44c42644a7"
+      videoThumbnail: "https://images.unsplash.com/photo-1649972904349-6e44c42644a7",
+      video_portfolio:m.video_portfolio
     }));
   }
 

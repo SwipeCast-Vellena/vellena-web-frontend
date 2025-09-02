@@ -14,6 +14,7 @@ import CampaignCreationScreen from "../components/CampaignCreationScreen";
 import MatchConfirmationScreen from "../components/MatchConfirmationScreen";
 import ChatScreen from "../components/ChatScreen";
 import ChatPage from "@/components/ChatPage";
+import ChatPageAgency from "@/components/ChatPageAgency";
 
 import SearchScreen from "../components/SearchScreen";
 import ProfileSettingsScreen from "../components/ProfileSettingsScreen";
@@ -223,7 +224,7 @@ export const AgencyChatRoute = () => {
 
   return (
     <>
-      <ChatPage />
+      <ChatPageAgency />
       <NavigationBar
         activeTab="chat"  // pass default chat id
         onTabChange={(tab) => {

@@ -46,7 +46,6 @@ const MainFeedScreenAgency: React.FC<MainFeedScreenProps> = ({
   const [showFilters, setShowFilters] = useState(false);
   const [isAnimating, setIsAnimating] = useState(false);
   const [pendingProfiles, setPendingProfiles] = useState<Profile[]>([]);
-  
 
   // Pointer swipe state (works for mouse + touch)
   const startX = useRef<number | null>(null);
@@ -57,6 +56,7 @@ const MainFeedScreenAgency: React.FC<MainFeedScreenProps> = ({
     const loadModels = async () => {
       try {
         const models = await fetchModels();
+        
         setAllProfiles(models);
       } catch (error) {
         console.error("Error fetching models:", error);
@@ -284,13 +284,12 @@ const MainFeedScreenAgency: React.FC<MainFeedScreenProps> = ({
           >
             {/* Media area takes ~48% of card height */}
             <div className="relative h-[62%] min-h-[220px] overflow-hidden bg-black">
-              <img
-                src={currentProfile.videoThumbnail}
-                alt={currentProfile.name}
+              <video
+                src={currentProfile.video_portfolio}
                 className="w-full h-full object-cover"
-                draggable={false}
+                controls
               />
-              <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent"></div>
+              {/* <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent"></div>
               <div className="absolute inset-0 flex items-center justify-center">
                 <div className="w-16 h-16 bg-white/20 backdrop-blur-sm rounded-full flex items-center justify-center shadow-lg hover:scale-110 transition-transform cursor-pointer">
                   <Play
@@ -298,7 +297,7 @@ const MainFeedScreenAgency: React.FC<MainFeedScreenProps> = ({
                     fill="currentColor"
                   />
                 </div>
-              </div>
+              </div> */}
 
               {/* Category Badge */}
               <div className="absolute top-4 right-4">
@@ -351,7 +350,6 @@ const MainFeedScreenAgency: React.FC<MainFeedScreenProps> = ({
 
                       if (result.success && result.autoApproved) {
                         // instantly open chat if auto-approved
-                        
                       } else {
                         // maybe show toast: "You liked this profile"
                       }
