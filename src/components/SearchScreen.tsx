@@ -3,6 +3,7 @@ import React, { useState,useEffect } from 'react';
 import { Search, Filter, MapPin, Briefcase } from 'lucide-react';
 import { getBaseUrl } from '@/services/utils/baseUrl';
 import axios from 'axios';
+import { fetchPhotosByModelId } from '@/services/modelPhotos';
 
 interface SearchScreenProps {
   onUserSelect?: (userId: number) => void;
@@ -31,27 +32,69 @@ const SearchScreen: React.FC<SearchScreenProps> = ({ onUserSelect }) => {
   const [loading, setLoading] = useState(true);
   
 
-  useEffect(() => {
+useEffect(() => {
   const fetchProfiles = async () => {
     const baseUrl = await getBaseUrl();
+    console.log("Base URL:", baseUrl);
+
     try {
       const token = localStorage.getItem("token");
+      console.log("Token:", token);
+
       const res = await axios.get<BackendResponse>(`${baseUrl}/api/agency/model-profiles`, {
         headers: { Authorization: `Bearer ${token}` }
       });
 
+      console.log("Profiles response:", res.data);
+
       const backendModels = res.data.models;
 
-      setProfiles(
-        backendModels.map((m) => ({
-          id: m.id,
-          name: m.name,
-          description: m.description || "Modella", // map description → profession
-          location: m.location,
-          category: m.category.toLowerCase(),
-          image: "https://images.unsplash.com/photo-1649972904349-6e44c42644a7" // placeholder
-        }))
-      );
+      // Initially set profiles without any placeholder image
+      const initialProfiles = backendModels.map((m) => ({
+        id: m.id,
+        name: m.name,
+        description: m.description || "Modella",
+        location: m.location,
+        category: m.category.toLowerCase(),
+        image: undefined // no image initially
+      }));
+
+      console.log("Initial profiles:", initialProfiles);
+
+      setProfiles(initialProfiles);
+
+      // Fetch photos separately without blocking the UI
+      backendModels.forEach((m, index) => {
+        fetchPhotosByModelId(m.id.toString(), token, (err, data) => {
+          if (err) {
+            console.error(`Error fetching photos for model ${m.id}:`, err);
+            return;
+          }
+
+          console.log(`Photos data for model ${m.id}:`, data);
+
+          const urls: string[] = [];
+          if (data?.groups) {
+            Object.values(data.groups).forEach((group: any) => {
+              group.forEach((p: any) => {
+                urls.push(`${baseUrl}${p.url}`);
+              });
+            });
+          }
+
+          console.log(`Photo URLs for model ${m.id}:`, urls);
+
+          // Update the profile image if photos exist
+          if (urls.length > 0) {
+            setProfiles((prev) => {
+              const updated = [...prev];
+              updated[index] = { ...updated[index], image: urls[0] }; // use first photo
+              return updated;
+            });
+          }
+        });
+      });
+
     } catch (error) {
       console.error("Failed to load profiles", error);
     } finally {
@@ -61,6 +104,8 @@ const SearchScreen: React.FC<SearchScreenProps> = ({ onUserSelect }) => {
 
   fetchProfiles();
 }, []);
+
+
 
   // const searchResults = [
   //   {
@@ -107,6 +152,13 @@ const SearchScreen: React.FC<SearchScreenProps> = ({ onUserSelect }) => {
       onUserSelect(userId);
     }
   };
+
+  const getAvatarColor = (name: string) => {
+    const colors = ["#043584ff", "#73616146", "#895a09ff", "#034f35ff", "#200560ff"];
+    const index = name ? name.charCodeAt(0) % colors.length : 0;
+    return colors[index];
+  };
+
 
   return (
     <div className="min-h-screen bg-slate-50 pb-24">
@@ -157,12 +209,23 @@ const SearchScreen: React.FC<SearchScreenProps> = ({ onUserSelect }) => {
         ) : filteredResults.length > 0 ?(filteredResults.map((result) => (
           <div key={result.id} className="bg-white rounded-2xl p-4 shadow-sm border border-slate-200">
             <div className="flex items-center space-x-4">
-              <img
-                src={result.image}
-                alt={result.name}
-                className="w-16 h-16 rounded-xl object-cover cursor-pointer"
-                onClick={() => handleUserClick(result.id)}
-              />
+              {result.image ? (
+                <img
+                  src={result.image}
+                  alt={result.name}
+                  className="w-16 h-16 rounded-xl object-cover cursor-pointer"
+                  onClick={() => handleUserClick(result.id)}
+                />
+              ) : (
+                <div
+                  className="w-16 h-16 rounded-xl flex items-center justify-center text-white font-semibold cursor-pointer"
+                  style={{ backgroundColor: getAvatarColor(result.name) }}
+                  onClick={() => handleUserClick(result.id)}
+                >
+                  {result.name?.charAt(0).toUpperCase() || "?"}
+                </div>
+              )}
+
               <div className="flex-1">
                 <h3 
                   className="text-lg font-semibold text-slate-900 cursor-pointer hover:text-slate-700 transition-colors"
