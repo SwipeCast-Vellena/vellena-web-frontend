@@ -6,7 +6,7 @@ import { useNavigate } from "react-router-dom";
 import { getBaseUrl } from "@/services/utils/baseUrl";
 
 export default function RecentMatches() {
-  const [matches, setMatches] = useState([]);
+  const [matches, setMatches] = useState<any[]>([]);
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -31,12 +31,20 @@ export default function RecentMatches() {
     fetchMatches();
   }, []);
 
+  // Function to generate a background color based on agency name
+  const getAvatarColor = (name: string) => {
+    const colors = ["#043584ff", "#73616146", "#895a09ff", "#034f35ff", "#200560ff"];
+    const index = name ? name.charCodeAt(0) % colors.length : 0;
+    return colors[index];
+  };
+
   return (
     <Card className="lg:col-span-2">
       <CardContent className="p-5">
         <div className="flex items-center justify-between mb-4">
           <div className="font-semibold text-slate-900 flex items-center gap-2">
-          <div className="font-semibold text-slate-900 flex items-center gap-2"><MessageSquare className="w-5 h-5"/> Recent Matches</div>
+            <MessageSquare className="w-5 h-5" />
+            Recent Matches
           </div>
           <Button variant="ghost" className="gap-1">
             Open Inbox <ChevronRight className="w-4 h-4" />
@@ -52,23 +60,26 @@ export default function RecentMatches() {
                   key={chatId}
                   className="flex items-start gap-3 rounded-xl border p-3 bg-white"
                 >
-                  <img
-                    src={m.avatarUrl || "/default-avatar.png"}
-                    alt={m.agencyName}
-                    className="w-10 h-10 rounded-lg object-cover"
-                  />
+                  {m.avatarUrl ? (
+                    <img
+                      src={m.avatarUrl}
+                      alt={m.agencyName}
+                      className="w-10 h-10 rounded-full object-cover"
+                    />
+                  ) : (
+                      <div
+                        className="w-10 h-10 rounded-lg flex items-center justify-center text-white font-semibold"
+                        style={{ backgroundColor: getAvatarColor(m.agencyName) }}
+                      >
+                        {m.agencyName?.charAt(0).toUpperCase() || "?"}
+                      </div>
+                    )}
                   <div className="flex-1">
                     <div className="flex items-center justify-between">
-                      <div className="font-medium text-slate-900">
-                        {m.agencyName}
-                      </div>
+                      <div className="font-medium text-slate-900">{m.agencyName}</div>
                     </div>
-                    <div className="text-sm text-slate-600">
-                      Campaign: {m.title}
-                    </div>
-                    <div className="mt-1 text-xs text-slate-500">
-                      City: {m.city}
-                    </div>
+                    <div className="text-sm text-slate-600">Campaign: {m.title}</div>
+                    <div className="mt-1 text-xs text-slate-500">City: {m.city}</div>
                   </div>
                   <Button
                     size="sm"
@@ -88,4 +99,3 @@ export default function RecentMatches() {
     </Card>
   );
 }
-
