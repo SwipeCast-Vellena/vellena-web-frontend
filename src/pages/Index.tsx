@@ -158,11 +158,14 @@ export const CampaignsRoute = () => {
 
 export const AgencyCampaignRoute=()=>{
   const navigate=useNavigate();
+  const onCreateCampaign = () => navigate("/agency/campaign-create");
+
   return (
     <>
     <CampaignListScreenAgency
     onBack={() => navigate(-1)}
     onCampaignSelect={(c) => navigate(`/agency/campaign/${c.id}`)} 
+    onCreateCampaign={onCreateCampaign}
     />
     <NavigationBar activeTab="campaigns" onTabChange={(tab) => navigate(`/agency/${tab}`)} />
     </>
@@ -182,7 +185,7 @@ export const CampaignDetailRouteWrapper = () => {
 export const CampaignCreateRoute = () => {
   const navigate = useNavigate();
   return (
-    <CampaignCreationScreen onBack={() => navigate("/campaigns")} onSave={() => navigate("/campaigns")} />
+    <CampaignCreationScreen onBack={() => navigate("/agency/campaigns")} onSave={() => navigate("/agency/campaigns")} />
   );
 };
 
