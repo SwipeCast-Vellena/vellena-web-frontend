@@ -12,7 +12,7 @@ import {
   Upload,
 } from "lucide-react";
 import { getBaseUrl } from "@/services/utils/baseUrl";
-import { uploadVideo, deleteVideo,replaceVideo } from "@/services/uploadVideo";
+import { uploadVideo} from "@/services/uploadVideo";
 import { fetchMyModelPhotos } from "@/services/modelPhotos";
 import axios from "axios";
 
@@ -54,7 +54,7 @@ const ProfileSettingsScreen: React.FC<ProfileSettingsScreenProps> = ({
   const [modelPhotos, setModelPhotos] = useState<string[]>([]);
   const baseUrl = getBaseUrl();
 
-useEffect(() => {
+  useEffect(() => {
   const fetchPhotos = async () => {
     const token = localStorage.getItem("token");
     if (!token) return;
@@ -83,8 +83,23 @@ useEffect(() => {
   };
 
   fetchPhotos();
-}, []);
+  }, []);
 
+
+  useEffect(() => {
+    const token = localStorage.getItem("token");
+    if (!token) return;
+
+    fetchMyModelPhotos(token, (err, data) => {
+      if (err) {
+        console.error("Failed to fetch model photos:", err);
+        return;
+      }
+
+      // assuming backend returns array of photo URLs
+      setModelPhotos(data.photos || []);
+    });
+  }, []);
 
 
   const handleVideoUploadClick = () => fileInputRef.current?.click();
@@ -92,27 +107,9 @@ useEffect(() => {
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (!file) return;
-    const token = localStorage.getItem('token');
-    if (!token) return alert('You must be logged in');
-  
-    uploadVideo(file, token, (err, data) => {
-      if (err) return alert(err.message || err);
-      setVideoUrl(data.videoUrl);
-      setVideoUploaded(true);
-    });
-  };
 
-  const handleDeleteVideo = () => {
-    const token = localStorage.getItem('token');
-    if (!token) return alert('You must be logged in');
-  
-    deleteVideo(token, (err, data) => {
-      if (err) return alert(err.message || err);
-      setVideoUrl(null);
-      setVideoUploaded(false);
-      setUserProfile({ ...userProfile, video_portfolio: '' });
-      alert('Video eliminato con successo!');
-    });
+    const token = localStorage.getItem("token");
+    if (!token) return alert("You must be logged in");
   };
 
   const handleReplaceVideoClick = () => fileInputRef.current?.click();
@@ -372,7 +369,7 @@ useEffect(() => {
     {videoUploaded || userProfile.video_portfolio ? (
       <div>
         <video
-          src={videoUrl || userProfile.video_portfolio||undefined}
+          src={videoUrl || userProfile.video_portfolio || ""}
           controls
           className="w-full rounded-xl mb-3"
         />
@@ -390,7 +387,6 @@ useEffect(() => {
           {/* Delete */}
           <button
             type="button"
-            onClick={handleDeleteVideo}
             className="bg-red-50 text-red-600 px-6 py-3 rounded-xl font-medium hover:bg-red-100 transition-colors"
           >
             Elimina Video

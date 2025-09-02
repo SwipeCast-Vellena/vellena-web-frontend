@@ -20,6 +20,7 @@ import {
   CampaignCreateRoute,
   MatchRoute,
   ChatRoute,
+  AgencyChatRoute,
   SearchRoute,
   ProfileRoute,
   UserDetailRoute,
@@ -65,6 +66,8 @@ const App = () => (
           <Route path="/agency/search" element={<SearchRoute />} />
           <Route path="/agency/profile" element={<AgencyRoute />} />
           <Route path="/agency/campaigns" element={<AgencyCampaignRoute/>} />
+          <Route path="/agency/chat" element={<AgencyChatRoute />} />
+          <Route path="/agency/chat/:chatId" element={<AgencyChatRoute />} />
           {/* Fallback */}
           <Route path="*" element={<NotFound />} />
         </Routes>

@@ -163,10 +163,7 @@ export const AgencyCampaignRoute=()=>{
     onBack={() => navigate(-1)}
     onCampaignSelect={(c) => navigate(`/agency/campaign/${c.id}`)} 
     />
-    <Navbarmodel
-        activeTab="campaigns"
-        onTabChange={(tab) => navigate(`/agency/${tab}`)}
-      />
+    <NavigationBar activeTab="campaigns" onTabChange={(tab) => navigate(`/agency/${tab}`)} />
     </>
   )
 }
@@ -220,14 +217,33 @@ export const ChatRoute = () => {
   );
 };
 
+export const AgencyChatRoute = () => {
+  const navigate = useNavigate();
+  const defaultChatId = "chat_campaign_model";
 
+  return (
+    <>
+      <ChatPage />
+      <NavigationBar
+        activeTab="chat"  // pass default chat id
+        onTabChange={(tab) => {
+          if (tab === "chat") {
+            navigate(`/agency/chat/${defaultChatId}`);
+          } else {
+            navigate(`/agency/${tab}`);
+          }
+        }}
+      />
+    </>
+  );
+};
 
 export const SearchRoute = () => {
   const navigate = useNavigate();
   return (
     <>
       <SearchScreen onUserSelect={(id) => navigate(`/user/${id}`)} />
-      <NavigationBar activeTab="search" onTabChange={(tab) => navigate(`/${tab}`)} />
+      <NavigationBar activeTab="search" onTabChange={(tab) => navigate(`/agency/${tab}`)} />
     </>
   );
 };
@@ -255,11 +271,7 @@ export const AgencyRoute=()=>{
     <ProfileEditScreenAgency
     onBack={()=>navigate(-1)}
     onComplete={()=>navigate("")}/>
-    <Navbarmodel
-        activeTab="profile"
-        onTabChange={(tab) => navigate(`/agency/${tab}`)}
-      />
-
+    <NavigationBar activeTab="profile" onTabChange={(tab) => navigate(`/agency/${tab}`)} />
     </>
   )
 
