@@ -19,11 +19,10 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Progress } from "@/components/ui/progress";
 import { Badge } from "@/components/ui/badge";
-
 import NotificationsCard from "./NotificationCard";
 import RecentMatches from "./RecentMatches";
-
 import { useCampaignStore } from "../stores/campaignStore";
+import PhotoUploader from "../components/PhotoUploader";
 // import { getModelProfile } from "@/services/modelService"; // not used currently
 
 // --- Types coming from backend (snake_case) ---
@@ -106,10 +105,16 @@ export default function MainFeedScreenModel() {
   const [query, setQuery] = useState("");
   const [view, setView] = useState<"list" | "swipe">("list");
   const { campaigns, fetchCampaigns } = useCampaignStore();
+  const [token, setToken] = useState("");
 
   useEffect(() => {
     fetchCampaigns();
   }, [fetchCampaigns]);
+
+  useEffect(() => {
+    const t = localStorage.getItem("token");
+    if (t) setToken(t);
+  }, []);
 
   // Profile completion mock
   const profile = {
@@ -222,27 +227,14 @@ export default function MainFeedScreenModel() {
           <NotificationsCard />
         </div>
 
-        {/* Video uploader */}
-        <Card>
-          <CardContent className="p-5">
-            <div className="flex items-center justify-between">
-              <div className="flex items-center gap-2">
-                <Film className="w-5 h-5" />
-                <div className="font-semibold">30s Vertical Intro Video</div>
-              </div>
-              <Button onClick={uploadVideo} className="gap-2">
-                <VideoIcon className="w-4 h-4" />
-                Upload
-              </Button>
-            </div>
-            <div className="mt-4 rounded-xl border border-dashed border-slate-300 p-6 text-center bg-slate-50">
-              <p className="text-sm text-slate-600">
-                Drag & drop or <span className="font-semibold text-slate-900">click to select</span>. MP4/MOV, 9:16, max 60MB.
-              </p>
-              <p className="text-xs text-slate-500 mt-1">From desktop or phone camera.</p>
-            </div>
-          </CardContent>
-        </Card>
+        {/* Photo uploader */}
+        <div className="p-6">
+          {token ? (
+            <PhotoUploader token={token} />
+          ) : (
+            <p>Please log in to upload photos.</p>
+          )}
+        </div>
 
         {/* Jobs feed: toggle Swipe/List */}
         <div className="flex items-center justify-between">
