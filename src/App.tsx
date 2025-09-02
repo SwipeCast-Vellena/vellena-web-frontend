@@ -57,7 +57,6 @@ const App = () => (
 
 
           {/* Main Routes */}
-          <Route path="/campaign-create" element={<CampaignCreateRoute />} />
           <Route path="/user/:id" element={<UserDetailRoute />} />
 
           {/* Agency */}
@@ -68,6 +67,7 @@ const App = () => (
           <Route path="/agency/campaigns" element={<AgencyCampaignRoute/>} />
           <Route path="/agency/chat" element={<AgencyChatRoute />} />
           <Route path="/agency/chat/:chatId" element={<AgencyChatRoute />} />
+          <Route path="/agency/campaign-create" element={<CampaignCreateRoute />} />
           {/* Fallback */}
           <Route path="*" element={<NotFound />} />
         </Routes>

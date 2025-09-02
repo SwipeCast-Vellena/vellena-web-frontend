@@ -1,5 +1,5 @@
 // src/screens/CampaignListScreen.tsx
-import React, { useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
 import { ArrowLeft, MapPin, CalendarDays, Calendar } from 'lucide-react';
 import { useCampaignStore2 } from '../stores/campaignStore';
 
@@ -34,6 +34,8 @@ const CampaignListScreenAgency: React.FC<CampaignListScreenProps> = ({
   const campaigns = useCampaignStore2((state) => state.campaigns);
   const loading = useCampaignStore2((state) => state.loading);
   const fetchCampaigns = useCampaignStore2((state) => state.fetchCampaigns);
+  const [search, setSearch] = useState("");
+  const [filteredCampaigns, setFilteredCampaigns] = useState(campaigns)
 
   // Fetch campaigns only if not already loaded
   useEffect(() => {
@@ -41,6 +43,20 @@ const CampaignListScreenAgency: React.FC<CampaignListScreenProps> = ({
       fetchCampaigns();
     }
   }, [campaigns.length, fetchCampaigns]);
+
+    useEffect(() => {
+      setFilteredCampaigns(campaigns);
+    }, [campaigns]);
+  
+    const handleSearch = (e: React.ChangeEvent<HTMLInputElement>) => {
+      const value = e.target.value;
+      setSearch(value);
+  
+      const filtered = campaigns.filter((c) =>
+        c.title.toLowerCase().includes(value.toLowerCase())
+      );
+      setFilteredCampaigns(filtered);
+    };
 
   if (loading) {
     return (
@@ -53,23 +69,43 @@ const CampaignListScreenAgency: React.FC<CampaignListScreenProps> = ({
   return (
     <div className="min-h-screen bg-slate-50 pb-20">
       {/* Header */}
-      <div className="bg-white border-b border-slate-200 px-6 pt-12 pb-3">
-        <div className="flex items-center justify-between mb-2">
-          <div className="flex items-center">
-            <button
-              onClick={onBack}
-              className="w-8 h-8 bg-slate-100 rounded-lg flex items-center justify-center mr-3"
-            >
-              <ArrowLeft className="w-4 h-4 text-slate-700" />
-            </button>
-            <h1 className="text-xl font-bold text-slate-900">Campagne</h1>
-          </div>
-        </div>
-      </div>
+            <div className="bg-white border-b border-slate-200 px-6 pt-12 pb-3">
+              <div className="flex items-center justify-between">
+                {/* Left side: Back button + Title */}
+                <div className="flex items-center">
+                  <button
+                    onClick={onBack}
+                    className="w-8 h-8 bg-slate-100 rounded-lg flex items-center justify-center mr-3"
+                  >
+                    <ArrowLeft className="w-4 h-4 text-slate-700" />
+                  </button>
+                  <h1 className="text-xl font-bold text-slate-900">Campagne</h1>
+                </div>
+      
+                {/* Right side: Search + Add Button */}
+                <div className="flex items-center space-x-2">
+                  <input
+                    type="text"
+                    value={search}
+                    onChange={handleSearch}
+                    placeholder="Search campaigns..."
+                    className="w-96 border border-slate-300 rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  />
+                  {onCreateCampaign && (
+                    <button
+                      onClick={onCreateCampaign}
+                      className="bg-gray-500 hover:bg-blue-600 text-white px-4 py-2 rounded-lg font-semibold"
+                    >
+                      +
+                    </button>
+                  )}
+                </div>
+              </div>
+            </div>
 
       {/* Campaign List */}
       <div className="px-6 py-4 space-y-4">
-        {campaigns.map((item) => {
+       {filteredCampaigns.map((item) => {
           // Calculate time left until deadline
           const deadlineDate = new Date(item.deadline);
           const diffTime = deadlineDate.getTime() - new Date().getTime();
