@@ -5,7 +5,12 @@ import { ImageIcon, Upload } from "lucide-react";
 import { uploadModelPhotos, fetchMyModelPhotos } from "@/services/modelPhotos";
 import { getBaseUrl } from "@/services/utils/baseUrl";
 
-export default function PhotoUploader({ token }: { token: string }) {
+interface PhotoUploaderProps {
+  token: string;
+  onUploadSuccess?: (hasPhoto: boolean) => void;
+}
+
+export default function PhotoUploader({ token, onUploadSuccess }: PhotoUploaderProps) {
   const [selectedFiles, setSelectedFiles] = useState<File[]>([]);
   const [photos, setPhotos] = useState<any[]>([]);
   const [loading, setLoading] = useState(false);
@@ -54,11 +59,8 @@ export default function PhotoUploader({ token }: { token: string }) {
       setLoading(false);
 
       if (err) {
-        if (err === "MAX_LIMIT") {
-          alert("Max limit reached. Remove a photo before uploading new ones.");
-        } else {
-          alert("Upload failed. Please try again.");
-        }
+        if (err === "MAX_LIMIT") alert("Max limit reached.");
+        else alert("Upload failed.");
         return;
       }
 
@@ -69,8 +71,20 @@ export default function PhotoUploader({ token }: { token: string }) {
       }));
       setPhotos(photosWithFullUrl);
       setSelectedFiles([]);
+
+      // Notify parent about uploaded photo
+      if (photosWithFullUrl.length > 0) {
+        onUploadSuccess?.(true);
+      }
     });
   };
+
+  useEffect(() => {
+    if (photos.length > 0) {
+      onUploadSuccess?.(true);
+    }
+  }, [photos, onUploadSuccess]);
+
 
   return (
     <Card>

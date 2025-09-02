@@ -96,6 +96,7 @@ export const ModelFeedRoute = () => {
     <>
       <MainFeedScreenModel
         onCampaignSelect={(c) => navigate(`/model/campaign/${c.id}`)}
+        onEditProfile={() => navigate("/model/profile")}
       />
       <Navbarmodel
         activeTab="feed"

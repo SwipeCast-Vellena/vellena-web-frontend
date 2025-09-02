@@ -100,14 +100,16 @@ const mapToUICampaign = (c: BackendCampaign): Campaign => ({
 
 interface MainFeedScreenModelProps {
   onCampaignSelect?: (campaign: Campaign) => void;
+  onEditProfile?: () => void; // ✅ add this
 }
 
 // --- Component ---
-export default function MainFeedScreenModel({ onCampaignSelect }: MainFeedScreenModelProps) {
+export default function MainFeedScreenModel({ onCampaignSelect, onEditProfile }: MainFeedScreenModelProps) {
   const [query, setQuery] = useState("");
   const [view, setView] = useState<"list" | "swipe">("list");
   const { campaigns, fetchCampaigns } = useCampaignStore();
   const [token, setToken] = useState("");
+  const [profilePhotoUploaded, setProfilePhotoUploaded] = useState(false);
 
   useEffect(() => {
     fetchCampaigns();
@@ -119,20 +121,21 @@ export default function MainFeedScreenModel({ onCampaignSelect }: MainFeedScreen
   }, []);
 
   // Profile completion mock
-  const profile = {
-    photo: false,
-    age: 24,
-    height: "1.75m",
-    measurements: "84-62-90",
-    video: true,
-    category: "Model",
-    city: "Milano, IT",
-  };
+  const [profile, setProfile] = useState({
+      photo: false,
+      age: 24,
+      height: "1.75m",
+      measurements: "84-62-90",
+      video: true,
+      category: "Model",
+      city: "Milano, IT",
+  });
+
 
   const completion = useMemo(() => {
     if (!profile) return 0;
     const fields = [
-      profile.photo,
+      profilePhotoUploaded,
       !!profile.age,
       !!profile.height,
       !!profile.measurements,
@@ -140,7 +143,7 @@ export default function MainFeedScreenModel({ onCampaignSelect }: MainFeedScreen
       !!profile.category,
     ];
     return Math.round((fields.filter(Boolean).length / fields.length) * 100);
-  }, [profile]);
+  }, [profile, profilePhotoUploaded]);
 
   // Normalize campaigns for UI
   const uiCampaigns = useMemo<Campaign[]>(() => {
@@ -214,7 +217,7 @@ export default function MainFeedScreenModel({ onCampaignSelect }: MainFeedScreen
               </div>
               <Progress value={completion} className="mb-4" />
               <div className="grid sm:grid-cols-3 gap-3 text-sm">
-                <ChecklistItem done={profile.photo} label="Profile photo" />
+                <ChecklistItem done={profilePhotoUploaded} label="Profile photo" />
                 <ChecklistItem done={!!profile.age} label="Age" />
                 <ChecklistItem done={!!profile.height} label="Height" />
                 <ChecklistItem done={!!profile.measurements} label="Measurements" />
@@ -222,7 +225,7 @@ export default function MainFeedScreenModel({ onCampaignSelect }: MainFeedScreen
                 <ChecklistItem done={!!profile.category} label="Category selected" />
               </div>
               <div className="flex flex-wrap gap-2 mt-4">
-                <Button variant="outline" className="gap-2">
+                <Button variant="outline" className="gap-2" onClick={onEditProfile}>
                   <User2 className="w-4 h-4" />
                   Edit profile
                 </Button>
@@ -234,7 +237,10 @@ export default function MainFeedScreenModel({ onCampaignSelect }: MainFeedScreen
 
         {/* Photo uploader */}
         <div className="p-6">
-          {token ? <PhotoUploader token={token} /> : <p>Please log in to upload photos.</p>}
+          {token ? <PhotoUploader
+            token={token}
+            onUploadSuccess={(hasPhoto) => setProfilePhotoUploaded(hasPhoto)}
+          /> : <p>Please log in to upload photos.</p>}
         </div>
 
         {/* Jobs feed: toggle Swipe/List */}
