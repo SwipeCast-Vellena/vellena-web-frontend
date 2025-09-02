@@ -47,6 +47,19 @@ export default function ChatScreen({ onBack }: { onBack?: () => void }) {
     void fetchMessages();
   }, [chatId]);
 
+  useEffect(() => {
+    if (!chatId) return;
+    const stopRef = { current: false };
+  
+    ChatService.pollMessages(chatId, (msgs) => {
+      setMessages(msgs);
+      scrollToBottom();
+    }, stopRef);
+  
+    return () => { stopRef.current = true };
+  }, [chatId]);
+  
+
   // ==== sendMessage with optimistic update ====
   const sendMessage = async () => {
     const text = newMessage.trim();

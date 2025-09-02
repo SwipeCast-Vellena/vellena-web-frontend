@@ -90,43 +90,42 @@ export class ChatService {
     }
   }
 
-static async fetchMessages(chatId: string): Promise<{
-  success: boolean;
-  messages?: MessageView[];
-  title?: string;
-  agencyInfo?: AgencyInfo;
-  error?: string;
-}> {
-  if (!chatId) return { success: false, error: "No chat ID provided" };
+  static async fetchMessages(chatId: string): Promise<{
+    success: boolean;
+    messages?: MessageView[];
+    title?: string;
+    agencyInfo?: AgencyInfo;
+    error?: string;
+  }> {
+    if (!chatId) return { success: false, error: "No chat ID provided" };
 
-  try {
-    const url = `${API_BASE}/api/chat/${encodeURIComponent(chatId)}/messages`;
-    const res = await fetch(url, { headers: this.getHeaders() });
-    const parsed = await this.safeParse(res);
+    try {
+      const url = `${API_BASE}/api/chat/${encodeURIComponent(chatId)}/messages`;
+      const res = await fetch(url, { headers: this.getHeaders() });
+      const parsed = await this.safeParse(res);
 
-    if (!res.ok || !parsed.ok || !parsed.json) {
-      console.error("fetchMessages error:", parsed);
-      return { success: false, error: "Failed to fetch messages" };
-    }
+      if (!res.ok || !parsed.ok || !parsed.json) {
+        console.error("fetchMessages error:", parsed);
+        return { success: false, error: "Failed to fetch messages" };
+      }
 
-    const j = parsed.json;
-    if (!j.success || !Array.isArray(j.messages)) {
-      console.error("fetchMessages bad shape:", j);
-      return { success: false, error: "Invalid response format" };
-    }
+      const j = parsed.json;
+      if (!j.success || !Array.isArray(j.messages)) {
+        console.error("fetchMessages bad shape:", j);
+        return { success: false, error: "Invalid response format" };
+      }
 
-    return {
+      return {
         success: true,
         messages: j.messages.map((m: ServerMessage) => this.toViewMessage(m)),
         title: j.title,
-        agencyInfo: j.agencyInfo // <- add this line
+        agencyInfo: j.agencyInfo
       };
     } catch (err) {
       console.error("fetchMessages error:", err);
       return { success: false, error: "Network error" };
     }
   }
-
 
   static async sendMessage(chatId: string, text: string): Promise<{
     success: boolean;
@@ -172,5 +171,25 @@ static async fetchMessages(chatId: string): Promise<{
       isMe: true,
       timestamp: new Date().toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" }),
     };
+  }
+
+  /** 🔥 NEW: Long polling helper */
+  static async pollMessages(
+    chatId: string,
+    onUpdate: (messages: MessageView[]) => void,
+    stopRef: { current: boolean }
+  ) {
+    while (!stopRef.current) {
+      try {
+        const res = await this.fetchMessages(chatId);
+        if (res.success && res.messages) {
+          onUpdate(res.messages);
+        }
+      } catch (err) {
+        console.error("Polling error:", err);
+      }
+      // Short delay before next poll
+      await new Promise(r => setTimeout(r, 2000));
+    }
   }
 }
