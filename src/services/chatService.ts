@@ -10,6 +10,17 @@ export type ServerMessage = {
   readBy?: string[];
 };
 
+export type AgencyInfo = {
+  id: number;
+  agency_id: number;
+  name: string;
+  operating_years: number;
+  no_of_employees: number;
+  location: string;
+  professional_bio: string;
+  website: string;
+};
+
 export type MessageView = { 
   id: string; 
   text: string; 
@@ -79,40 +90,43 @@ export class ChatService {
     }
   }
 
-  static async fetchMessages(chatId: string): Promise<{ 
-    success: boolean; 
-    messages?: MessageView[]; 
-    title?: string; 
-    error?: string 
-  }> {
-    if (!chatId) return { success: false, error: "No chat ID provided" };
-    
-    try {
-      const url = `${API_BASE}/api/chat/${encodeURIComponent(chatId)}/messages`;
-      const res = await fetch(url, { headers: this.getHeaders() });
-      const parsed = await this.safeParse(res);
+static async fetchMessages(chatId: string): Promise<{
+  success: boolean;
+  messages?: MessageView[];
+  title?: string;
+  agencyInfo?: AgencyInfo;
+  error?: string;
+}> {
+  if (!chatId) return { success: false, error: "No chat ID provided" };
 
-      if (!res.ok || !parsed.ok || !parsed.json) {
-        console.error("fetchMessages error:", parsed);
-        return { success: false, error: "Failed to fetch messages" };
-      }
+  try {
+    const url = `${API_BASE}/api/chat/${encodeURIComponent(chatId)}/messages`;
+    const res = await fetch(url, { headers: this.getHeaders() });
+    const parsed = await this.safeParse(res);
 
-      const j = parsed.json;
-      if (!j.success || !Array.isArray(j.messages)) {
-        console.error("fetchMessages bad shape:", j);
-        return { success: false, error: "Invalid response format" };
-      }
+    if (!res.ok || !parsed.ok || !parsed.json) {
+      console.error("fetchMessages error:", parsed);
+      return { success: false, error: "Failed to fetch messages" };
+    }
 
-      return {
+    const j = parsed.json;
+    if (!j.success || !Array.isArray(j.messages)) {
+      console.error("fetchMessages bad shape:", j);
+      return { success: false, error: "Invalid response format" };
+    }
+
+    return {
         success: true,
         messages: j.messages.map((m: ServerMessage) => this.toViewMessage(m)),
-        title: j.title
+        title: j.title,
+        agencyInfo: j.agencyInfo // <- add this line
       };
     } catch (err) {
       console.error("fetchMessages error:", err);
       return { success: false, error: "Network error" };
     }
   }
+
 
   static async sendMessage(chatId: string, text: string): Promise<{
     success: boolean;

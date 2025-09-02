@@ -13,6 +13,7 @@ import { CampaignDetailRoute } from "../components/CampaignDetailRoute";
 import CampaignCreationScreen from "../components/CampaignCreationScreen";
 import MatchConfirmationScreen from "../components/MatchConfirmationScreen";
 import ChatScreen from "../components/ChatScreen";
+import ChatPage from "@/components/ChatPage";
 
 import SearchScreen from "../components/SearchScreen";
 import ProfileSettingsScreen from "../components/ProfileSettingsScreen";
@@ -199,13 +200,27 @@ export const MatchRoute = () => {
 
 export const ChatRoute = () => {
   const navigate = useNavigate();
+  const defaultChatId = "chat_campaign_model";
+
   return (
     <>
-      <ChatScreen onBack={() => navigate("/model/feed")} />
-      <NavigationBar activeTab="chat" onTabChange={(tab) => navigate(`/chat/:chatId`)} />
+      <ChatPage />
+      <Navbarmodel
+        activeTab="chat"
+        lastChatId={defaultChatId}   // pass default chat id
+        onTabChange={(tab) => {
+          if (tab === "chat") {
+            navigate(`/model/chat/${defaultChatId}`);
+          } else {
+            navigate(`/model/${tab}`);
+          }
+        }}
+      />
     </>
   );
 };
+
+
 
 export const SearchRoute = () => {
   const navigate = useNavigate();

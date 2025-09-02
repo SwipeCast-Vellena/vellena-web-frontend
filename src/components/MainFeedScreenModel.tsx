@@ -14,7 +14,6 @@ import {
 } from "lucide-react";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
 import { Progress } from "@/components/ui/progress";
 import { Badge } from "@/components/ui/badge";
 import NotificationsCard from "./NotificationCard";
@@ -105,7 +104,6 @@ interface MainFeedScreenModelProps {
 
 // --- Component ---
 export default function MainFeedScreenModel({ onCampaignSelect, onEditProfile }: MainFeedScreenModelProps) {
-  const [query, setQuery] = useState("");
   const [view, setView] = useState<"list" | "swipe">("list");
   const { campaigns, fetchCampaigns } = useCampaignStore();
   const [token, setToken] = useState("");
@@ -190,16 +188,6 @@ export default function MainFeedScreenModel({ onCampaignSelect, onEditProfile }:
               <div className="font-semibold text-slate-900">
                 Sarah Johnson · <span className="text-slate-600">Model</span>
               </div>
-            </div>
-          </div>
-          <div className="flex items-center gap-2">
-            <div className="hidden md:flex items-center gap-2">
-              <Input
-                value={query}
-                onChange={(e) => setQuery(e.target.value)}
-                placeholder="Search jobs, agencies, cities"
-                className="w-72"
-              />
             </div>
           </div>
         </div>
