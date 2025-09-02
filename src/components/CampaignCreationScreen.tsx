@@ -1,6 +1,6 @@
-
 import React, { useState } from 'react';
-import { ArrowLeft, Calendar, MapPin, Users, DollarSign } from 'lucide-react';
+import { ArrowLeft } from 'lucide-react';
+import { createCampaign } from "../services/createCampaign";
 
 interface CampaignCreationScreenProps {
   onBack: () => void;
@@ -11,19 +11,34 @@ const CampaignCreationScreen: React.FC<CampaignCreationScreenProps> = ({ onBack,
   const [formData, setFormData] = useState({
     title: '',
     description: '',
+    category: '',
+    start_date: '',
+    end_date: '',
+    start_time: '',
+    end_time: '',
+    city: '',
+    address: '',
+    compensation: '',
+    required_people: 1,
     deadline: '',
-    budget: '',
-    requirements: {
-      ageRange: '',
-      height: '',
-      gender: '',
-      location: ''
-    }
+    pro_only: false,
+    gender_preference: 'any' as 'any' | 'women' | 'men'
   });
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    onSave();
+
+    try {
+      const token = localStorage.getItem("token"); // or from your auth store
+      if (!token) throw new Error("User not authenticated");
+
+      await createCampaign(formData, token);
+      alert("Campagna creata con successo!");
+      onSave(); // navigate back after success
+    } catch (error: any) {
+      console.error(error);
+      alert("Errore nella creazione della campagna: " + (error.message || error));
+    }
   };
 
   return (
@@ -66,11 +81,29 @@ const CampaignCreationScreen: React.FC<CampaignCreationScreenProps> = ({ onBack,
                 onChange={(e) => setFormData({...formData, description: e.target.value})}
                 className="w-full px-4 py-3 border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-slate-900 h-24 resize-none"
                 placeholder="Descrivi i requisiti della tua campagna..."
+                maxLength={500}
                 required
               />
             </div>
 
             <div className="grid grid-cols-2 gap-4">
+              <div>
+                <label className="block text-sm font-medium text-slate-700 mb-2">Categoria</label>
+                <select
+                  value={formData.category}
+                  onChange={(e) => setFormData({...formData, category: e.target.value})}
+                  className="w-full px-4 py-3 border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-slate-900"
+                  required
+                >
+                  <option value="">Seleziona Categoria</option>
+                  <option value="Hostess">Hostess</option>
+                  <option value="Model">Model</option>
+                  <option value="Photographer">Photographer</option>
+                  <option value="Promoter">Promoter</option>
+                  <option value="Waiter">Waiter</option>
+                  <option value="Other">Other</option>
+                </select>
+              </div>
               <div>
                 <label className="block text-sm font-medium text-slate-700 mb-2">Scadenza</label>
                 <input
@@ -81,81 +114,124 @@ const CampaignCreationScreen: React.FC<CampaignCreationScreenProps> = ({ onBack,
                   required
                 />
               </div>
+            </div>
+
+            <div className="grid grid-cols-2 gap-4">
               <div>
-                <label className="block text-sm font-medium text-slate-700 mb-2">Budget</label>
+                <label className="block text-sm font-medium text-slate-700 mb-2">Data Inizio</label>
+                <input
+                  type="date"
+                  value={formData.start_date}
+                  onChange={(e) => setFormData({...formData, start_date: e.target.value})}
+                  className="w-full px-4 py-3 border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-slate-900"
+                  required
+                />
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-slate-700 mb-2">Data Fine</label>
+                <input
+                  type="date"
+                  value={formData.end_date}
+                  onChange={(e) => setFormData({...formData, end_date: e.target.value})}
+                  className="w-full px-4 py-3 border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-slate-900"
+                />
+              </div>
+            </div>
+
+            <div className="grid grid-cols-2 gap-4">
+              <div>
+                <label className="block text-sm font-medium text-slate-700 mb-2">Orario Inizio</label>
+                <input
+                  type="time"
+                  value={formData.start_time}
+                  onChange={(e) => setFormData({...formData, start_time: e.target.value})}
+                  className="w-full px-4 py-3 border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-slate-900"
+                />
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-slate-700 mb-2">Orario Fine</label>
+                <input
+                  type="time"
+                  value={formData.end_time}
+                  onChange={(e) => setFormData({...formData, end_time: e.target.value})}
+                  className="w-full px-4 py-3 border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-slate-900"
+                />
+              </div>
+            </div>
+
+            <div className="grid grid-cols-2 gap-4">
+              <div>
+                <label className="block text-sm font-medium text-slate-700 mb-2">Città</label>
                 <input
                   type="text"
-                  value={formData.budget}
-                  onChange={(e) => setFormData({...formData, budget: e.target.value})}
+                  value={formData.city}
+                  onChange={(e) => setFormData({...formData, city: e.target.value})}
                   className="w-full px-4 py-3 border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-slate-900"
-                  placeholder="€2.500 - €5.000"
+                  placeholder="Milano"
+                  required
+                />
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-slate-700 mb-2">Indirizzo</label>
+                <input
+                  type="text"
+                  value={formData.address}
+                  onChange={(e) => setFormData({...formData, address: e.target.value})}
+                  className="w-full px-4 py-3 border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-slate-900"
+                  placeholder="Via, CAP, Italia"
+                />
+              </div>
+            </div>
+
+            <div className="grid grid-cols-2 gap-4">
+              <div>
+                <label className="block text-sm font-medium text-slate-700 mb-2">Compenso (€)</label>
+                <input
+                  type="text"
+                  value={formData.compensation}
+                  onChange={(e) => setFormData({...formData, compensation: e.target.value})}
+                  className="w-full px-4 py-3 border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-slate-900"
+                  placeholder="80"
+                  required
+                />
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-slate-700 mb-2">Numero Persone Richieste</label>
+                <input
+                  type="number"
+                  value={formData.required_people}
+                  onChange={(e) => setFormData({...formData, required_people: Number(e.target.value)})}
+                  className="w-full px-4 py-3 border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-slate-900"
+                  min={1}
                   required
                 />
               </div>
             </div>
-          </div>
-        </div>
 
-        {/* Requirements */}
-        <div className="bg-white rounded-2xl p-6 shadow-sm border border-slate-200">
-          <h2 className="text-lg font-semibold text-slate-900 mb-4">Requisiti</h2>
-          
-          <div className="grid grid-cols-2 gap-4">
-            <div>
-              <label className="block text-sm font-medium text-slate-700 mb-2">Fascia di Età</label>
-              <input
-                type="text"
-                value={formData.requirements.ageRange}
-                onChange={(e) => setFormData({
-                  ...formData, 
-                  requirements: {...formData.requirements, ageRange: e.target.value}
-                })}
-                className="w-full px-4 py-3 border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-slate-900"
-                placeholder="18-28"
-              />
+            <div className="grid grid-cols-2 gap-4">
+              <div className="flex items-center space-x-2">
+                <input
+                  type="checkbox"
+                  checked={formData.pro_only}
+                  onChange={(e) => setFormData({...formData, pro_only: e.target.checked})}
+                  className="h-4 w-4"
+                />
+                <label className="text-sm font-medium text-slate-700">Pro profiles only</label>
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-slate-700 mb-2">Genere Preferito</label>
+                <select
+                  value={formData.gender_preference}
+                  onChange={(e) => setFormData({...formData, gender_preference: e.target.value as 'any' | 'women' | 'men'})}
+                  className="w-full px-4 py-3 border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-slate-900"
+                >
+                  <option value="any">Qualsiasi</option>
+                  <option value="women">Femminile</option>
+                  <option value="men">Maschile</option>
+                </select>
+              </div>
             </div>
-            <div>
-              <label className="block text-sm font-medium text-slate-700 mb-2">Altezza</label>
-              <input
-                type="text"
-                value={formData.requirements.height}
-                onChange={(e) => setFormData({
-                  ...formData, 
-                  requirements: {...formData.requirements, height: e.target.value}
-                })}
-                className="w-full px-4 py-3 border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-slate-900"
-                placeholder="1,72m - 1,83m"
-              />
-            </div>
-            <div>
-              <label className="block text-sm font-medium text-slate-700 mb-2">Genere</label>
-              <select
-                value={formData.requirements.gender}
-                onChange={(e) => setFormData({
-                  ...formData, 
-                  requirements: {...formData.requirements, gender: e.target.value}
-                })}
-                className="w-full px-4 py-3 border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-slate-900"
-              >
-                <option value="">Qualsiasi</option>
-                <option value="female">Femminile</option>
-                <option value="male">Maschile</option>
-                <option value="non-binary">Non-binario</option>
-              </select>
-            </div>
-            <div>
-              <label className="block text-sm font-medium text-slate-700 mb-2">Località</label>
-              <input
-                type="text"
-                value={formData.requirements.location}
-                onChange={(e) => setFormData({
-                  ...formData, 
-                  requirements: {...formData.requirements, location: e.target.value}
-                })}
-                className="w-full px-4 py-3 border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-slate-900"
-                placeholder="Milano, Italia"
-              />
-            </div>
+
           </div>
         </div>
 
