@@ -5,14 +5,12 @@ import {
   CheckCircle2,
   Clock,
   DollarSign,
-  Film,
   Heart,
   MapPin,
   Star,
   ThumbsDown,
   ThumbsUp,
   User2,
-  Video as VideoIcon,
 } from "lucide-react";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -23,19 +21,19 @@ import NotificationsCard from "./NotificationCard";
 import RecentMatches from "./RecentMatches";
 import { useCampaignStore } from "../stores/campaignStore";
 import PhotoUploader from "../components/PhotoUploader";
-// import { getModelProfile } from "@/services/modelService"; // not used currently
+import { toast } from "@/components/ui/use-toast"; // adjust the path if needed
 
-// --- Types coming from backend (snake_case) ---
+// --- Types from backend ---
 type BackendCampaign = {
   id: number;
   title: string;
-  agency_name?: string; // backend name
-  agency?: string; // sometimes already camel? keep both safe
+  agency_name?: string;
+  agency?: string;
   city: string;
   address?: string;
-  start_date: string; // ISO
-  end_date?: string; // ISO
-  deadline: string; // ISO
+  start_date: string;
+  end_date?: string;
+  deadline: string;
   compensation: number;
   currency?: string;
   gender_preference: "any" | "women" | "men";
@@ -44,18 +42,18 @@ type BackendCampaign = {
   tags?: string[];
 };
 
-// --- UI Type (camelCase) ---
+// --- UI Type ---
 interface Campaign {
   id: number;
   title: string;
   agency: string;
   city: string;
   address?: string;
-  startDate: string; // ISO
-  endDate?: string; // ISO
-  deadline: string; // ISO
+  startDate: string;
+  endDate?: string;
+  deadline: string;
   compensation: number;
-  currency?: string; // e.g. "€"
+  currency?: string;
   genderPreference: "any" | "women" | "men";
   applicants: number;
   description: string;
@@ -100,8 +98,12 @@ const mapToUICampaign = (c: BackendCampaign): Campaign => ({
   tags: c.tags ?? [],
 });
 
+interface MainFeedScreenModelProps {
+  onCampaignSelect?: (campaign: Campaign) => void;
+}
+
 // --- Component ---
-export default function MainFeedScreenModel() {
+export default function MainFeedScreenModel({ onCampaignSelect }: MainFeedScreenModelProps) {
   const [query, setQuery] = useState("");
   const [view, setView] = useState<"list" | "swipe">("list");
   const { campaigns, fetchCampaigns } = useCampaignStore();
@@ -140,30 +142,33 @@ export default function MainFeedScreenModel() {
     return Math.round((fields.filter(Boolean).length / fields.length) * 100);
   }, [profile]);
 
-  // …inside MainFeedScreenModel, replace the uiCampaigns useMemo with this:
+  // Normalize campaigns for UI
   const uiCampaigns = useMemo<Campaign[]>(() => {
     const raw = (Array.isArray(campaigns) ? campaigns : []) as BackendCampaign[];
 
-    const normalized = raw
+    return raw
       .map(mapToUICampaign)
-      // guard against bad/empty date strings
       .filter((c) => c.deadline && !Number.isNaN(new Date(c.deadline).getTime()))
-      // keep only future/today
       .filter((c) => isFutureOrToday(c.deadline))
-      // sort by nearest deadline
-      .sort((a, b) => new Date(a.deadline).getTime() - new Date(b.deadline).getTime());
-
-    return normalized.slice(0, 3);
+      .sort((a, b) => new Date(a.deadline).getTime() - new Date(b.deadline).getTime())
+      .slice(0, 3);
   }, [campaigns]);
 
-
-  // --- Actions (placeholders) ---
-  const applyToCampaign = (id: number) => {
-    alert(`Applied to #${id}`);
+  // --- Actions ---
+  const applyToCampaign = (campaign: Campaign) => {
+    alert(`Applied to #${campaign.id} (${campaign.title})`);
   };
 
   const skipCampaign = (id: number) => {
-    alert(`Skipped #${id}`);
+    toast({
+      title: "Job skipped",
+      description: `You skipped job #${id}`,
+      variant: "destructive", // optional, or "default"
+    });
+  };
+
+  const handleCampaignClick = (c: Campaign) => {
+    if (onCampaignSelect) onCampaignSelect(c);
   };
 
   const uploadVideo = () => {
@@ -229,11 +234,7 @@ export default function MainFeedScreenModel() {
 
         {/* Photo uploader */}
         <div className="p-6">
-          {token ? (
-            <PhotoUploader token={token} />
-          ) : (
-            <p>Please log in to upload photos.</p>
-          )}
+          {token ? <PhotoUploader token={token} /> : <p>Please log in to upload photos.</p>}
         </div>
 
         {/* Jobs feed: toggle Swipe/List */}
@@ -260,9 +261,9 @@ export default function MainFeedScreenModel() {
               return (
                 <div
                   key={item.id}
-                  className="bg-white rounded-2xl p-6 shadow-sm border border-slate-200 hover:shadow-md transition-shadow"
+                  className="bg-white rounded-2xl p-6 shadow-sm border border-slate-200 hover:shadow-md transition-shadow cursor-pointer"
+                  onClick={() => handleCampaignClick(item)}
                 >
-                  {/* Header with title + agency + time left */}
                   <div className="flex items-start justify-between mb-4">
                     <div className="flex-1">
                       <h3 className="text-lg font-bold text-slate-900 mb-1">{item.title}</h3>
@@ -279,10 +280,8 @@ export default function MainFeedScreenModel() {
                     </div>
                   </div>
 
-                  {/* Description */}
                   <p className="text-slate-700 mb-4 leading-relaxed">{item.description}</p>
 
-                  {/* Gender + Location */}
                   <div className="grid grid-cols-2 gap-4 mb-4">
                     <div className="flex items-center text-sm text-slate-600">
                       <span className="w-4 h-4 mr-2 text-center">👤</span>
@@ -303,7 +302,6 @@ export default function MainFeedScreenModel() {
                     </div>
                   </div>
 
-                  {/* Start + End */}
                   <div className="grid grid-cols-2 gap-4 mb-4">
                     <div className="flex items-center space-x-2">
                       <CalendarDays className="w-5 h-5 text-blue-500" />
@@ -332,7 +330,6 @@ export default function MainFeedScreenModel() {
                     )}
                   </div>
 
-                  {/* Footer: deadline + applicants + budget */}
                   <div className="flex items-center justify-between pt-4 border-t border-slate-100">
                     <div className="flex items-center space-x-4">
                       <div className="flex items-center text-sm text-slate-600">
@@ -352,12 +349,13 @@ export default function MainFeedScreenModel() {
                     </div>
                   </div>
 
-                  {/* Buttons */}
                   <div className="flex items-center justify-between mt-4">
-                    <Button variant="outline" className="gap-2" onClick={() => skipCampaign(item.id)}>
-                      <ThumbsDown className="w-4 h-4" /> Skip
-                    </Button>
-                    <Button className="gap-2" onClick={() => applyToCampaign(item.id)}>
+                    <Button
+                      className="gap-2"
+                      onClick={(e) => {
+                        applyToCampaign(item);
+                      }}
+                    >
                       <ThumbsUp className="w-4 h-4" /> Apply
                     </Button>
                   </div>
@@ -366,13 +364,12 @@ export default function MainFeedScreenModel() {
             })}
           </div>
         ) : (
-          <SwipeDeck items={uiCampaigns} onApply={applyToCampaign} onSkip={skipCampaign} />
+          <SwipeDeck items={uiCampaigns} onApply={applyToCampaign} onSkip={skipCampaign} onSelect={handleCampaignClick} />
         )}
 
         {/* Matches / Chat preview */}
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-4 mb-40">
           <RecentMatches />
-          {/* Rating */}
           <Card>
             <CardContent className="p-5 space-y-3">
               <div className="font-semibold text-slate-900 flex items-center gap-2">
@@ -413,18 +410,19 @@ function ChecklistItem({ done, label }: { done: boolean; label: string }) {
   );
 }
 
+// --- Swipe Deck ---
 function SwipeDeck({
   items,
   onApply,
   onSkip,
+  onSelect,
 }: {
   items: Campaign[];
-  onApply: (id: number) => void;
+  onApply: (campaign: Campaign) => void; // changed from id:number
   onSkip: (id: number) => void;
+  onSelect?: (c: Campaign) => void;
 }) {
   const [index, setIndex] = useState(0);
-
-  // Never trust props at runtime
   const safeItems = Array.isArray(items) ? items : [];
   const current = safeItems[index];
 
@@ -438,17 +436,21 @@ function SwipeDeck({
     );
   }
 
-  // Safe helpers (avoid NaN / undefined)
-  const safeDeadline = current.deadline && !Number.isNaN(new Date(current.deadline).getTime())
-    ? current.deadline
-    : undefined;
-  const safeStart = current.startDate && !Number.isNaN(new Date(current.startDate).getTime())
-    ? current.startDate
-    : undefined;
+  const safeDeadline =
+    current.deadline && !Number.isNaN(new Date(current.deadline).getTime())
+      ? current.deadline
+      : undefined;
+  const safeStart =
+    current.startDate && !Number.isNaN(new Date(current.startDate).getTime())
+      ? current.startDate
+      : undefined;
 
   return (
     <div className="grid grid-cols-1 md:grid-cols-2 gap-4 items-start">
-      <Card className="relative">
+      <Card
+        className="relative cursor-pointer"
+        onClick={() => onSelect?.(current)}
+      >
         <CardContent className="p-6 space-y-3">
           <div className="flex items-start justify-between">
             <div>
@@ -467,59 +469,42 @@ function SwipeDeck({
             </div>
             <div className="flex items-center gap-1">
               <Clock className="w-4 h-4" />
-              {safeDeadline
-                ? <>Deadline {fmtDate(safeDeadline)} ({daysUntil(safeDeadline)}d)</>
-                : "Deadline —"}
+              {safeDeadline ? <>Deadline {fmtDate(safeDeadline)} ({daysUntil(safeDeadline)}d)</> : "Deadline —"}
             </div>
             <div className="flex items-center gap-1">
               <CalendarDays className="w-4 h-4" />
-              {safeStart ? <>Start {fmtDate(safeStart)}</> : "Start —"}
+              Start: {fmtDate(safeStart)}
             </div>
             <div className="flex items-center gap-1">
-              <DollarSign className="w-4 h-4" />
-              {money(current.compensation ?? 0, current.currency ?? "€")}
+              <DollarSign className="w-4 h-4" /> {money(current.compensation, current.currency)}
             </div>
           </div>
 
-          <div className="flex items-center gap-2 pt-2">
-            {current.tags?.map((t) => (
-              <Badge key={t} variant="outline">
-                {t}
-              </Badge>
-            ))}
+          <div className="flex items-center gap-2 mt-4">
+            <Button
+              className="flex-1 gap-2"
+              onClick={(e) => {
+                e.stopPropagation(); // ✅ prevent card click
+                if (onApply) onApply(current);
+                setIndex((i) => i + 1);
+              }}
+            >
+              <ThumbsUp className="w-4 h-4" /> Apply
+            </Button>
+            <Button
+              variant="outline"
+              className="flex-1 gap-2"
+              onClick={(e) => {
+                e.stopPropagation(); // ✅ prevent card click
+                onSkip(current.id);
+                setIndex((i) => i + 1);
+              }}
+            >
+              <ThumbsDown className="w-4 h-4" /> Pass
+            </Button>
           </div>
         </CardContent>
       </Card>
-
-      <div className="flex md:flex-col gap-3">
-        <Button
-          variant="outline"
-          className="flex-1 gap-2"
-          onClick={() => {
-            onSkip(current.id);
-            setIndex((i) => i + 1);
-          }}
-        >
-          <ThumbsDown className="w-4 h-4" /> Pass
-        </Button>
-        <Button
-          className="flex-1 gap-2"
-          onClick={() => {
-            onApply(current.id);
-            setIndex((i) => i + 1);
-          }}
-        >
-          <ThumbsUp className="w-4 h-4" /> Apply
-        </Button>
-        <Button
-          variant="secondary"
-          className="flex-1 gap-2"
-          onClick={() => setIndex((i) => i + 1)}
-        >
-          <Heart className="w-4 h-4" /> Save
-        </Button>
-      </div>
     </div>
   );
 }
-

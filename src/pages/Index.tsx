@@ -95,6 +95,7 @@ export const ModelFeedRoute = () => {
   return (
     <>
       <MainFeedScreenModel
+        onCampaignSelect={(c) => navigate(`/model/campaign/${c.id}`)}
       />
       <Navbarmodel
         activeTab="feed"
@@ -102,7 +103,8 @@ export const ModelFeedRoute = () => {
       />
     </>
   );
-};  
+};
+
 
 
 export const ProfileCreationRouteAgency = () => {
