@@ -13,6 +13,7 @@ import {
 } from "lucide-react";
 import { getBaseUrl } from "@/services/utils/baseUrl";
 import { uploadVideo, deleteVideo,replaceVideo } from "@/services/uploadVideo";
+import { fetchMyModelPhotos } from "@/services/modelPhotos";
 import axios from "axios";
 
 interface ProfileSettingsScreenProps {
@@ -50,6 +51,41 @@ const ProfileSettingsScreen: React.FC<ProfileSettingsScreenProps> = ({
   const [videoUrl, setVideoUrl] = useState<string | null>(null);
   const [videoUploaded, setVideoUploaded] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
+  const [modelPhotos, setModelPhotos] = useState<string[]>([]);
+  const baseUrl = getBaseUrl();
+
+useEffect(() => {
+  const fetchPhotos = async () => {
+    const token = localStorage.getItem("token");
+    if (!token) return;
+
+    try {
+      const baseUrl = await getBaseUrl(); // wait for the actual URL
+
+      fetchMyModelPhotos(token, (err, data) => {
+        if (err) {
+          console.error("Failed to fetch model photos:", err);
+          return;
+        }
+
+        // prepend baseUrl to each relative photo URL
+        const photosArray = data?.groups?.Portfolio?.map(
+          (p: any) => `${baseUrl}${p.url}`
+        ) || [];
+
+        setModelPhotos(photosArray);
+
+        console.log("Fetched model photos:", photosArray);
+      });
+    } catch (error) {
+      console.error("Failed to get base URL", error);
+    }
+  };
+
+  fetchPhotos();
+}, []);
+
+
 
   const handleVideoUploadClick = () => fileInputRef.current?.click();
 
@@ -175,13 +211,22 @@ const ProfileSettingsScreen: React.FC<ProfileSettingsScreenProps> = ({
         <div className="bg-white rounded-2xl p-6 shadow-sm border border-slate-200">
           <div className="flex items-center space-x-4 mb-6">
             <div className="relative">
-              <div className="w-20 h-20 bg-slate-200 rounded-2xl overflow-hidden">
+            <div className="w-20 h-20 bg-slate-200 rounded-2xl overflow-hidden">
+              {modelPhotos.length > 0 ? (
+                <img
+                  src={modelPhotos[0]} // show first photo
+                  alt="Profilo"
+                  className="w-full h-full object-cover"
+                />
+              ) : (
                 <img
                   src="https://images.unsplash.com/photo-1649972904349-6e44c42644a7"
                   alt="Profilo"
                   className="w-full h-full object-cover"
                 />
-              </div>
+              )}
+            </div>
+
               {isEditing && (
                 <button className="absolute -bottom-2 -right-2 w-8 h-8 bg-slate-900 rounded-xl flex items-center justify-center">
                   <Camera className="w-4 h-4 text-white" />
