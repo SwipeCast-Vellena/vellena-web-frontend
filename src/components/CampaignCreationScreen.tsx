@@ -142,7 +142,7 @@ const CampaignCreationScreen: React.FC<CampaignCreationScreenProps> = ({ onBack,
               <div>
                 <label className="block text-sm font-medium text-slate-700 mb-2">Orario Inizio</label>
                 <input
-                  type="text"
+                   type="time"
                   placeholder='HH:MM:SS'
                   value={formData.start_time}
                   onChange={(e) => setFormData({...formData, start_time: e.target.value})}
@@ -152,7 +152,7 @@ const CampaignCreationScreen: React.FC<CampaignCreationScreenProps> = ({ onBack,
               <div>
                 <label className="block text-sm font-medium text-slate-700 mb-2">Orario Fine</label>
                 <input
-                  type="text"
+                  type="time"
                   placeholder='HH:MM:SS'
                   value={formData.end_time}
                   onChange={(e) => setFormData({...formData, end_time: e.target.value})}

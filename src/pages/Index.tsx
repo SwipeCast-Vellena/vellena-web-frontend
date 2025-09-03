@@ -180,7 +180,7 @@ export const AgencyCampaignRoute=()=>{
     <>
     <CampaignListScreenAgency
     onBack={() => navigate(-1)}
-    onCampaignSelect={(c) => navigate(`/agency/campaign/${c.id}`)} 
+    onCampaignSelect={(c) => navigate(`/agency/campaign/${c.id}/edit`)} 
     onCreateCampaign={onCreateCampaign}
     />
     <NavigationBar activeTab="campaigns" onTabChange={(tab) => navigate(`/agency/${tab}`)} />
