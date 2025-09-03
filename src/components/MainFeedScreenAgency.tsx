@@ -58,6 +58,7 @@ const MainFeedScreenAgency: React.FC<MainFeedScreenProps> = ({
     const loadModels = async () => {
       try {
         const models = await fetchModels();
+        
 
         setAllProfiles(models);
       } catch (error) {
@@ -339,19 +340,24 @@ const MainFeedScreenAgency: React.FC<MainFeedScreenProps> = ({
                   >
                     <h2 className="text-2xl font-bold text-gray-900 mb-1 hover:text-gray-700">
                       {currentProfile.name}
-                      {currentProfile.age > 0 && (
-                        <span className="text-gray-500 font-normal">
-                          , {currentProfile.age}
-                        </span>
-                      )}
+                      
                     </h2>
                   </button>
+                  
                   <div className="flex items-center text-gray-500 mb-3">
                     <MapPin className="w-4 h-4 mr-1" />
                     <span className="text-sm">{currentProfile.location}</span>
+                    
                   </div>
+                  {currentProfile.age > 0 && (
+                        <span className="text-gray-500 font-normal">
+                          Age: {currentProfile.age}
+                        </span>
+                      )}
                 </div>
               </div>
+
+              
 
               <p className="text-gray-600 leading-relaxed mb-6 text-sm">
                 {currentProfile.bio}

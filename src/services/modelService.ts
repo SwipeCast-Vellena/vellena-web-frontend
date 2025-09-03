@@ -21,6 +21,7 @@ interface BackendModel {
   category: 'model' | 'hostess' | 'agency' | 'photographer';
   video_portfolio: string;
   videoThumbnail?: string;
+  age:number;
 }
 
 interface BackendResponse {
@@ -69,7 +70,7 @@ export const fetchModels = async (): Promise<Profile[]> => {
       location: m.location,
       category: m.category.toLowerCase() as 'model' | 'hostess' | 'agency' | 'photographer',
       bio: m.description || "",
-      age: 0,
+      age: m.age,
       video_portfolio: m.video_portfolio,
       videoThumbnail: m.videoThumbnail || (m.video_portfolio ? await generateThumbnail(m.video_portfolio) : ""),
     }))
