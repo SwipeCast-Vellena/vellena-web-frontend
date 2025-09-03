@@ -13,12 +13,17 @@ import { CampaignDetailRoute } from "../components/CampaignDetailRoute";
 import CampaignCreationScreen from "../components/CampaignCreationScreen";
 import MatchConfirmationScreen from "../components/MatchConfirmationScreen";
 import ChatScreen from "../components/ChatScreen";
+import ChatPage from "@/components/ChatPage";
+import ChatPageAgency from "@/components/ChatPageAgency";
 
 import SearchScreen from "../components/SearchScreen";
 import ProfileSettingsScreen from "../components/ProfileSettingsScreen";
 import UserDetailScreen from "../components/UserDetailScreen";
 import NavigationBar from "../components/NavigationBar";
 import Navbarmodel from "../components/NavBarModel"
+import ProfileEditScreenAgency from "@/components/ProfileEditScreenAgency";
+import CampaignListScreenAgency from "@/components/CampaignListScreenAgency";
+import CampaignEditScreen from "@/components/CampaignEditScreen";
 
 export const SplashRoute = () => {
   const navigate = useNavigate();
@@ -93,6 +98,8 @@ export const ModelFeedRoute = () => {
   return (
     <>
       <MainFeedScreenModel
+        onCampaignSelect={(c) => navigate(`/model/campaign/${c.id}`)}
+        onEditProfile={() => navigate("/model/profile")}
       />
       <Navbarmodel
         activeTab="feed"
@@ -100,7 +107,8 @@ export const ModelFeedRoute = () => {
       />
     </>
   );
-};  
+};
+
 
 
 export const ProfileCreationRouteAgency = () => {
@@ -131,6 +139,21 @@ export const AgencyFeedRoute = () => {
   );
 };
 
+export const CampaignEditRoute = () => {
+  const navigate = useNavigate();
+  const { campaignId } = useParams<{ campaignId: string }>();
+
+  if (!campaignId) return null; // optional: handle missing ID
+
+  return (
+    <CampaignEditScreen
+      campaignId={campaignId}
+      onBack={() => navigate("/agency/campaigns")}
+      onSave={() => navigate("/agency/campaigns")}
+    />
+  );
+};
+
 export const CampaignsRoute = () => {
   const navigate = useNavigate();
   return (
@@ -147,6 +170,24 @@ export const CampaignsRoute = () => {
   );
 };
 
+
+
+export const AgencyCampaignRoute=()=>{
+  const navigate=useNavigate();
+  const onCreateCampaign = () => navigate("/agency/campaign-create");
+
+  return (
+    <>
+    <CampaignListScreenAgency
+    onBack={() => navigate(-1)}
+    onCampaignSelect={(c) => navigate(`/agency/campaign/${c.id}/edit`)} 
+    onCreateCampaign={onCreateCampaign}
+    />
+    <NavigationBar activeTab="campaigns" onTabChange={(tab) => navigate(`/agency/${tab}`)} />
+    </>
+  )
+}
+
 export const CampaignDetailRouteWrapper = () => {
   const navigate = useNavigate();
   return (
@@ -160,7 +201,7 @@ export const CampaignDetailRouteWrapper = () => {
 export const CampaignCreateRoute = () => {
   const navigate = useNavigate();
   return (
-    <CampaignCreationScreen onBack={() => navigate("/campaigns")} onSave={() => navigate("/campaigns")} />
+    <CampaignCreationScreen onBack={() => navigate("/agency/campaigns")} onSave={() => navigate("/agency/campaigns")} />
   );
 };
 
@@ -176,10 +217,43 @@ export const MatchRoute = () => {
 
 export const ChatRoute = () => {
   const navigate = useNavigate();
+  const defaultChatId = "chat_campaign_model";
+
   return (
     <>
-      <ChatScreen onBack={() => navigate("/model/feed")} />
-      <NavigationBar activeTab="chat" onTabChange={(tab) => navigate(`/chat/:chatId`)} />
+      <ChatPage />
+      <Navbarmodel
+        activeTab="chat"
+        lastChatId={defaultChatId}   // pass default chat id
+        onTabChange={(tab) => {
+          if (tab === "chat") {
+            navigate(`/model/chat/${defaultChatId}`);
+          } else {
+            navigate(`/model/${tab}`);
+          }
+        }}
+      />
+    </>
+  );
+};
+
+export const AgencyChatRoute = () => {
+  const navigate = useNavigate();
+  const defaultChatId = "chat_campaign_model";
+
+  return (
+    <>
+      <ChatPageAgency />
+      <NavigationBar
+        activeTab="chat"  // pass default chat id
+        onTabChange={(tab) => {
+          if (tab === "chat") {
+            navigate(`/agency/chat/${defaultChatId}`);
+          } else {
+            navigate(`/agency/${tab}`);
+          }
+        }}
+      />
     </>
   );
 };
@@ -189,7 +263,7 @@ export const SearchRoute = () => {
   return (
     <>
       <SearchScreen onUserSelect={(id) => navigate(`/user/${id}`)} />
-      <NavigationBar activeTab="search" onTabChange={(tab) => navigate(`/${tab}`)} />
+      <NavigationBar activeTab="search" onTabChange={(tab) => navigate(`/agency/${tab}`)} />
     </>
   );
 };
@@ -209,6 +283,19 @@ export const ProfileRoute = () => {
     </>
   );
 };
+
+export const AgencyRoute=()=>{
+  const navigate=useNavigate();
+  return (
+    <>
+    <ProfileEditScreenAgency
+    onBack={()=>navigate(-1)}
+    onComplete={()=>navigate("")}/>
+    <NavigationBar activeTab="profile" onTabChange={(tab) => navigate(`/agency/${tab}`)} />
+    </>
+  )
+
+}
 
 export const UserDetailRoute = () => {
   const { id } = useParams();

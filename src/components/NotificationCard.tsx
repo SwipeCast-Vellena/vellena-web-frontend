@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { Bell, CalendarDays } from "lucide-react";
+import { Bell, CalendarDays, Heart } from "lucide-react";
 import { Card, CardContent } from "@/components/ui/card";
 import { Switch } from "@/components/ui/switch";
 import { useNavigate } from "react-router-dom";
@@ -8,6 +8,7 @@ import { getBaseUrl } from "@/services/utils/baseUrl";
 export default function NotificationsCard() {
   const [notifyMatches, setNotifyMatches] = useState(true);
   const [matches, setMatches] = useState([]);
+  const [favorites, setFavorites] = useState<any[]>([]);
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -25,8 +26,19 @@ export default function NotificationsCard() {
         if (data.success) {
           setMatches(data.campaigns);
         }
+
+        // favorites (likes)
+        const resFavs = await fetch(`${baseUrl}/api/notifications`, {
+          headers: { Authorization: `Bearer ${localStorage.getItem("token")}` },
+        });
+        const dataFavs = await resFavs.json();
+        if (dataFavs.success) {
+          setFavorites(dataFavs.favorites);
+        }
+
+
       } catch (err) {
-        console.error("Error fetching matches:", err);
+        console.error("Error fetching notifications:", err);
       }
     };
 
@@ -59,7 +71,7 @@ export default function NotificationsCard() {
           </div>
 
           {/* show matches */}
-          {matches.length > 0 ? (
+          {
             matches.map((m) => (
                 
               <div
@@ -71,8 +83,20 @@ export default function NotificationsCard() {
                 New match: <strong>{m.title || m.name}</strong>
               </div>
             ))
-          ) : (
-            <div className="text-slate-500">No new matches yet</div>
+          }
+          {/* Favorites (likes) */}
+          {favorites.map((f) => (
+            <div
+              key={`fav-${f.id}`}
+              className="flex items-center gap-2 text-pink-600"
+            >
+              <Heart className="w-4 h-4" />
+              <strong>{f.name}</strong> liked your profile
+            </div>
+          ))}
+
+          {matches.length === 0 && favorites.length === 0 && (
+            <div className="text-slate-500">No new notifications yet</div>
           )}
         </div>
       </CardContent>

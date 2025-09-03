@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
+import { fetchPhotosByModelId } from "@/services/modelPhotos";
 
 import {
   ArrowLeft,
@@ -10,6 +11,11 @@ import {
   MessageCircle,
 } from "lucide-react";
 import { getBaseUrl } from "@/services/utils/baseUrl";
+import {
+  isFavorite,
+  addFavorite,
+  removeFavorite,
+} from "@/services/favoriteService";
 
 interface UserDetailScreenProps {
   userId: number;
@@ -23,6 +29,7 @@ interface Model {
   age?: number;
   images?: string[];
   videoThumbnail?: string;
+  genre?:string;
   location?: string;
   description?: string;
   experience: "3+ anni";
@@ -32,6 +39,8 @@ interface Model {
   video_portfolio: string;
   // add other fields your backend returns
 }
+
+
 
 const UserDetailScreen: React.FC<UserDetailScreenProps> = ({
   userId,
@@ -58,7 +67,38 @@ const UserDetailScreen: React.FC<UserDetailScreenProps> = ({
 
   const [model, setModel] = useState<Model | null>(null);
   const [loading, setLoading] = useState(true);
+  const [favorite, setFavorite] = useState(false); // rename state
+  const [photos, setPhotos] = useState<string[]>([]);
+  const [loadingPhotos, setLoadingPhotos] = useState(false);
+  const token = localStorage.getItem("token");
+
   const navigate = useNavigate();
+
+  
+
+  useEffect(() => {
+    const fetchFavoriteStatus = async () => {
+      if (!token) return;
+      try {
+        const fav = await isFavorite(userId, token); // use imported function
+        setFavorite(fav);
+      } catch (err) {
+        console.error(err);
+      }
+    };
+    fetchFavoriteStatus();
+  }, [userId, token]);
+
+  const toggleFavorite = async () => {
+    if (!token) return;
+    try {
+      if (favorite) await removeFavorite(userId, token);
+      else await addFavorite(userId);
+      setFavorite(!favorite);
+    } catch (err) {
+      console.error(err);
+    }
+  };
 
   useEffect(() => {
     const fetchModel = async () => {
@@ -75,6 +115,7 @@ const UserDetailScreen: React.FC<UserDetailScreenProps> = ({
         }
 
         const data: Model = await res.json();
+        console.log(data);
         setModel(data);
       } catch (err) {
         console.error("Error fetching model:", err);
@@ -85,6 +126,37 @@ const UserDetailScreen: React.FC<UserDetailScreenProps> = ({
 
     fetchModel();
   }, [userId]);
+
+  // 🔹 Fetch photos (separate from profile so it doesn't block loading)
+useEffect(() => {
+  if (!token) return;
+
+  setLoadingPhotos(true);
+  getBaseUrl().then((baseUrl) => {
+    fetchPhotosByModelId(userId.toString(), token, (err, data) => {
+      if (err) {
+        console.error("Error fetching photos:", err);
+        setLoadingPhotos(false);
+        return;
+      }
+
+      // Flatten all groups into a single array of full URLs
+      const urls: string[] = [];
+      if (data?.groups) {
+        Object.values(data.groups).forEach((group: any) => {
+          group.forEach((p: any) => {
+            // prepend baseUrl to relative path
+            urls.push(`${baseUrl}${p.url}`);
+          });
+        });
+      }
+
+      setPhotos(urls);
+      setLoadingPhotos(false);
+    });
+  });
+}, [userId, token]);
+
 
   if (loading) {
     return <div className="p-4">Loading model details...</div>;
@@ -161,7 +233,7 @@ const UserDetailScreen: React.FC<UserDetailScreenProps> = ({
         {/* User Info */}
         <div className="bg-white rounded-2xl p-6 shadow-sm border border-slate-200">
           <h2 className="text-2xl font-bold text-slate-900 mb-2">
-            {model.name}, {model.age}
+            {model.name}
           </h2>
 
           <div className="flex items-center text-slate-600 mb-3">
@@ -186,9 +258,9 @@ const UserDetailScreen: React.FC<UserDetailScreenProps> = ({
 
           <div className="grid grid-cols-2 gap-4">
             <div>
-              <p className="text-sm text-slate-600">Esperienza</p>
+              <p className="text-sm text-slate-600">Age</p>
               <p className="font-medium text-slate-900">
-                {model.experience || "3 years"}
+                {model.age }
               </p>
             </div>
             <div>
@@ -201,61 +273,55 @@ const UserDetailScreen: React.FC<UserDetailScreenProps> = ({
         {/* Skills */}
         <div className="bg-white rounded-2xl p-6 shadow-sm border border-slate-200">
           <h3 className="text-lg font-semibold text-slate-900 mb-4">
-            Competenze
+            Genere
           </h3>
 
           <div className="flex flex-wrap gap-2">
-            {model.skills && model.skills.length > 0 ? (
-              model.skills.map((skill, index) => (
-                <span
-                  key={index}
-                  className="bg-slate-100 text-slate-700 px-3 py-1 rounded-full text-sm font-medium"
-                >
-                  {skill}
-                </span>
-              ))
-            ) : (
-              <p className="text-slate-500 text-sm">No skills provided</p>
-            )}
+          <p className="font-medium text-slate-900">
+                {model.genre}
+              </p>
           </div>
         </div>
 
-        {/* Additional Images */}
+        {/* Portfolio (from API photos) */}
         <div className="bg-white rounded-2xl p-6 shadow-sm border border-slate-200">
           <h3 className="text-lg font-semibold text-slate-900 mb-4">
             Portfolio
           </h3>
-
-          <div className="grid grid-cols-3 gap-3">
-            {model.images && model.images.length > 0 ? (
-              model.images.map((image, index) => (
+          {loadingPhotos ? (
+            <p className="text-slate-500 text-sm">Loading photos...</p>
+          ) : photos.length > 0 ? (
+            <div className="grid grid-cols-3 gap-3">
+              {photos.map((url, index) => (
                 <div
                   key={index}
                   className="aspect-square bg-slate-200 rounded-xl overflow-hidden"
                 >
                   <img
-                    src={image}
+                    src={url}
                     alt={`Portfolio ${index + 1}`}
                     className="w-full h-full object-cover"
                   />
                 </div>
-              ))
-            ) : (
-              <p className="text-slate-500 text-sm">No portfolio images</p>
-            )}
-          </div>
+              ))}
+            </div>
+          ) : (
+            <p className="text-slate-500 text-sm">No portfolio images</p>
+          )}
         </div>
 
         {/* Action Buttons */}
         <div className="flex space-x-4">
-          <button className="flex-1 bg-red-500 text-white py-3 rounded-xl font-semibold flex items-center justify-center">
+          <button
+            onClick={toggleFavorite}
+            className={`flex-1 py-3 rounded-xl font-semibold flex items-center justify-center ${
+              favorite ? "bg-red-500 text-white" : "bg-gray-300 text-gray-700"
+            }`}
+          >
             <Heart className="w-5 h-5 mr-2" />
-            Mi Piace
+            {favorite ? "Aggiunto ai preferiti" : "Aggiungi ai preferiti"}
           </button>
-          <button className="flex-1 bg-slate-900 text-white py-3 rounded-xl font-semibold flex items-center justify-center">
-            <MessageCircle className="w-5 h-5 mr-2" />
-            Messaggio
-          </button>
+          
         </div>
       </div>
     </div>

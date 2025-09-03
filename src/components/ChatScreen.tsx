@@ -14,6 +14,7 @@ export default function ChatScreen({ onBack }: { onBack?: () => void }) {
   const [newMessage, setNewMessage] = useState("");
   const [title, setTitle] = useState<string>("Chat");
   const [loading, setLoading] = useState(false);
+  const [agencyInfo, setAgencyInfo] = useState<any>(null);
 
   const scrollRef = useRef<HTMLDivElement | null>(null);
 
@@ -29,9 +30,12 @@ export default function ChatScreen({ onBack }: { onBack?: () => void }) {
     const result = await ChatService.fetchMessages(chatId);
     setLoading(false);
 
+      console.log("Chat fetch result:", result);
+
     if (result.success) {
       if (result.title) setTitle(result.title);
       if (result.messages) setMessages(result.messages);
+      if (result.agencyInfo) setAgencyInfo(result.agencyInfo); // <- add this
       scrollToBottom();
     } else {
       console.error("Failed to fetch messages:", result.error);
@@ -42,6 +46,19 @@ export default function ChatScreen({ onBack }: { onBack?: () => void }) {
     if (!chatId) return;
     void fetchMessages();
   }, [chatId]);
+
+  useEffect(() => {
+    if (!chatId) return;
+    const stopRef = { current: false };
+  
+    ChatService.pollMessages(chatId, (msgs) => {
+      setMessages(msgs);
+      scrollToBottom();
+    }, stopRef);
+  
+    return () => { stopRef.current = true };
+  }, [chatId]);
+  
 
   // ==== sendMessage with optimistic update ====
   const sendMessage = async () => {
@@ -83,30 +100,59 @@ export default function ChatScreen({ onBack }: { onBack?: () => void }) {
     else navigate(-1); 
   };
 
+    // Function to generate a background color based on agency name
+  const getAvatarColor = (name: string) => {
+    const colors = ["#043584ff", "#73616146", "#895a09ff", "#034f35ff", "#200560ff"];
+    const index = name ? name.charCodeAt(0) % colors.length : 0;
+    return colors[index];
+  };
+
   return (
     <div className="min-h-screen bg-slate-50 flex flex-col">
       {/* Header */}
       <div className="bg-white border-b border-slate-200 px-6 pt-16 pb-4">
         <div className="flex items-center justify-between">
           <div className="flex items-center">
-            <button onClick={back} className="w-10 h-10 bg-slate-100 rounded-xl flex items-center justify-center mr-4">
+            <button
+              onClick={back}
+              className="w-10 h-10 bg-slate-100 rounded-xl flex items-center justify-center mr-4"
+            >
               <ArrowLeft className="w-5 h-5 text-slate-700" />
             </button>
             <div className="flex items-center">
-              <div className="w-12 h-12 bg-slate-200 rounded-xl overflow-hidden mr-3">
-                <img src="https://images.unsplash.com/photo-1649972904349-6e44c42644a7" alt="Chat avatar" className="w-full h-full object-cover" />
+              <div
+                className="w-20 h-20 rounded-lg flex items-center justify-center mr-3 text-white font-semibold"
+                style={{ backgroundColor: getAvatarColor(agencyInfo?.name || "") }}
+              >
+                {agencyInfo?.name?.charAt(0).toUpperCase() || "?"}
               </div>
+
               <div>
-                <h1 className="text-lg font-bold text-slate-900">{title}</h1>
-                <p className="text-sm text-green-600 font-medium">Online ora</p>
+                <h1 className="text-lg font-bold text-slate-900">
+                  {agencyInfo?.name || "Loading..."}
+                </h1>
+                {agencyInfo && (
+                  <p className="text-sm text-slate-500">
+                     {title}
+                  </p>
+                )}
+                {agencyInfo && (
+                  <p className="text-sm text-slate-500">
+                     {agencyInfo?.professional_bio  || "loading..."}
+                  </p>
+                )}
+                <p className="text-sm text-green-600 font-medium">
+                  Online ora
+                </p>
               </div>
+
             </div>
           </div>
 
           <div className="flex items-center space-x-2">
-            <button className="w-10 h-10 bg-slate-100 rounded-xl flex items-center justify-center"><Phone className="w-5 h-5 text-slate-700" /></button>
-            <button className="w-10 h-10 bg-slate-100 rounded-xl flex items-center justify-center"><Video className="w-5 h-5 text-slate-700" /></button>
-            <button className="w-10 h-10 bg-slate-100 rounded-xl flex items-center justify-center"><MoreVertical className="w-5 h-5 text-slate-700" /></button>
+            <button className="w-10 h-10 bg-slate-100 rounded-xl flex items-center justify-center">
+              <MoreVertical className="w-5 h-5 text-slate-700" />
+            </button>
           </div>
         </div>
       </div>

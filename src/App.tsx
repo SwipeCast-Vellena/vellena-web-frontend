@@ -20,9 +20,13 @@ import {
   CampaignCreateRoute,
   MatchRoute,
   ChatRoute,
+  AgencyChatRoute,
   SearchRoute,
   ProfileRoute,
   UserDetailRoute,
+  AgencyRoute,
+  AgencyCampaignRoute,
+  CampaignEditRoute
 } from "./pages/Index";
 
 const queryClient = new QueryClient();
@@ -46,6 +50,7 @@ const App = () => (
           <Route path="/model/profile-creation" element={<ProfileCreationRouteModel />} />
           <Route path="/model/feed" element={<ModelFeedRoute />} />
           <Route path="/model/match" element={<MatchRoute />} />
+          <Route path="/model/chat" element={<ChatRoute />} />
           <Route path="/model/chat/:chatId" element={<ChatRoute />} />
           <Route path="/model/profile" element={<ProfileRoute />} />
           <Route path="/model/campaigns" element={<CampaignsRoute />} />
@@ -53,13 +58,19 @@ const App = () => (
 
 
           {/* Main Routes */}
-          <Route path="/campaign-create" element={<CampaignCreateRoute />} />
           <Route path="/user/:id" element={<UserDetailRoute />} />
 
           {/* Agency */}
           <Route path="/agency/profile-creation" element={<ProfileCreationRouteAgency />} />
           <Route path="/agency/feed" element={<AgencyFeedRoute />} />
           <Route path="/agency/search" element={<SearchRoute />} />
+          <Route path="/agency/profile" element={<AgencyRoute />} />
+          <Route path="/agency/campaigns" element={<AgencyCampaignRoute/>} />
+          <Route path="/agency/chat" element={<AgencyChatRoute />} />
+          <Route path="/agency/chat/:chatId" element={<AgencyChatRoute />} />
+          <Route path="/agency/campaign-create" element={<CampaignCreateRoute />} />
+          <Route path="/agency/campaign/:campaignId/edit" element={<CampaignEditRoute />} />
+
           {/* Fallback */}
           <Route path="*" element={<NotFound />} />
         </Routes>

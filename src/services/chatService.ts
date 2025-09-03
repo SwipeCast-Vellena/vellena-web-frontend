@@ -10,6 +10,17 @@ export type ServerMessage = {
   readBy?: string[];
 };
 
+export type AgencyInfo = {
+  id: number;
+  agency_id: number;
+  name: string;
+  operating_years: number;
+  no_of_employees: number;
+  location: string;
+  professional_bio: string;
+  website: string;
+};
+
 export type MessageView = { 
   id: string; 
   text: string; 
@@ -79,14 +90,15 @@ export class ChatService {
     }
   }
 
-  static async fetchMessages(chatId: string): Promise<{ 
-    success: boolean; 
-    messages?: MessageView[]; 
-    title?: string; 
-    error?: string 
+  static async fetchMessages(chatId: string): Promise<{
+    success: boolean;
+    messages?: MessageView[];
+    title?: string;
+    agencyInfo?: AgencyInfo;
+    error?: string;
   }> {
     if (!chatId) return { success: false, error: "No chat ID provided" };
-    
+
     try {
       const url = `${API_BASE}/api/chat/${encodeURIComponent(chatId)}/messages`;
       const res = await fetch(url, { headers: this.getHeaders() });
@@ -106,7 +118,8 @@ export class ChatService {
       return {
         success: true,
         messages: j.messages.map((m: ServerMessage) => this.toViewMessage(m)),
-        title: j.title
+        title: j.title,
+        agencyInfo: j.agencyInfo
       };
     } catch (err) {
       console.error("fetchMessages error:", err);
@@ -158,5 +171,25 @@ export class ChatService {
       isMe: true,
       timestamp: new Date().toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" }),
     };
+  }
+
+  /** 🔥 NEW: Long polling helper */
+  static async pollMessages(
+    chatId: string,
+    onUpdate: (messages: MessageView[]) => void,
+    stopRef: { current: boolean }
+  ) {
+    while (!stopRef.current) {
+      try {
+        const res = await this.fetchMessages(chatId);
+        if (res.success && res.messages) {
+          onUpdate(res.messages);
+        }
+      } catch (err) {
+        console.error("Polling error:", err);
+      }
+      // Short delay before next poll
+      await new Promise(r => setTimeout(r, 2000));
+    }
   }
 }

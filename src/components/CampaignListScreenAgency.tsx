@@ -1,7 +1,8 @@
 // src/screens/CampaignListScreen.tsx
 import React, { useEffect, useState } from 'react';
 import { ArrowLeft, MapPin, CalendarDays, Calendar } from 'lucide-react';
-import { useCampaignStore } from '../stores/campaignStore';
+import { useCampaignStore2 } from '../stores/campaignStore';
+import { useNavigate } from 'react-router-dom';
 
 interface Campaign {
   id: number;
@@ -26,16 +27,18 @@ interface CampaignListScreenProps {
   onCreateCampaign?: () => void;
 }
 
-const CampaignListScreen: React.FC<CampaignListScreenProps> = ({
+const CampaignListScreenAgency: React.FC<CampaignListScreenProps> = ({
   onBack,
   onCampaignSelect,
   onCreateCampaign,
 }) => {
-  const campaigns = useCampaignStore((state) => state.campaigns);
-  const loading = useCampaignStore((state) => state.loading);
-  const fetchCampaigns = useCampaignStore((state) => state.fetchCampaigns);
+  const campaigns = useCampaignStore2((state) => state.campaigns);
+  const loading = useCampaignStore2((state) => state.loading);
+  const fetchCampaigns = useCampaignStore2((state) => state.fetchCampaigns);
   const [search, setSearch] = useState("");
   const [filteredCampaigns, setFilteredCampaigns] = useState(campaigns)
+
+  const navigate=useNavigate();
 
   // Fetch campaigns only if not already loaded
   useEffect(() => {
@@ -44,22 +47,19 @@ const CampaignListScreen: React.FC<CampaignListScreenProps> = ({
     }
   }, [campaigns.length, fetchCampaigns]);
 
-  useEffect(() => {
-    setFilteredCampaigns(campaigns);
-  }, [campaigns]);
-
-  const handleSearch = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const value = e.target.value;
-    setSearch(value);
-
-    const filtered = campaigns.filter((c) =>
-      c.title.toLowerCase().includes(value.toLowerCase()) ||
-      c.agency_name.toLowerCase().includes(value.toLowerCase()) ||
-      c.category.toLowerCase().includes(value.toLowerCase()) ||
-      c.city.toLowerCase().includes(value.toLowerCase())
-    );
-    setFilteredCampaigns(filtered);
-  };
+    useEffect(() => {
+      setFilteredCampaigns(campaigns);
+    }, [campaigns]);
+  
+    const handleSearch = (e: React.ChangeEvent<HTMLInputElement>) => {
+      const value = e.target.value;
+      setSearch(value);
+  
+      const filtered = campaigns.filter((c) =>
+        c.title.toLowerCase().includes(value.toLowerCase())
+      );
+      setFilteredCampaigns(filtered);
+    };
 
   if (loading) {
     return (
@@ -72,36 +72,43 @@ const CampaignListScreen: React.FC<CampaignListScreenProps> = ({
   return (
     <div className="min-h-screen bg-slate-50 pb-20">
       {/* Header */}
-      <div className="bg-white border-b border-slate-200 px-6 pt-12 pb-3">
-        <div className="flex items-center justify-between">
-          {/* Left side: Back button + Title */}
-          <div className="flex items-center">
-            <button
-              onClick={onBack}
-              className="w-8 h-8 bg-slate-100 rounded-lg flex items-center justify-center mr-3"
-            >
-              <ArrowLeft className="w-4 h-4 text-slate-700" />
-            </button>
-            <h1 className="text-xl font-bold text-slate-900">Campagne</h1>
-          </div>
-
-          {/* Right side: Search + Add Button */}
-          <div className="flex items-center space-x-2">
-            <input
-              type="text"
-              value={search}
-              onChange={handleSearch}
-              placeholder="Search campaigns..."
-              className="w-96 border border-slate-300 rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
-            />
-          </div>
-        </div>
-      </div>
-
+            <div className="bg-white border-b border-slate-200 px-6 pt-12 pb-3">
+              <div className="flex items-center justify-between">
+                {/* Left side: Back button + Title */}
+                <div className="flex items-center">
+                  <button
+                    onClick={onBack}
+                    className="w-8 h-8 bg-slate-100 rounded-lg flex items-center justify-center mr-3"
+                  >
+                    <ArrowLeft className="w-4 h-4 text-slate-700" />
+                  </button>
+                  <h1 className="text-xl font-bold text-slate-900">Campagne</h1>
+                </div>
+      
+                {/* Right side: Search + Add Button */}
+                <div className="flex items-center space-x-2">
+                  <input
+                    type="text"
+                    value={search}
+                    onChange={handleSearch}
+                    placeholder="Search campaigns..."
+                    className="w-96 border border-slate-300 rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  />
+                  {onCreateCampaign && (
+                    <button
+                      onClick={onCreateCampaign}
+                      className="bg-gray-500 hover:bg-blue-600 text-white px-4 py-2 rounded-lg font-semibold"
+                    >
+                      +
+                    </button>
+                  )}
+                </div>
+              </div>
+            </div>
 
       {/* Campaign List */}
       <div className="px-6 py-4 space-y-4">
-        {filteredCampaigns.map((item) => {
+       {filteredCampaigns.map((item) => {
           // Calculate time left until deadline
           const deadlineDate = new Date(item.deadline);
           const diffTime = deadlineDate.getTime() - new Date().getTime();
@@ -118,10 +125,10 @@ const CampaignListScreen: React.FC<CampaignListScreenProps> = ({
             requirements: {
               gender:
                 item.gender_preference === 'any'
-                  ? 'any'
+                  ? 'Qualsiasi'
                   : item.gender_preference === 'women'
-                  ? 'Female'
-                  : 'Male',
+                  ? 'Femminile'
+                  : 'Maschile',
               location: `${item.city}${item.address ? ', ' + item.address : ''}`,
               startDate: item.start_date,
               endDate: item.end_date || '',
@@ -210,10 +217,12 @@ const CampaignListScreen: React.FC<CampaignListScreenProps> = ({
                   {campaign.budget}
                 </div>
               </div>
-
-              <button className="w-full mt-4 bg-slate-900 text-white py-3 rounded-xl font-semibold hover:bg-slate-800 transition-colors">
-                Candidati Ora
-              </button>
+                <button
+                  onClick={() => onCampaignSelect(campaign)}
+                  className="w-full mt-4 bg-slate-900 text-white py-3 rounded-xl font-semibold hover:bg-slate-800 transition-colors"
+                >
+                  Modificare
+                </button>
             </div>
           );
         })}
@@ -222,4 +231,4 @@ const CampaignListScreen: React.FC<CampaignListScreenProps> = ({
   );
 };
 
-export default CampaignListScreen;
+export default CampaignListScreenAgency;

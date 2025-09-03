@@ -1,13 +1,33 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { ArrowLeft } from 'lucide-react';
-import { createCampaign } from "../services/createCampaign";
+import { updateCampaign } from "../services/createCampaign";
+import { getBaseUrl } from '@/services/utils/baseUrl';
+import axios from 'axios';
 
-interface CampaignCreationScreenProps {
+interface CampaignEditScreenProps {
+    campaignId: string;
   onBack: () => void;
   onSave: () => void;
 }
 
-const CampaignCreationScreen: React.FC<CampaignCreationScreenProps> = ({ onBack, onSave }) => {
+interface CampaignPayload {
+    title: string;
+    description: string;
+    category: string;
+    start_date?: string;
+    end_date?: string;       // optional
+    start_time?: string;     // optional
+    end_time?: string;       // optional
+    city: string;
+    address: string;        // optional
+    compensation: string;
+    required_people: number;
+    deadline: string;
+    pro_only: boolean;
+    gender_preference: 'any' | 'women' | 'men';
+  }
+
+const CampaignEditScreen: React.FC<CampaignEditScreenProps> = ({ campaignId,onBack, onSave }) => {
   const [formData, setFormData] = useState({
     title: '',
     description: '',
@@ -25,14 +45,36 @@ const CampaignCreationScreen: React.FC<CampaignCreationScreenProps> = ({ onBack,
     gender_preference: 'any' as 'any' | 'women' | 'men'
   });
 
+  useEffect(() => {
+    const loadCampaign = async () => {
+      try {
+        const token = localStorage.getItem("token");
+        if (!token) return;
+  
+        const baseUrl = await getBaseUrl();
+        const res = await axios.get<CampaignPayload>(`${baseUrl}/api/campaigns/${campaignId}`, {
+          headers: { Authorization: `Bearer ${token}` },
+        });
+  
+        setFormData(res.data); // assumes API returns campaign object
+      } catch (err) {
+        console.error("Error loading campaign:", err);
+      }
+    };
+  
+    if (campaignId) loadCampaign();
+  }, [campaignId]);
+  
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
     try {
       const token = localStorage.getItem("token"); // or from your auth store
       if (!token) throw new Error("User not authenticated");
+      
 
-      await createCampaign(formData, token);
+      await updateCampaign(campaignId,formData, token);
       alert("Campagna creata con successo!");
       onSave(); // navigate back after success
     } catch (error: any) {
@@ -52,7 +94,7 @@ const CampaignCreationScreen: React.FC<CampaignCreationScreenProps> = ({ onBack,
           >
             <ArrowLeft className="w-4 h-4 text-slate-700" />
           </button>
-          <h1 className="text-xl font-bold text-slate-900">Crea Campagna</h1>
+          <h1 className="text-xl font-bold text-slate-900">modifica campagna</h1>
         </div>
       </div>
 
@@ -142,8 +184,7 @@ const CampaignCreationScreen: React.FC<CampaignCreationScreenProps> = ({ onBack,
               <div>
                 <label className="block text-sm font-medium text-slate-700 mb-2">Orario Inizio</label>
                 <input
-                   type="time"
-                  placeholder='HH:MM:SS'
+                  type="text"
                   value={formData.start_time}
                   onChange={(e) => setFormData({...formData, start_time: e.target.value})}
                   className="w-full px-4 py-3 border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-slate-900"
@@ -152,8 +193,7 @@ const CampaignCreationScreen: React.FC<CampaignCreationScreenProps> = ({ onBack,
               <div>
                 <label className="block text-sm font-medium text-slate-700 mb-2">Orario Fine</label>
                 <input
-                  type="time"
-                  placeholder='HH:MM:SS'
+                  type="text"
                   value={formData.end_time}
                   onChange={(e) => setFormData({...formData, end_time: e.target.value})}
                   className="w-full px-4 py-3 border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-slate-900"
@@ -166,7 +206,6 @@ const CampaignCreationScreen: React.FC<CampaignCreationScreenProps> = ({ onBack,
                 <label className="block text-sm font-medium text-slate-700 mb-2">Città</label>
                 <input
                   type="text"
-                  
                   value={formData.city}
                   onChange={(e) => setFormData({...formData, city: e.target.value})}
                   className="w-full px-4 py-3 border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-slate-900"
@@ -243,11 +282,11 @@ const CampaignCreationScreen: React.FC<CampaignCreationScreenProps> = ({ onBack,
           type="submit"
           className="w-full bg-slate-900 text-white py-4 rounded-xl font-semibold text-lg hover:bg-slate-800 transition-colors"
         >
-          Crea Campagna
+          Save Changes
         </button>
       </form>
     </div>
   );
 };
 
-export default CampaignCreationScreen;
+export default CampaignEditScreen;

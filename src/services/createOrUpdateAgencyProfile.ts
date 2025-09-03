@@ -60,3 +60,37 @@ export const createOrUpdateAgencyProfile = async (formData: AgencyProfileFormDat
     throw err;
   }
 };
+
+export const getAgencyProfile=async()=>{
+  const baseUrl = await getBaseUrl(); // Checks backend availability and returns base URL or mock
+  const isMock = baseUrl.includes('mockapi');
+
+  const token = localStorage.getItem('token');
+  if (!token) {
+    throw new Error('No token found. Please log in.');
+  }
+
+  const headers = {
+    'Content-Type': 'application/json',
+    'Authorization': `Bearer ${token}`,
+  };
+
+  try {
+    const response = await fetch(`${baseUrl}/api/agency/profile`, {
+      method: 'GET',
+      headers,
+    });
+
+    if (!response.ok) {
+      const errData = await response.json();
+      throw new Error(errData.message || 'Failed to fetch profile');
+    }
+
+    const data = await response.json();
+    return data; // This should include name, location, bio, videoUrl, etc.
+  } catch (error: any) {
+    console.error('Error fetching agency profile:', error);
+    throw new Error(error.message || 'Something went wrong');
+  }
+
+}
