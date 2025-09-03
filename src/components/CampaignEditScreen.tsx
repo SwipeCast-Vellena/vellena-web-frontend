@@ -94,7 +94,7 @@ const CampaignEditScreen: React.FC<CampaignEditScreenProps> = ({ campaignId,onBa
           >
             <ArrowLeft className="w-4 h-4 text-slate-700" />
           </button>
-          <h1 className="text-xl font-bold text-slate-900">Crea Campagna</h1>
+          <h1 className="text-xl font-bold text-slate-900">modifica campagna</h1>
         </div>
       </div>
 

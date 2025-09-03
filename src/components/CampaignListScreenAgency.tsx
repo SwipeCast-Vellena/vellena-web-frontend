@@ -217,13 +217,12 @@ const CampaignListScreenAgency: React.FC<CampaignListScreenProps> = ({
                   {campaign.budget}
                 </div>
               </div>
-
-              <button onClick={(e) => {
-    e.stopPropagation(); // Prevent triggering the onClick of the whole card
-    navigate(`/agency/campaign/${campaign.id}/edit`);
-  }}   className="w-full mt-4 bg-slate-900 text-white py-3 rounded-xl font-semibold hover:bg-slate-800 transition-colors">
-              Modificare
-              </button>
+                <button
+                  onClick={() => onCampaignSelect(campaign)}
+                  className="w-full mt-4 bg-slate-900 text-white py-3 rounded-xl font-semibold hover:bg-slate-800 transition-colors"
+                >
+                  Modificare
+                </button>
             </div>
           );
         })}
