@@ -248,7 +248,7 @@ const MainFeedScreenAgency: React.FC<MainFeedScreenProps> = ({
       {/* Filters Overlay */}
       {showFilters && (
         <div className="absolute inset-0 bg-black/50 backdrop-blur-sm z-30 flex items-end">
-          <div className="w-full bg-white rounded-t-3xl p-6 transform transition-transform duration-300">
+          <div className="w-full bg-white rounded-t-3xl p-6 transform transition-transform duration-300 mb-10">
             <div className="w-12 h-1 bg-gray-300 rounded-full mx-auto mb-6"></div>
             <h2 className="text-lg font-medium text-gray-900 mb-6">
               Filter by category
@@ -284,7 +284,7 @@ const MainFeedScreenAgency: React.FC<MainFeedScreenProps> = ({
       )}
 
       {/* Content container (centered, fills remaining viewport height) */}
-      <div className="relative z-20 w-[90vw] max-w-full mx-auto px-4 sm:px-6 lg:px-10 pb-4 flex-1 overflow-hidden flex flex-col max-h-[90vh]">
+      <div className="relative z-20 w-[90vw] max-w-full mx-auto px-4 sm:px-6 lg:px-10 pb-4 flex-1 overflow-hidden flex flex-col max-h-[85vh]">
         {/* Middle row: arrows + card */}
         <div className="flex items-stretch justify-between gap-4 mt-4 w-full flex-1 overflow-hidden">
           <button

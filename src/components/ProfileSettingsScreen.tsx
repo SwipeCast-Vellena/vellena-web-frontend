@@ -15,6 +15,7 @@ import { getBaseUrl } from "@/services/utils/baseUrl";
 import { uploadVideo } from "@/services/uploadVideo";
 import { fetchMyModelPhotos } from "@/services/modelPhotos";
 import axios from "axios";
+import { upgradeToPro } from "@/services/stripeService";
 
 interface ProfileSettingsScreenProps {
   onBack: () => void;
@@ -26,6 +27,8 @@ const ProfileSettingsScreen: React.FC<ProfileSettingsScreenProps> = ({
   onLogout,
 }) => {
   interface BackendProfile {
+    id: number;
+    is_pro: number;
     name: string;
     age: number;
     genre: string;
@@ -37,6 +40,8 @@ const ProfileSettingsScreen: React.FC<ProfileSettingsScreenProps> = ({
     email: string;
   }
   const [userProfile, setUserProfile] = useState({
+    id: 0,
+    is_pro: 0,
     name: "",
     email: "",
     location: "",
@@ -126,6 +131,8 @@ const ProfileSettingsScreen: React.FC<ProfileSettingsScreenProps> = ({
 
         const profile = res.data;
         setUserProfile({
+          id: profile.id,
+          is_pro: profile.is_pro,
           name: profile.name,
           email: profile.email, // you may get this from JWT or separate endpoint
           location: profile.location,
@@ -136,6 +143,7 @@ const ProfileSettingsScreen: React.FC<ProfileSettingsScreenProps> = ({
           video_portfolio: profile.video_portfolio,
           genre: profile.genre,
         });
+        console.log("Fetched profile:", profile);
       } catch (err: any) {
         console.error("Failed to load profile", err);
       }
@@ -158,6 +166,14 @@ const ProfileSettingsScreen: React.FC<ProfileSettingsScreenProps> = ({
     return colors[index];
   };
 
+  const handleUpgrade = () => {
+    if (!userProfile?.id) {
+      alert("You must be logged in to upgrade.");
+      return;
+    }
+    upgradeToPro(userProfile.id);
+  };
+
   const handleUpdateProfile = async () => {
     try {
       const token = localStorage.getItem("token");
@@ -166,6 +182,8 @@ const ProfileSettingsScreen: React.FC<ProfileSettingsScreenProps> = ({
       await axios.post(
         `${baseUrl}/api/model/profile`,
         {
+          id: userProfile.id,
+          is_pro: userProfile.is_pro,
           name: userProfile.name,
           age: userProfile.age,
           genre: userProfile.genre, // pick from dropdown or state
@@ -204,14 +222,31 @@ const ProfileSettingsScreen: React.FC<ProfileSettingsScreenProps> = ({
               Profilo e Impostazioni
             </h1>
           </div>
-          <button
-            onClick={() => setIsEditing(!isEditing)}
-            className="w-10 h-10 bg-slate-100 rounded-xl flex items-center justify-center"
-          >
-            <Edit3 className="w-5 h-5 text-slate-700" />
-          </button>
+
+          <div className="flex items-center gap-2">
+            {/* Switch to Pro Button */}
+            <button
+              onClick={handleUpgrade}
+              disabled={userProfile.is_pro === 1}
+              className={`px-4 py-2 text-white text-sm font-medium rounded-xl shadow-sm
+                ${userProfile.is_pro === 1 
+                  ? "bg-gray-400 cursor-not-allowed"  // ✅ disabled style
+                  : "bg-indigo-600 hover:bg-indigo-700" // normal style
+                }`}
+            >
+              {userProfile.is_pro === 1 ? "You are already a Pro" : "Upgrade to Pro"}
+            </button>
+            {/* Edit Button */}
+            <button
+              onClick={() => setIsEditing(!isEditing)}
+              className="w-10 h-10 bg-slate-100 rounded-xl flex items-center justify-center"
+            >
+              <Edit3 className="w-5 h-5 text-slate-700" />
+            </button>
+          </div>
         </div>
       </div>
+
 
       <div className="px-6 py-6 space-y-6">
         {/* Profile Section */}
@@ -390,20 +425,20 @@ const ProfileSettingsScreen: React.FC<ProfileSettingsScreenProps> = ({
                   Presentazione professionale di 30 secondi
                 </p>
                 <div className="flex justify-center gap-3">
-                  <button
+                  {/* <button
                     type="button"
                     onClick={handleVideoUploadClick}
                     className="bg-slate-900 text-white px-6 py-3 rounded-xl font-medium hover:bg-slate-800 transition-colors"
                   >
                     Sostituisci Video
-                  </button>
+                  </button> */}
                   {/* Delete */}
-                  <button
+                  {/* <button
                     type="button"
                     className="bg-red-50 text-red-600 px-6 py-3 rounded-xl font-medium hover:bg-red-100 transition-colors"
                   >
                     Elimina Video
-                  </button>
+                  </button> */}
                 </div>
               </div>
             ) : (

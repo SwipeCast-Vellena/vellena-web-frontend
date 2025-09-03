@@ -53,7 +53,10 @@ const CampaignListScreen: React.FC<CampaignListScreenProps> = ({
     setSearch(value);
 
     const filtered = campaigns.filter((c) =>
-      c.title.toLowerCase().includes(value.toLowerCase())
+      c.title.toLowerCase().includes(value.toLowerCase()) ||
+      c.agency_name.toLowerCase().includes(value.toLowerCase()) ||
+      c.category.toLowerCase().includes(value.toLowerCase()) ||
+      c.city.toLowerCase().includes(value.toLowerCase())
     );
     setFilteredCampaigns(filtered);
   };
@@ -115,10 +118,10 @@ const CampaignListScreen: React.FC<CampaignListScreenProps> = ({
             requirements: {
               gender:
                 item.gender_preference === 'any'
-                  ? 'Qualsiasi'
+                  ? 'any'
                   : item.gender_preference === 'women'
-                  ? 'Femminile'
-                  : 'Maschile',
+                  ? 'Female'
+                  : 'Male',
               location: `${item.city}${item.address ? ', ' + item.address : ''}`,
               startDate: item.start_date,
               endDate: item.end_date || '',
