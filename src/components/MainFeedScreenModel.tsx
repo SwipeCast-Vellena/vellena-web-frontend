@@ -20,7 +20,8 @@ import NotificationsCard from "./NotificationCard";
 import RecentMatches from "./RecentMatches";
 import { useCampaignStore } from "../stores/campaignStore";
 import PhotoUploader from "../components/PhotoUploader";
-import { toast } from "@/components/ui/use-toast"; // adjust the path if needed
+import { toast } from "@/components/ui/use-toast"; 
+import { getModelProfile } from "@/services/modelService";// adjust the path if needed
 
 // --- Types from backend ---
 type BackendCampaign = {
@@ -40,6 +41,12 @@ type BackendCampaign = {
   description: string;
   tags?: string[];
 };
+
+interface ModelProfile {
+  name: string;
+  category?: string;
+  
+}
 
 // --- UI Type ---
 interface Campaign {
@@ -108,6 +115,7 @@ export default function MainFeedScreenModel({ onCampaignSelect, onEditProfile }:
   const { campaigns, fetchCampaigns } = useCampaignStore();
   const [token, setToken] = useState("");
   const [profilePhotoUploaded, setProfilePhotoUploaded] = useState(false);
+  const [modelProfile,setModelProfile]=useState<ModelProfile|null>(null);
 
   useEffect(() => {
     fetchCampaigns();
@@ -117,6 +125,20 @@ export default function MainFeedScreenModel({ onCampaignSelect, onEditProfile }:
     const t = localStorage.getItem("token");
     if (t) setToken(t);
   }, []);
+
+  useEffect(()=>{
+    const fetchProfile=async()=>{
+      try {
+        const prof=await getModelProfile();
+        console.log(prof);
+        setModelProfile(prof);
+        
+      } catch (error) {
+        console.log(error);
+      }
+    }
+    fetchProfile();
+  },[])
 
   // Profile completion mock
   const [profile, setProfile] = useState({
@@ -186,7 +208,7 @@ export default function MainFeedScreenModel({ onCampaignSelect, onEditProfile }:
             <div>
               <div className="text-sm text-slate-500">Welcome back</div>
               <div className="font-semibold text-slate-900">
-                Sarah Johnson · <span className="text-slate-600">Model</span>
+                {modelProfile?.name} <span className="text-slate-600">{modelProfile?.category}</span>
               </div>
             </div>
           </div>

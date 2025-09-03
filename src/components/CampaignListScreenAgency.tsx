@@ -2,6 +2,7 @@
 import React, { useEffect, useState } from 'react';
 import { ArrowLeft, MapPin, CalendarDays, Calendar } from 'lucide-react';
 import { useCampaignStore2 } from '../stores/campaignStore';
+import { useNavigate } from 'react-router-dom';
 
 interface Campaign {
   id: number;
@@ -36,6 +37,8 @@ const CampaignListScreenAgency: React.FC<CampaignListScreenProps> = ({
   const fetchCampaigns = useCampaignStore2((state) => state.fetchCampaigns);
   const [search, setSearch] = useState("");
   const [filteredCampaigns, setFilteredCampaigns] = useState(campaigns)
+
+  const navigate=useNavigate();
 
   // Fetch campaigns only if not already loaded
   useEffect(() => {
@@ -215,7 +218,10 @@ const CampaignListScreenAgency: React.FC<CampaignListScreenProps> = ({
                 </div>
               </div>
 
-              <button className="w-full mt-4 bg-slate-900 text-white py-3 rounded-xl font-semibold hover:bg-slate-800 transition-colors">
+              <button onClick={(e) => {
+    e.stopPropagation(); // Prevent triggering the onClick of the whole card
+    navigate(`/agency/campaign/${campaign.id}/edit`);
+  }}   className="w-full mt-4 bg-slate-900 text-white py-3 rounded-xl font-semibold hover:bg-slate-800 transition-colors">
               Modificare
               </button>
             </div>

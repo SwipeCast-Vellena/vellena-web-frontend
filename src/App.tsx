@@ -25,7 +25,8 @@ import {
   ProfileRoute,
   UserDetailRoute,
   AgencyRoute,
-  AgencyCampaignRoute
+  AgencyCampaignRoute,
+  CampaignEditRoute
 } from "./pages/Index";
 
 const queryClient = new QueryClient();
@@ -68,6 +69,8 @@ const App = () => (
           <Route path="/agency/chat" element={<AgencyChatRoute />} />
           <Route path="/agency/chat/:chatId" element={<AgencyChatRoute />} />
           <Route path="/agency/campaign-create" element={<CampaignCreateRoute />} />
+          <Route path="/agency/campaign/:campaignId/edit" element={<CampaignEditRoute />} />
+
           {/* Fallback */}
           <Route path="*" element={<NotFound />} />
         </Routes>

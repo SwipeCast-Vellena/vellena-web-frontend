@@ -1,4 +1,5 @@
 import React, { useEffect, useRef, useState } from "react";
+import { useNavigate } from "react-router-dom";
 import {
   Heart,
   X,
@@ -46,6 +47,7 @@ const MainFeedScreenAgency: React.FC<MainFeedScreenProps> = ({
   const [showFilters, setShowFilters] = useState(false);
   const [isAnimating, setIsAnimating] = useState(false);
   const [pendingProfiles, setPendingProfiles] = useState<Profile[]>([]);
+  const [showLikePopup, setShowLikePopup] = useState(false);
 
   // Pointer swipe state (works for mouse + touch)
   const startX = useRef<number | null>(null);
@@ -56,7 +58,7 @@ const MainFeedScreenAgency: React.FC<MainFeedScreenProps> = ({
     const loadModels = async () => {
       try {
         const models = await fetchModels();
-        
+
         setAllProfiles(models);
       } catch (error) {
         console.error("Error fetching models:", error);
@@ -78,6 +80,8 @@ const MainFeedScreenAgency: React.FC<MainFeedScreenProps> = ({
 
     loadPendingModels();
   }, []);
+
+  
 
   const filteredProfiles =
     activeCategory === "all"
@@ -133,14 +137,22 @@ const MainFeedScreenAgency: React.FC<MainFeedScreenProps> = ({
   };
 
   const handleAction = (action: "pass" | "like") => {
-    if (action === "like" && onMatch) onMatch();
-    setIsAnimating(true); // <-- fixed (no stray dot)
+    if (action === "like" && onMatch){
+      setShowLikePopup(true);
+      setTimeout(() => setShowLikePopup(false), 1500);
+    } // <-- fixed (no stray dot)
+    setIsAnimating(true);
     setTimeout(() => {
       setCurrentIndex((prev) =>
         prev === filteredProfiles.length - 1 ? 0 : prev + 1
       );
       setIsAnimating(false);
     }, 300);
+  };
+
+  const navigate = useNavigate();
+  const onChat = () => {
+    navigate("/agency/chat");
   };
 
   // Keep index in range if filter changes
@@ -156,15 +168,25 @@ const MainFeedScreenAgency: React.FC<MainFeedScreenProps> = ({
   if (!currentProfile) return null;
 
   // Pointer event handlers for swipe
-  const onPointerDown: React.PointerEventHandler<HTMLDivElement> = (e) => {
-    startX.current = e.clientX;
-    (e.currentTarget as HTMLElement).setPointerCapture?.(e.pointerId);
-  };
+  // const onPointerDown: React.PointerEventHandler<HTMLDivElement> = (e) => {
+  //   startX.current = e.clientX;
+  //   (e.currentTarget as HTMLElement).setPointerCapture?.(e.pointerId);
+  // };
   const onPointerMove: React.PointerEventHandler<HTMLDivElement> = () => {
     // optional: add live drag visuals here
   };
+  const onPointerDown: React.PointerEventHandler<HTMLDivElement> = (e) => {
+    // ignore if clicked on a button
+    if ((e.target as HTMLElement).closest("button")) return;
+
+    startX.current = e.clientX;
+    (e.currentTarget as HTMLElement).setPointerCapture?.(e.pointerId);
+  };
+
   const onPointerUp: React.PointerEventHandler<HTMLDivElement> = (e) => {
+    if ((e.target as HTMLElement).closest("button")) return;
     if (startX.current == null) return;
+
     const dist = startX.current - e.clientX;
     if (dist > minSwipeDistance) handleSwipe("left");
     else if (dist < -minSwipeDistance) handleSwipe("right");
@@ -173,6 +195,13 @@ const MainFeedScreenAgency: React.FC<MainFeedScreenProps> = ({
 
   return (
     <div className="h-[100dvh] bg-gradient-to-br from-slate-900 via-gray-900 to-black relative overflow-hidden flex flex-col">
+
+      {/* LIKE POPUP */}
+      {showLikePopup && (
+        <div className="fixed top-20 left-1/2 transform -translate-x-1/2 bg-black/80 text-white px-6 py-3 rounded-xl text-sm font-medium z-50 shadow-lg animate-fadeInOut">
+          Liked!
+        </div>
+      )}
       {/* Animated Background */}
       <div
         className={`pointer-events-none absolute inset-0 transition-all duration-700 ease-out ${
@@ -206,7 +235,7 @@ const MainFeedScreenAgency: React.FC<MainFeedScreenProps> = ({
             <Filter className="w-5 h-5 text-white" />
           </button>
           <button
-            onClick={onOpenChat}
+            onClick={onChat}
             className="w-11 h-11 bg-white/10 backdrop-blur-xl rounded-2xl flex items-center justify-center border border-white/20 hover:bg-white/20 transition-all duration-300"
             aria-label="Open chat"
           >
@@ -289,15 +318,6 @@ const MainFeedScreenAgency: React.FC<MainFeedScreenProps> = ({
                 className="w-full h-full object-cover"
                 controls
               />
-              {/* <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent"></div>
-              <div className="absolute inset-0 flex items-center justify-center">
-                <div className="w-16 h-16 bg-white/20 backdrop-blur-sm rounded-full flex items-center justify-center shadow-lg hover:scale-110 transition-transform cursor-pointer">
-                  <Play
-                    className="w-8 h-8 text-white ml-1"
-                    fill="currentColor"
-                  />
-                </div>
-              </div> */}
 
               {/* Category Badge */}
               <div className="absolute top-4 right-4">
@@ -339,25 +359,22 @@ const MainFeedScreenAgency: React.FC<MainFeedScreenProps> = ({
 
               {/* Action Buttons */}
               <div className="mt-4 flex items-center justify-center gap-6 shrink-0">
-                <button className="w-14 h-14 bg-gray-100 rounded-full flex items-center justify-center hover:bg-gray-200 hover:scale-110 transition-all duration-300 shadow-lg">
+                <button
+                  onClick={() => handleAction("pass")}
+                  className="w-14 h-14 bg-gray-100 rounded-full flex items-center justify-center hover:bg-gray-200 hover:scale-110 transition-all duration-300 shadow-lg"
+                >
                   <X className="w-6 h-6 text-gray-600" />
                 </button>
                 <button
-                  onClick={async () => {
+                  onClick={async (e) => {
+                    e.stopPropagation(); // prevent parent swipe from intercepting
                     try {
                       const result = await addFavorite(currentProfile.id);
                       console.log("Favorite response:", result);
-
-                      if (result.success && result.autoApproved) {
-                        // instantly open chat if auto-approved
-                      } else {
-                        // maybe show toast: "You liked this profile"
-                      }
                     } catch (err) {
                       console.error("Error liking profile:", err);
                     }
-
-                    handleAction("like"); // move to next profile
+                    handleAction("like");
                   }}
                   className="w-16 h-16 bg-gradient-to-r from-pink-500 to-red-500 rounded-full flex items-center justify-center hover:scale-110 transition-all duration-300 shadow-xl"
                 >

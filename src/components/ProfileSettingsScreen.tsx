@@ -12,7 +12,7 @@ import {
   Upload,
 } from "lucide-react";
 import { getBaseUrl } from "@/services/utils/baseUrl";
-import { uploadVideo} from "@/services/uploadVideo";
+import { uploadVideo } from "@/services/uploadVideo";
 import { fetchMyModelPhotos } from "@/services/modelPhotos";
 import axios from "axios";
 
@@ -55,36 +55,35 @@ const ProfileSettingsScreen: React.FC<ProfileSettingsScreenProps> = ({
   const baseUrl = getBaseUrl();
 
   useEffect(() => {
-  const fetchPhotos = async () => {
-    const token = localStorage.getItem("token");
-    if (!token) return;
+    const fetchPhotos = async () => {
+      const token = localStorage.getItem("token");
+      if (!token) return;
 
-    try {
-      const baseUrl = await getBaseUrl(); // wait for the actual URL
+      try {
+        const baseUrl = await getBaseUrl(); // wait for the actual URL
 
-      fetchMyModelPhotos(token, (err, data) => {
-        if (err) {
-          console.error("Failed to fetch model photos:", err);
-          return;
-        }
+        fetchMyModelPhotos(token, (err, data) => {
+          if (err) {
+            console.error("Failed to fetch model photos:", err);
+            return;
+          }
 
-        // prepend baseUrl to each relative photo URL
-        const photosArray = data?.groups?.Portfolio?.map(
-          (p: any) => `${baseUrl}${p.url}`
-        ) || [];
+          // prepend baseUrl to each relative photo URL
+          const photosArray =
+            data?.groups?.Portfolio?.map((p: any) => `${baseUrl}${p.url}`) ||
+            [];
 
-        setModelPhotos(photosArray);
+          setModelPhotos(photosArray);
 
-        console.log("Fetched model photos:", photosArray);
-      });
-    } catch (error) {
-      console.error("Failed to get base URL", error);
-    }
-  };
+          console.log("Fetched model photos:", photosArray);
+        });
+      } catch (error) {
+        console.error("Failed to get base URL", error);
+      }
+    };
 
-  fetchPhotos();
+    fetchPhotos();
   }, []);
-
 
   useEffect(() => {
     const token = localStorage.getItem("token");
@@ -100,7 +99,6 @@ const ProfileSettingsScreen: React.FC<ProfileSettingsScreenProps> = ({
       setModelPhotos(data.photos || []);
     });
   }, []);
-
 
   const handleVideoUploadClick = () => fileInputRef.current?.click();
 
@@ -147,6 +145,18 @@ const ProfileSettingsScreen: React.FC<ProfileSettingsScreenProps> = ({
   }, []);
 
   const [isEditing, setIsEditing] = useState(false);
+
+  const getAvatarColor = (name: string) => {
+    const colors = [
+      "#043584ff",
+      "#73616146",
+      "#895a09ff",
+      "#034f35ff",
+      "#200560ff",
+    ];
+    const index = name ? name.charCodeAt(0) % colors.length : 0;
+    return colors[index];
+  };
 
   const handleUpdateProfile = async () => {
     try {
@@ -208,21 +218,24 @@ const ProfileSettingsScreen: React.FC<ProfileSettingsScreenProps> = ({
         <div className="bg-white rounded-2xl p-6 shadow-sm border border-slate-200">
           <div className="flex items-center space-x-4 mb-6">
             <div className="relative">
-            <div className="w-20 h-20 bg-slate-200 rounded-2xl overflow-hidden">
-              {modelPhotos.length > 0 ? (
-                <img
-                  src={modelPhotos[0]} // show first photo
-                  alt="Profilo"
-                  className="w-full h-full object-cover"
-                />
-              ) : (
-                <img
-                  src="https://images.unsplash.com/photo-1649972904349-6e44c42644a7"
-                  alt="Profilo"
-                  className="w-full h-full object-cover"
-                />
-              )}
-            </div>
+              <div className="w-20 h-20 bg-slate-200 rounded-2xl overflow-hidden">
+                {modelPhotos.length > 0 ? (
+                  <img
+                    src={modelPhotos[0]} // show first photo
+                    alt="Profilo"
+                    className="w-full h-full object-cover"
+                  />
+                ) : (
+                  <div
+                    className="w-20 h-20 rounded-2xl flex items-center justify-center text-white font-bold text-2xl cursor-pointer"
+                    style={{
+                      backgroundColor: getAvatarColor(userProfile.name),
+                    }}
+                  >
+                    {userProfile.name?.charAt(0).toUpperCase() || "?"}
+                  </div>
+                )}
+              </div>
 
               {isEditing && (
                 <button className="absolute -bottom-2 -right-2 w-8 h-8 bg-slate-900 rounded-xl flex items-center justify-center">
@@ -351,66 +364,65 @@ const ProfileSettingsScreen: React.FC<ProfileSettingsScreenProps> = ({
         </div>
 
         <div className="bg-white rounded-2xl p-6 shadow-sm border border-slate-200">
-  <h3 className="text-lg font-semibold text-slate-900 mb-4 flex items-center">
-    <Video className="w-5 h-5 mr-2" />
-    Video Professionale
-  </h3>
+          <h3 className="text-lg font-semibold text-slate-900 mb-4 flex items-center">
+            <Video className="w-5 h-5 mr-2" />
+            Video Professionale
+          </h3>
 
-  {/* Hidden file input always rendered */}
-  <input
-    type="file"
-    accept="video/*"
-    ref={fileInputRef}
-    onChange={handleFileChange}
-    style={{ display: "none" }}
-  />
+          {/* Hidden file input always rendered */}
+          <input
+            type="file"
+            accept="video/*"
+            ref={fileInputRef}
+            onChange={handleFileChange}
+            style={{ display: "none" }}
+          />
 
-  <div className="border-2 border-dashed border-slate-300 rounded-xl p-6 text-center">
-    {videoUploaded || userProfile.video_portfolio ? (
-      <div>
-        <video
-          src={videoUrl || userProfile.video_portfolio || ""}
-          controls
-          className="w-full rounded-xl mb-3"
-        />
-        <p className="text-sm text-slate-600 mb-3">
-          Presentazione professionale di 30 secondi
-        </p>
-        <div className="flex justify-center gap-3">
-          <button
-            type="button"
-            onClick={handleVideoUploadClick}
-            className="bg-slate-900 text-white px-6 py-3 rounded-xl font-medium hover:bg-slate-800 transition-colors"
-          >
-            Sostituisci Video
-          </button>
-          {/* Delete */}
-          <button
-            type="button"
-            className="bg-red-50 text-red-600 px-6 py-3 rounded-xl font-medium hover:bg-red-100 transition-colors"
-          >
-            Elimina Video
-          </button>
+          <div className="border-2 border-dashed border-slate-300 rounded-xl p-6 text-center">
+            {videoUploaded || userProfile.video_portfolio ? (
+              <div>
+                <video
+                  src={videoUrl || userProfile.video_portfolio || ""}
+                  controls
+                  className="w-full rounded-xl mb-3"
+                />
+                <p className="text-sm text-slate-600 mb-3">
+                  Presentazione professionale di 30 secondi
+                </p>
+                <div className="flex justify-center gap-3">
+                  <button
+                    type="button"
+                    onClick={handleVideoUploadClick}
+                    className="bg-slate-900 text-white px-6 py-3 rounded-xl font-medium hover:bg-slate-800 transition-colors"
+                  >
+                    Sostituisci Video
+                  </button>
+                  {/* Delete */}
+                  <button
+                    type="button"
+                    className="bg-red-50 text-red-600 px-6 py-3 rounded-xl font-medium hover:bg-red-100 transition-colors"
+                  >
+                    Elimina Video
+                  </button>
+                </div>
+              </div>
+            ) : (
+              <div>
+                <Upload className="w-12 h-12 text-slate-400 mx-auto mb-3" />
+                <p className="font-medium text-slate-900 mb-2">
+                  Carica un video di presentazione
+                </p>
+                <button
+                  type="button"
+                  onClick={handleVideoUploadClick}
+                  className="bg-slate-900 text-white px-6 py-3 rounded-xl font-medium hover:bg-slate-800 transition-colors"
+                >
+                  Carica Video
+                </button>
+              </div>
+            )}
+          </div>
         </div>
-      </div>
-    ) : (
-      <div>
-        <Upload className="w-12 h-12 text-slate-400 mx-auto mb-3" />
-        <p className="font-medium text-slate-900 mb-2">
-          Carica un video di presentazione
-        </p>
-        <button
-          type="button"
-          onClick={handleVideoUploadClick}
-          className="bg-slate-900 text-white px-6 py-3 rounded-xl font-medium hover:bg-slate-800 transition-colors"
-        >
-          Carica Video
-        </button>
-      </div>
-    )}
-  </div>
-</div>
-
 
         {/* Settings Menu */}
         <div className="bg-white rounded-2xl shadow-sm border border-slate-200 overflow-hidden">

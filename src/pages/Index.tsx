@@ -23,6 +23,7 @@ import NavigationBar from "../components/NavigationBar";
 import Navbarmodel from "../components/NavBarModel"
 import ProfileEditScreenAgency from "@/components/ProfileEditScreenAgency";
 import CampaignListScreenAgency from "@/components/CampaignListScreenAgency";
+import CampaignEditScreen from "@/components/CampaignEditScreen";
 
 export const SplashRoute = () => {
   const navigate = useNavigate();
@@ -135,6 +136,21 @@ export const AgencyFeedRoute = () => {
       />
 
     </>
+  );
+};
+
+export const CampaignEditRoute = () => {
+  const navigate = useNavigate();
+  const { campaignId } = useParams<{ campaignId: string }>();
+
+  if (!campaignId) return null; // optional: handle missing ID
+
+  return (
+    <CampaignEditScreen
+      campaignId={campaignId}
+      onBack={() => navigate("/agency/campaigns")}
+      onSave={() => navigate("/agency/campaigns")}
+    />
   );
 };
 
