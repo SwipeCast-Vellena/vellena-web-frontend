@@ -38,6 +38,7 @@ const ProfileSettingsScreen: React.FC<ProfileSettingsScreenProps> = ({
     description: string;
     video_portfolio?: string;
     email: string;
+    card_number:string;
   }
   const [userProfile, setUserProfile] = useState({
     id: 0,
@@ -51,6 +52,7 @@ const ProfileSettingsScreen: React.FC<ProfileSettingsScreenProps> = ({
     profession: "",
     video_portfolio: null,
     genre: "",
+    card_number:"",
   });
 
   const [videoUrl, setVideoUrl] = useState<string | null>(null);
@@ -142,6 +144,7 @@ const ProfileSettingsScreen: React.FC<ProfileSettingsScreenProps> = ({
           profession: profile.category,
           video_portfolio: profile.video_portfolio,
           genre: profile.genre,
+          card_number:profile.card_number,
         });
         console.log("Fetched profile:", profile);
       } catch (err: any) {
@@ -192,6 +195,7 @@ const ProfileSettingsScreen: React.FC<ProfileSettingsScreenProps> = ({
           category: userProfile.profession,
           description: userProfile.bio,
           video_portfolio: videoUrl || userProfile.video_portfolio || null,
+          card_number:userProfile.card_number,
         },
         {
           headers: { Authorization: `Bearer ${token}` },
@@ -350,20 +354,42 @@ const ProfileSettingsScreen: React.FC<ProfileSettingsScreenProps> = ({
               </div>
             </div>
 
-            <div>
-              <label className="block text-sm font-medium text-slate-700 mb-2">
-                Località
-              </label>
-              <input
-                type="text"
-                value={userProfile.location}
-                onChange={(e) =>
-                  setUserProfile({ ...userProfile, location: e.target.value })
-                }
-                disabled={!isEditing}
-                className="w-full px-4 py-3 border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-slate-900 disabled:bg-slate-50"
-              />
-            </div>
+            
+            
+{/* Card Number + Location side by side */}
+<div className="grid grid-cols-2 gap-4 mt-4">
+<div>
+    <label className="block text-sm font-medium text-slate-700 mb-2">
+      Località
+    </label>
+    <input
+      type="text"
+      value={userProfile.location}
+      onChange={(e) =>
+        setUserProfile({ ...userProfile, location: e.target.value })
+      }
+      disabled={!isEditing}
+      className="w-full px-4 py-3 border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-slate-900 disabled:bg-slate-50"
+    />
+  </div>
+  <div>
+    <label className="block text-sm font-medium text-slate-700 mb-2">
+      Numero Carta
+    </label>
+    <input
+      type="text"
+      value={userProfile.card_number}
+      onChange={(e) =>
+        setUserProfile({ ...userProfile, card_number: e.target.value })
+      }
+      disabled={!isEditing}
+      className="w-full px-4 py-3 border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-slate-900 disabled:bg-slate-50"
+      placeholder="**** **** **** ****"
+      maxLength={19}
+    />
+  </div>
+  
+</div>
 
             <div>
               <label className="block text-sm font-medium text-slate-700 mb-2">
