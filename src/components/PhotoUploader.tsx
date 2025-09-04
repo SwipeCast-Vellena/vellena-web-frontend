@@ -1,7 +1,7 @@
 import { useState, useEffect } from "react";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { ImageIcon, Upload } from "lucide-react";
+import { ImageIcon, Upload, Loader2 } from "lucide-react"; // ✅ Loader2 = spinner
 import { uploadModelPhotos, fetchMyModelPhotos } from "@/services/modelPhotos";
 import { getBaseUrl } from "@/services/utils/baseUrl";
 
@@ -23,34 +23,29 @@ export default function PhotoUploader({ token, onUploadSuccess }: PhotoUploaderP
 
   // ✅ Fetch existing photos
   useEffect(() => {
-    if (!baseUrl) return; // wait until baseUrl is set
+    if (!baseUrl) return;
     fetchMyModelPhotos(token, (err, data) => {
       if (!err) {
         const photosWithFullUrl = (data?.groups?.Portfolio || []).map((p) => ({
           ...p,
           url: `${baseUrl}${p.url}`,
         }));
-        console.log("Fetched photos:", photosWithFullUrl); // <-- log here
         setPhotos(photosWithFullUrl);
       }
     });
   }, [token, baseUrl]);
 
-  // ✅ Handle file selection
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (!e.target.files) return;
     const newFiles = Array.from(e.target.files);
 
-    // Check max 3 limit
     if (photos.length + newFiles.length > 3) {
       alert("Max limit reached. You can only upload up to 3 photos.");
       return;
     }
-
     setSelectedFiles(newFiles);
   };
 
-  // ✅ Upload selected files
   const handleUpload = () => {
     if (selectedFiles.length === 0) return;
     setLoading(true);
@@ -59,8 +54,7 @@ export default function PhotoUploader({ token, onUploadSuccess }: PhotoUploaderP
       setLoading(false);
 
       if (err) {
-        if (err === "MAX_LIMIT") alert("Max limit reached.");
-        else alert("Upload failed.");
+        alert(err === "MAX_LIMIT" ? "Max limit reached." : "Upload failed.");
         return;
       }
 
@@ -71,8 +65,6 @@ export default function PhotoUploader({ token, onUploadSuccess }: PhotoUploaderP
       }));
       setPhotos(photosWithFullUrl);
       setSelectedFiles([]);
-
-      // Notify parent about uploaded photo
       if (photosWithFullUrl.length > 0) {
         onUploadSuccess?.(true);
       }
@@ -84,7 +76,6 @@ export default function PhotoUploader({ token, onUploadSuccess }: PhotoUploaderP
       onUploadSuccess?.(true);
     }
   }, [photos, onUploadSuccess]);
-
 
   return (
     <Card>
@@ -109,8 +100,15 @@ export default function PhotoUploader({ token, onUploadSuccess }: PhotoUploaderP
               </Button>
             </label>
             <Button onClick={handleUpload} disabled={loading}>
-              <Upload className="w-4 h-4 mr-1" />
-              {loading ? "Uploading..." : "Upload"}
+              {loading ? (
+                <>
+                  <Loader2 className="w-4 h-4 mr-2 animate-spin" /> Uploading...
+                </>
+              ) : (
+                <>
+                  <Upload className="w-4 h-4 mr-1" /> Upload
+                </>
+              )}
             </Button>
           </div>
         </div>
@@ -145,6 +143,14 @@ export default function PhotoUploader({ token, onUploadSuccess }: PhotoUploaderP
                 </div>
               ))}
             </div>
+          </div>
+        )}
+
+        {/* ✅ Optional: Full-screen overlay while uploading */}
+        {loading && (
+          <div className="absolute inset-0 bg-white/70 flex items-center justify-center rounded-lg">
+            <Loader2 className="w-8 h-8 animate-spin text-slate-700" />
+            <span className="ml-2 font-medium text-slate-700">Uploading...</span>
           </div>
         )}
       </CardContent>

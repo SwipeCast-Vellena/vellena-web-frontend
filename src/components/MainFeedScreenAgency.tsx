@@ -5,7 +5,6 @@ import {
   X,
   MessageCircle,
   MapPin,
-  Play,
   Filter,
   ChevronLeft,
   ChevronRight,
@@ -18,17 +17,6 @@ import {
 import { addFavorite } from "@/services/favoriteService";
 
 type Category = "all" | "model" | "hostess" | "agency" | "pending";
-
-// interface Profile {
-//   id: number;
-//   name: string;
-//   age: number;
-//   location: string;
-//   bio: string;
-//   videoThumbnail: string;
-//   profession: string;
-//   category: 'model' | 'hostess' | 'agency';
-// }
 
 interface MainFeedScreenProps {
   onMatch?: () => void;
@@ -48,41 +36,30 @@ const MainFeedScreenAgency: React.FC<MainFeedScreenProps> = ({
   const [isAnimating, setIsAnimating] = useState(false);
   const [pendingProfiles, setPendingProfiles] = useState<Profile[]>([]);
   const [showLikePopup, setShowLikePopup] = useState(false);
+  const [loading, setLoading] = useState(true);
 
-  // Pointer swipe state (works for mouse + touch)
   const startX = useRef<number | null>(null);
   const minSwipeDistance = 50;
+  const navigate = useNavigate();
 
-  // Fetch models via service
+  // Fetch models + pending models
   useEffect(() => {
-    const loadModels = async () => {
+    const loadData = async () => {
       try {
-        const models = await fetchModels();
-        
-
+        const [models, pending] = await Promise.all([
+          fetchModels(),
+          getPendingModels(),
+        ]);
         setAllProfiles(models);
-      } catch (error) {
-        console.error("Error fetching models:", error);
-      }
-    };
-    loadModels();
-  }, []);
-
-  useEffect(() => {
-    const loadPendingModels = async () => {
-      try {
-        const pending = await getPendingModels();
-        console.log("Pending Models:", pending); // 👈 check what you get
         setPendingProfiles(pending);
       } catch (error) {
-        console.error("Error fetching pending models:", error);
+        console.error("Error fetching models:", error);
+      } finally {
+        setLoading(false);
       }
     };
-
-    loadPendingModels();
+    loadData();
   }, []);
-
-  
 
   const filteredProfiles =
     activeCategory === "all"
@@ -113,7 +90,7 @@ const MainFeedScreenAgency: React.FC<MainFeedScreenProps> = ({
     {
       id: "pending",
       label: "Pending Approval",
-      count: pendingProfiles.length, // pending models count
+      count: pendingProfiles.length,
     },
   ] as const;
 
@@ -138,10 +115,10 @@ const MainFeedScreenAgency: React.FC<MainFeedScreenProps> = ({
   };
 
   const handleAction = (action: "pass" | "like") => {
-    if (action === "like" && onMatch){
+    if (action === "like" && onMatch) {
       setShowLikePopup(true);
       setTimeout(() => setShowLikePopup(false), 1500);
-    } // <-- fixed (no stray dot)
+    }
     setIsAnimating(true);
     setTimeout(() => {
       setCurrentIndex((prev) =>
@@ -151,12 +128,10 @@ const MainFeedScreenAgency: React.FC<MainFeedScreenProps> = ({
     }, 300);
   };
 
-  const navigate = useNavigate();
   const onChat = () => {
     navigate("/agency/chat");
   };
 
-  // Keep index in range if filter changes
   useEffect(() => {
     if (
       currentIndex >= filteredProfiles.length &&
@@ -166,20 +141,9 @@ const MainFeedScreenAgency: React.FC<MainFeedScreenProps> = ({
     }
   }, [filteredProfiles.length, currentIndex]);
 
-  if (!currentProfile) return null;
-
-  // Pointer event handlers for swipe
-  // const onPointerDown: React.PointerEventHandler<HTMLDivElement> = (e) => {
-  //   startX.current = e.clientX;
-  //   (e.currentTarget as HTMLElement).setPointerCapture?.(e.pointerId);
-  // };
-  const onPointerMove: React.PointerEventHandler<HTMLDivElement> = () => {
-    // optional: add live drag visuals here
-  };
+  const onPointerMove: React.PointerEventHandler<HTMLDivElement> = () => {};
   const onPointerDown: React.PointerEventHandler<HTMLDivElement> = (e) => {
-    // ignore if clicked on a button
     if ((e.target as HTMLElement).closest("button")) return;
-
     startX.current = e.clientX;
     (e.currentTarget as HTMLElement).setPointerCapture?.(e.pointerId);
   };
@@ -194,15 +158,36 @@ const MainFeedScreenAgency: React.FC<MainFeedScreenProps> = ({
     startX.current = null;
   };
 
+  // ✅ Loading screen
+  if (loading) {
+    return (
+      <div className="h-screen flex items-center justify-center bg-black">
+        <div className="flex flex-col items-center space-y-4">
+          <div className="w-12 h-12 border-4 border-white/30 border-t-white rounded-full animate-spin"></div>
+          <p className="text-white text-sm">Loading profiles...</p>
+        </div>
+      </div>
+    );
+  }
+
+  // ✅ No profiles fallback
+  if (!currentProfile) {
+    return (
+      <div className="h-screen flex items-center justify-center bg-black">
+        <p className="text-white">No profiles available</p>
+      </div>
+    );
+  }
+
   return (
     <div className="h-[100dvh] bg-gradient-to-br from-slate-900 via-gray-900 to-black relative overflow-hidden flex flex-col">
-
       {/* LIKE POPUP */}
       {showLikePopup && (
         <div className="fixed top-20 left-1/2 transform -translate-x-1/2 bg-black/80 text-white px-6 py-3 rounded-xl text-sm font-medium z-50 shadow-lg animate-fadeInOut">
           Liked!
         </div>
       )}
+
       {/* Animated Background */}
       <div
         className={`pointer-events-none absolute inset-0 transition-all duration-700 ease-out ${
@@ -283,7 +268,7 @@ const MainFeedScreenAgency: React.FC<MainFeedScreenProps> = ({
         </div>
       )}
 
-      {/* Content container (centered, fills remaining viewport height) */}
+      {/* Content container */}
       <div className="relative z-20 w-[90vw] max-w-full mx-auto px-4 sm:px-6 lg:px-10 pb-4 flex-1 overflow-hidden flex flex-col max-h-[85vh]">
         {/* Middle row: arrows + card */}
         <div className="flex items-stretch justify-between gap-4 mt-4 w-full flex-1 overflow-hidden">
@@ -296,12 +281,11 @@ const MainFeedScreenAgency: React.FC<MainFeedScreenProps> = ({
                 : "bg-white/10 text-white hover:bg-white/20 hover:scale-110"
             }`}
             aria-label="Previous"
-            title="Previous"
           >
             <ChevronLeft className="w-6 h-6" />
           </button>
 
-          {/* Main Card (fills available height; no page scroll) */}
+          {/* Main Card */}
           <div
             className={`flex-1 mx-1 sm:mx-2 bg-white/95 backdrop-blur-xl 
                         rounded-3xl overflow-hidden shadow-2xl border border-white/20 
@@ -312,7 +296,7 @@ const MainFeedScreenAgency: React.FC<MainFeedScreenProps> = ({
             onPointerMove={onPointerMove}
             onPointerUp={onPointerUp}
           >
-            {/* Media area takes ~48% of card height */}
+            {/* Video */}
             <div className="relative h-[62%] min-h-[220px] overflow-hidden bg-black">
               <video
                 src={currentProfile.video_portfolio}
@@ -320,7 +304,6 @@ const MainFeedScreenAgency: React.FC<MainFeedScreenProps> = ({
                 controls
               />
 
-              {/* Category Badge */}
               <div className="absolute top-4 right-4">
                 <span className="bg-black/50 backdrop-blur-sm text-white px-3 py-1 rounded-full text-xs font-medium border border-white/20">
                   {currentProfile.description}
@@ -328,7 +311,7 @@ const MainFeedScreenAgency: React.FC<MainFeedScreenProps> = ({
               </div>
             </div>
 
-            {/* Info area uses remaining height; can scroll internally on tiny screens */}
+            {/* Info */}
             <div className="p-6 h-[52%] overflow-auto">
               <div className="flex items-start justify-between mb-4">
                 <div className="flex-1">
@@ -340,24 +323,19 @@ const MainFeedScreenAgency: React.FC<MainFeedScreenProps> = ({
                   >
                     <h2 className="text-2xl font-bold text-gray-900 mb-1 hover:text-gray-700">
                       {currentProfile.name}
-                      
                     </h2>
                   </button>
-                  
                   <div className="flex items-center text-gray-500 mb-3">
                     <MapPin className="w-4 h-4 mr-1" />
                     <span className="text-sm">{currentProfile.location}</span>
-                    
                   </div>
                   {currentProfile.age > 0 && (
-                        <span className="text-gray-500 font-normal">
-                          Age: {currentProfile.age}
-                        </span>
-                      )}
+                    <span className="text-gray-500 font-normal">
+                      Age: {currentProfile.age}
+                    </span>
+                  )}
                 </div>
               </div>
-
-              
 
               <p className="text-gray-600 leading-relaxed mb-6 text-sm">
                 {currentProfile.bio}
@@ -373,7 +351,7 @@ const MainFeedScreenAgency: React.FC<MainFeedScreenProps> = ({
                 </button>
                 <button
                   onClick={async (e) => {
-                    e.stopPropagation(); // prevent parent swipe from intercepting
+                    e.stopPropagation();
                     try {
                       const result = await addFavorite(currentProfile.id);
                       console.log("Favorite response:", result);
@@ -384,7 +362,10 @@ const MainFeedScreenAgency: React.FC<MainFeedScreenProps> = ({
                   }}
                   className="w-16 h-16 bg-gradient-to-r from-pink-500 to-red-500 rounded-full flex items-center justify-center hover:scale-110 transition-all duration-300 shadow-xl"
                 >
-                  <Heart className="w-7 h-7 text-white" fill="currentColor" />
+                  <Heart
+                    className="w-7 h-7 text-white"
+                    fill="currentColor"
+                  />
                 </button>
               </div>
             </div>
@@ -399,13 +380,12 @@ const MainFeedScreenAgency: React.FC<MainFeedScreenProps> = ({
                 : "bg-white/10 text-white hover:bg-white/20 hover:scale-110"
             }`}
             aria-label="Next"
-            title="Next"
           >
             <ChevronRight className="w-6 h-6" />
           </button>
         </div>
 
-        {/* Progress Dots + Counter (doesn't push page taller) */}
+        {/* Progress */}
         <div className="shrink-0">
           <div className="flex justify-center mt-4 gap-2">
             {filteredProfiles.map((_, idx) => (

@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { ArrowLeft } from 'lucide-react';
+import { ArrowLeft,Loader2 } from 'lucide-react';
 import { createCampaign } from "../services/createCampaign";
 
 interface CampaignCreationScreenProps {
@@ -25,19 +25,24 @@ const CampaignCreationScreen: React.FC<CampaignCreationScreenProps> = ({ onBack,
     gender_preference: 'any' as 'any' | 'women' | 'men'
   });
 
-  const handleSubmit = async (e: React.FormEvent) => {
+  const [loading, setLoading] = useState(false);
+
+   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
     try {
-      const token = localStorage.getItem("token"); // or from your auth store
+      setLoading(true); // start loading
+      const token = localStorage.getItem("token");
       if (!token) throw new Error("User not authenticated");
 
       await createCampaign(formData, token);
       alert("Campagna creata con successo!");
-      onSave(); // navigate back after success
+      onSave();
     } catch (error: any) {
       console.error(error);
       alert("Errore nella creazione della campagna: " + (error.message || error));
+    } finally {
+      setLoading(false); // stop loading
     }
   };
 
@@ -241,9 +246,17 @@ const CampaignCreationScreen: React.FC<CampaignCreationScreenProps> = ({ onBack,
         {/* Submit Button */}
         <button
           type="submit"
-          className="w-full bg-slate-900 text-white py-4 rounded-xl font-semibold text-lg hover:bg-slate-800 transition-colors"
+          disabled={loading}
+          className="w-full flex items-center justify-center bg-slate-900 text-white py-4 rounded-xl font-semibold text-lg hover:bg-slate-800 transition-colors disabled:opacity-70 disabled:cursor-not-allowed"
         >
-          Crea Campagna
+          {loading ? (
+            <>
+              <Loader2 className="w-5 h-5 mr-2 animate-spin" />
+              Creazione in corso...
+            </>
+          ) : (
+            "Crea Campagna"
+          )}
         </button>
       </form>
     </div>

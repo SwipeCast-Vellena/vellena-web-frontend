@@ -55,35 +55,40 @@ const ProfileCreationScreenModel: React.FC<ProfileCreationScreenProps> = ({ onBa
 
   const [videoUrl, setVideoUrl] = useState<string | null>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
+  const [loading, setLoading] = useState(false);
 
   const handleVideoUploadClick = () => {
     fileInputRef.current?.click(); // Trigger hidden file input click
   };
 
-  const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0];
-    if (!file) return;
+const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
+  const file = e.target.files?.[0];
+  if (!file) return;
 
-    // Validate file size (max 30MB)
-    if (file.size > 30 * 1024 * 1024) {
-      alert("File size exceeds 30MB limit");
+  // Validate file size (max 30MB)
+  if (file.size > 30 * 1024 * 1024) {
+    alert("File size exceeds 30MB limit");
+    return;
+  }
+
+  try {
+    setLoading(true); // 🔹 Start loading
+    const token = localStorage.getItem("token");
+    if (!token) {
+      alert("You must be logged in to upload a video");
       return;
     }
 
-    try {
-      const token = localStorage.getItem('token'); // or your auth context/store
-      if (!token) {
-        alert("You must be logged in to upload a video");
-        return;
-      }
+    const data = await uploadVideo(file, token);
+    setVideoUrl(data.videoUrl); // Backend returns video path/url
+    setVideoUploaded(true);
+  } catch (err: any) {
+    alert(err.message || "Video upload failed");
+  } finally {
+    setLoading(false); // 🔹 Stop loading
+  }
+};
 
-      const data = await uploadVideo(file, token);
-      setVideoUrl(data.videoUrl); // Backend returns video path/url
-      setVideoUploaded(true);
-    } catch (err: any) {
-      alert(err.message || "Video upload failed");
-    }
-  };
 
 
 
@@ -252,10 +257,16 @@ const ProfileCreationScreenModel: React.FC<ProfileCreationScreenProps> = ({ onBa
                 <button
                   type="button"
                   onClick={handleVideoUploadClick}
-                  className="bg-slate-900 text-white px-6 py-3 rounded-xl font-medium hover:bg-slate-800 transition-colors"
+                  disabled={loading}
+                  className={`px-6 py-3 rounded-xl font-medium transition-colors ${
+                    loading
+                      ? "bg-gray-400 cursor-not-allowed text-white"
+                      : "bg-slate-900 text-white hover:bg-slate-800"
+                  }`}
                 >
-                  {t('profile-creation.record.button')}
+                  {loading ? "Uploading..." : t("profile-creation.record.button")}
                 </button>
+
 
               </div>
             )}

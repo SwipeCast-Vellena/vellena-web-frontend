@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { ArrowLeft } from 'lucide-react';
+import { ArrowLeft, Loader2 } from 'lucide-react';
 import { updateCampaign } from "../services/createCampaign";
 import { getBaseUrl } from '@/services/utils/baseUrl';
 import axios from 'axios';
@@ -45,43 +45,58 @@ const CampaignEditScreen: React.FC<CampaignEditScreenProps> = ({ campaignId,onBa
     gender_preference: 'any' as 'any' | 'women' | 'men'
   });
 
+  const [loading, setLoading] = useState(false); // submitting
+  const [fetching, setFetching] = useState(true); // fetching initial data
+
   useEffect(() => {
-    const loadCampaign = async () => {
-      try {
-        const token = localStorage.getItem("token");
-        if (!token) return;
-  
-        const baseUrl = await getBaseUrl();
-        const res = await axios.get<CampaignPayload>(`${baseUrl}/api/campaigns/${campaignId}`, {
-          headers: { Authorization: `Bearer ${token}` },
-        });
-  
-        setFormData(res.data); // assumes API returns campaign object
-      } catch (err) {
-        console.error("Error loading campaign:", err);
-      }
-    };
-  
-    if (campaignId) loadCampaign();
+      const loadCampaign = async () => {
+        try {
+          const token = localStorage.getItem("token");
+          if (!token) return;
+
+          const baseUrl = await getBaseUrl();
+          const res = await axios.get<CampaignPayload>(`${baseUrl}/api/campaigns/${campaignId}`, {
+            headers: { Authorization: `Bearer ${token}` },
+          });
+
+          setFormData(res.data);
+        } catch (err) {
+          console.error("Error loading campaign:", err);
+        } finally {
+          setFetching(false);
+        }
+      };
+
+      if (campaignId) loadCampaign();
   }, [campaignId]);
   
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-
     try {
-      const token = localStorage.getItem("token"); // or from your auth store
+      setLoading(true);
+      const token = localStorage.getItem("token");
       if (!token) throw new Error("User not authenticated");
-      
 
-      await updateCampaign(campaignId,formData, token);
-      alert("Campagna creata con successo!");
-      onSave(); // navigate back after success
+      await updateCampaign(campaignId, formData, token);
+      alert("Campagna aggiornata con successo!");
+      onSave();
     } catch (error: any) {
       console.error(error);
-      alert("Errore nella creazione della campagna: " + (error.message || error));
+      alert("Errore nella modifica della campagna: " + (error.message || error));
+    } finally {
+      setLoading(false);
     }
   };
+
+  if (fetching) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-slate-50">
+        <Loader2 className="w-8 h-8 animate-spin text-slate-700" />
+      </div>
+    );
+  }
+
 
   return (
     <div className="min-h-screen bg-slate-50 pb-20">
@@ -280,9 +295,17 @@ const CampaignEditScreen: React.FC<CampaignEditScreenProps> = ({ campaignId,onBa
         {/* Submit Button */}
         <button
           type="submit"
-          className="w-full bg-slate-900 text-white py-4 rounded-xl font-semibold text-lg hover:bg-slate-800 transition-colors"
+          disabled={loading}
+          className="w-full flex items-center justify-center bg-slate-900 text-white py-4 rounded-xl font-semibold text-lg hover:bg-slate-800 transition-colors disabled:opacity-70 disabled:cursor-not-allowed"
         >
-          Save Changes
+          {loading ? (
+            <>
+              <Loader2 className="w-5 h-5 mr-2 animate-spin" />
+              Salvataggio in corso...
+            </>
+          ) : (
+            "Save Changes"
+          )}
         </button>
       </form>
     </div>

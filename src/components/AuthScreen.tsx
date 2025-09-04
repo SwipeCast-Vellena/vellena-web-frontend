@@ -19,6 +19,7 @@ const AuthScreen: React.FC<AuthScreenProps> = ({ isLogin, onBack, onSuccess }) =
   const { t } = useLanguage();
   const [acceptTerms, setAcceptTerms] = useState(false);
   const [error, setError] = useState('');
+  const [loading, setLoading] = useState(false); // ✅ loading state
   const [formData, setFormData] = useState({
     name: '',
     email: '',
@@ -31,50 +32,47 @@ const setAuth = useAuthStore((s) => s.setAuth);
 const fetchProfile = useUserStore((s) => s.fetchProfile);
 
 const handleSubmit = async (e: React.FormEvent) => {
-  e.preventDefault();
+    e.preventDefault();
+    setLoading(true); // ✅ start loading
+    setError('');
 
-  try {
-    if (isLogin) {
-      const loginData: LoginFormData = {
-        email: formData.email,
-        password: formData.password,
-        role: formData.role,
-      };
+    try {
+      if (isLogin) {
+        const loginData: LoginFormData = {
+          email: formData.email,
+          password: formData.password,
+          role: formData.role,
+        };
 
-      const res = await loginUser(loginData);
-      console.log("Logged in:", res);
+        const res = await loginUser(loginData);
+        console.log("Logged in:", res);
 
-      // ✅ Save to authStore
-      setAuth(res.token, res.user);
+        setAuth(res.token, res.user);
+        await fetchProfile();
+      } else {
+        const registerData: RegisterFormData = {
+          name: formData.name,
+          email: formData.email,
+          password: formData.password,
+          role: formData.role,
+        };
 
-      // ✅ Fetch user profile from correct table
-      await fetchProfile();
-    } else {
-      const registerData: RegisterFormData = {
-        name: formData.name,
-        email: formData.email,
-        password: formData.password,
-        role: formData.role,
-      };
+        const res = await registerUser(registerData);
+        console.log("Registered:", res);
 
-      const res = await registerUser(registerData);
-      console.log("Registered:", res);
+        setAuth(res.token, res.user);
+        await fetchProfile();
+      }
 
-      // after registering, you might want to log them in automatically
-      setAuth(res.token, res.user);
-      await fetchProfile();
+      onSuccess(formData.role);
+    } catch (err: any) {
+      const errorMsg = err.message || "Something went wrong";
+      setError(errorMsg);
+      console.error(errorMsg);
+    } finally {
+      setLoading(false); // ✅ stop loading
     }
-
-    // Notify parent component (so you can redirect)
-    onSuccess(formData.role);
-  } catch (err: any) {
-    const errorMsg = err.message || "Something went wrong";
-    setError(errorMsg);
-    console.error(errorMsg);
-  }
-};
-
-
+  };
 
   return (
     <div className="min-h-screen bg-slate-50 flex flex-col">
@@ -208,9 +206,17 @@ const handleSubmit = async (e: React.FormEvent) => {
 
             <button
               type="submit"
-              className="w-full bg-slate-900 text-white py-4 rounded-xl font-semibold text-lg hover:bg-slate-800 transition-colors"
+              disabled={loading} // ✅ disable when loading
+              className={`w-full py-4 rounded-xl font-semibold text-lg transition-colors
+                ${loading 
+                  ? "bg-gray-400 cursor-not-allowed" 
+                  : "bg-slate-900 hover:bg-slate-800 text-white"}`}
             >
-              {isLogin ? t('auth.login') : t('auth.create')}
+              {loading 
+                ? "Loading..." 
+                : isLogin 
+                  ? t('auth.login') 
+                  : t('auth.create')}
             </button>
           </form>
 

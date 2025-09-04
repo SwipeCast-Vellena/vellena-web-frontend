@@ -19,28 +19,30 @@ const ProfileCreationScreenAgency: React.FC<ProfileCreationScreenProps> = ({ onB
       professional_bio: '',
       website: ''
     });
+    const [loading, setLoading] = useState(false);
   const { t } = useLanguage();
 
-const handleSubmit = async (e: React.FormEvent) => {
-  e.preventDefault();
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setLoading(true); // start loading
+    try {
+      await createOrUpdateAgencyProfile({
+        name: formData.name,
+        operating_years: Number(formData.operating_years),
+        no_of_employees: Number(formData.no_of_employees),
+        location: formData.location,
+        professional_bio: formData.professional_bio,
+        website: formData.website || null,
+      });
 
-  try {
-    await createOrUpdateAgencyProfile({
-      name: formData.name,
-      operating_years: Number(formData.operating_years),
-      no_of_employees: Number(formData.no_of_employees),
-      location: formData.location,
-      professional_bio: formData.professional_bio,
-      website: formData.website || null,
-    });
-
-    alert("Profile saved!");
-    onComplete();
-
-  } catch (error: any) {
-    alert(error.message || "Error saving profile");
-  }
-};
+      alert("Profile saved!");
+      onComplete();
+    } catch (error: any) {
+      alert(error.message || "Error saving profile");
+    } finally {
+      setLoading(false); // stop loading
+    }
+  };
 
   return (
     <div className="min-h-screen bg-slate-50">
@@ -148,9 +150,10 @@ const handleSubmit = async (e: React.FormEvent) => {
         <div className="pt-4">
           <button
             type="submit"
+            disabled={loading}
             className="w-full bg-slate-900 text-white py-4 rounded-xl font-semibold text-lg hover:bg-slate-800 transition-colors disabled:bg-slate-300 disabled:cursor-not-allowed"
           >
-            {t('profile-creation.complete')}
+            {loading ? "Saving..." : t('profile-creation.complete')}
           </button>
         </div>
       </form>
