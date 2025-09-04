@@ -19,7 +19,6 @@ const ProfileCreationScreenAgency: React.FC<ProfileCreationScreenProps> = ({ onB
       professional_bio: '',
       website: ''
     });
-  const [videoUploaded, setVideoUploaded] = useState(false);
   const { t } = useLanguage();
 
 const handleSubmit = async (e: React.FormEvent) => {
@@ -42,13 +41,6 @@ const handleSubmit = async (e: React.FormEvent) => {
     alert(error.message || "Error saving profile");
   }
 };
-
-
-
-  const handleVideoUpload = () => {
-    // Simulate video upload
-    setVideoUploaded(true);
-  };
 
   return (
     <div className="min-h-screen bg-slate-50">
@@ -152,53 +144,10 @@ const handleSubmit = async (e: React.FormEvent) => {
           </div>
         </div>
 
-        {/* Video Upload */}
-        <div className="bg-white rounded-2xl p-6 shadow-sm border border-slate-200">
-          <h2 className="text-lg font-semibold text-slate-900 mb-4 flex items-center">
-            <Video className="w-5 h-5 mr-2" />
-            {t('profile-creation.video')}
-          </h2>
-          
-          <div className="border-2 border-dashed border-slate-300 rounded-xl p-8 text-center">
-            {videoUploaded ? (
-              <div className="text-green-600">
-                <Video className="w-12 h-12 mx-auto mb-3" />
-                <p className="font-medium">Video caricato con successo!</p>
-                <p className="text-sm text-slate-600 mt-2">Presentazione professionale di 30 secondi</p>
-                <button
-                  type="button"
-                  onClick={handleVideoUpload}
-                  className="mt-4 text-slate-900 font-medium hover:underline"
-                >
-                  Sostituisci video
-                </button>
-              </div>
-            ) : (
-              <div>
-                <Upload className="w-12 h-12 text-slate-400 mx-auto mb-3" />
-                <p className="font-medium text-slate-900 mb-2">{t('profile-creation.record')}</p>
-                <p className="text-sm text-slate-600 mb-4">{t('profile-creation.video.length')}</p>
-                <button
-                  type="button"
-                  onClick={handleVideoUpload}
-                  className="bg-slate-900 text-white px-6 py-3 rounded-xl font-medium hover:bg-slate-800 transition-colors"
-                >
-                  {t('profile-creation.record.button')}
-                </button>
-              </div>
-            )}
-          </div>
-          
-          <p className="text-xs text-slate-500 mt-3 leading-relaxed">
-            {t('profile-creation.record.info')}
-          </p>
-        </div>
-
         {/* Submit Button */}
         <div className="pt-4">
           <button
             type="submit"
-            disabled={!videoUploaded}
             className="w-full bg-slate-900 text-white py-4 rounded-xl font-semibold text-lg hover:bg-slate-800 transition-colors disabled:bg-slate-300 disabled:cursor-not-allowed"
           >
             {t('profile-creation.complete')}
