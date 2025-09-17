@@ -194,6 +194,7 @@ export const CampaignDetailRouteWrapper = () => {
     <CampaignDetailRoute
       onBack={() => navigate("/model/campaigns")}
       onApply={() => navigate("/model/campaigns")}
+      onStartChat={() => navigate("/model/chat")}
     />
   );
 };

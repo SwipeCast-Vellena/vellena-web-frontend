@@ -9,9 +9,11 @@ import { applyToCampaign } from "../services/applicationService"; // import serv
 export const CampaignDetailRoute = ({
   onBack,
   onApply,
+  onStartChat,
 }: {
   onBack: () => void;
   onApply: () => void;
+  onStartChat?: () => void;
 }) => {
   const { id } = useParams<{ id: string }>();
   const campaigns = useCampaignStore((state) => state.campaigns); // get all campaigns
@@ -61,8 +63,8 @@ export const CampaignDetailRoute = ({
     try {
       const res = await applyToCampaign(campaignData.id);
 
-      if (res.match?.matched) {
-        setMatchData(res.match);   // ✅ save match
+      if (res.match) {
+        setMatchData(res.match);   // ✅ save match data (both matched and unmatched)
       } else {
         alert("Candidatura inviata con successo!");
         useCampaignStore.getState().updateApplicationCount(campaignData.id);
@@ -75,8 +77,9 @@ export const CampaignDetailRoute = ({
   if (matchData) {
   return (
     <MatchConfirmationScreen
-      onStartChat={() => console.log("Start chat")}
-      onContinueSwiping={() => console.log("Back to feed")}
+      onStartChat={onStartChat || (() => console.log("Start chat"))}
+      onContinueSwiping={onBack}
+      matchData={matchData}
     />
   );
 }

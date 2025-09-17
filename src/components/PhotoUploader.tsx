@@ -15,11 +15,33 @@ export default function PhotoUploader({ token, onUploadSuccess }: PhotoUploaderP
   const [photos, setPhotos] = useState<any[]>([]);
   const [loading, setLoading] = useState(false);
   const [baseUrl, setBaseUrl] = useState<string>("");
+  const [isPro, setIsPro] = useState(false);
 
   // ✅ Get backend base URL
   useEffect(() => {
     getBaseUrl().then((url) => setBaseUrl(url));
   }, []);
+
+  // ✅ Fetch Pro status
+  useEffect(() => {
+    if (!baseUrl || !token) return;
+    
+    const fetchProStatus = async () => {
+      try {
+        const response = await fetch(`${baseUrl}/api/model/profile`, {
+          headers: { Authorization: `Bearer ${token}` },
+        });
+        if (response.ok) {
+          const profile = await response.json();
+          setIsPro(!!profile.is_pro);
+        }
+      } catch (error) {
+        console.error("Failed to fetch Pro status:", error);
+      }
+    };
+    
+    fetchProStatus();
+  }, [token, baseUrl]);
 
   // ✅ Fetch existing photos
   useEffect(() => {
@@ -39,8 +61,9 @@ export default function PhotoUploader({ token, onUploadSuccess }: PhotoUploaderP
     if (!e.target.files) return;
     const newFiles = Array.from(e.target.files);
 
-    if (photos.length + newFiles.length > 3) {
-      alert("Max limit reached. You can only upload up to 3 photos.");
+    const maxPhotos = isPro ? 10 : 3;
+    if (photos.length + newFiles.length > maxPhotos) {
+      alert(`Max limit reached. You can only upload up to ${maxPhotos} photos.${!isPro ? ' Upgrade to Pro for up to 10 photos.' : ''}`);
       return;
     }
     setSelectedFiles(newFiles);
@@ -83,7 +106,8 @@ export default function PhotoUploader({ token, onUploadSuccess }: PhotoUploaderP
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-2">
             <ImageIcon className="w-5 h-5" />
-            <span className="font-semibold">Upload Photos (Max 3)</span>
+            <span className="font-semibold">Upload Photos (Max {isPro ? 10 : 3})</span>
+            {isPro && <span className="text-xs bg-green-100 text-green-800 px-2 py-1 rounded">PRO</span>}
           </div>
           <div className="flex gap-2">
             <input

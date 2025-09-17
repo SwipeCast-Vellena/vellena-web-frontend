@@ -2,7 +2,7 @@ import { loadStripe } from "@stripe/stripe-js";
 import { getBaseUrl } from "./utils/baseUrl";
 
 // ✅ Use your actual publishable key from Stripe dashboard
-const stripePromise = loadStripe("pk_test_51S3CpX8kTVdYVGq8QZtHLNpqG4N9AXZ66m8cg0e2pikIPLialrw2oDjPRH0Uc9coyuSpymKFN2GjX4GoVRgepL8d00Jw0r8NyM");
+const stripePromise = loadStripe("pk_test_51S3CpN4rhKiNPSDZs6TSA1Zfxh6LWyQ6zjtR3ugfM3rUk2x9USatYzrE85pzo4SFwJW9tTdOaXN0htgrsXkWCpX7001UeZ9cUe");
 
 /**
  * Upgrade user to Pro using Stripe Checkout

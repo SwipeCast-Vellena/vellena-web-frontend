@@ -1,16 +1,83 @@
 
 import React from 'react';
-import { Heart, MessageCircle, Phone, Mail, Star, ArrowRight } from 'lucide-react';
+import { Heart, MessageCircle, Star, ArrowRight, X } from 'lucide-react';
 
 interface MatchConfirmationScreenProps {
   onStartChat: () => void;
   onContinueSwiping: () => void;
+  matchData?: {
+    matched: boolean;
+    score: number;
+    reasons?: string[];
+  };
 }
 
 const MatchConfirmationScreen: React.FC<MatchConfirmationScreenProps> = ({ 
   onStartChat, 
-  onContinueSwiping 
+  onContinueSwiping,
+  matchData 
 }) => {
+  const isMatched = matchData?.matched || false;
+  const score = matchData?.score || 0;
+
+  if (!isMatched) {
+    // Oops screen for no match
+    return (
+      <div className="min-h-screen bg-gradient-to-br from-gray-50 via-slate-50 to-blue-50 flex flex-col items-center justify-center px-6">
+        {/* Oops Animation */}
+        <div className="relative mb-8">
+          {/* Main Icon */}
+          <div className="w-32 h-32 bg-gradient-to-br from-gray-400 to-slate-500 rounded-full flex items-center justify-center shadow-2xl">
+            <X className="w-16 h-16 text-white" />
+          </div>
+        </div>
+
+        {/* Oops Message */}
+        <div className="text-center mb-8">
+          <h1 className="text-4xl font-bold text-slate-900 mb-4">
+            Oops! 😔
+          </h1>
+          <p className="text-xl text-slate-600 mb-2">Nessun Match</p>
+          <p className="text-slate-600 leading-relaxed max-w-md">
+            Non hai fatto match con questa campagna. Non preoccuparti, ci sono molte altre opportunità!
+          </p>
+        </div>
+
+        {/* Match Score Card */}
+        <div className="bg-white rounded-3xl p-6 shadow-xl border border-slate-200 mb-8 w-full max-w-md">
+          <div className="text-center">
+            <h3 className="text-xl font-bold text-slate-900 mb-4">Match Score</h3>
+            <div className="w-24 h-24 mx-auto mb-4 bg-gradient-to-br from-gray-100 to-slate-200 rounded-full flex items-center justify-center">
+              <span className="text-2xl font-bold text-slate-700">{score}%</span>
+            </div>
+            <p className="text-slate-600">
+              Il tuo profilo ha una compatibilità del <span className="font-semibold">{score}%</span> con questa campagna.
+            </p>
+          </div>
+        </div>
+
+        {/* Action Button */}
+        <div className="w-full max-w-md">
+          <button
+            onClick={onContinueSwiping}
+            className="w-full bg-slate-900 text-white py-4 rounded-2xl font-semibold text-lg flex items-center justify-center space-x-2 hover:bg-slate-800 transition-colors"
+          >
+            <span>Continua a Scoprire</span>
+            <ArrowRight className="w-5 h-5" />
+          </button>
+        </div>
+
+        {/* Encouragement */}
+        <div className="mt-8 max-w-md">
+          <p className="text-xs text-slate-500 text-center leading-relaxed">
+            Non scoraggiarti! Ogni candidatura è un'opportunità di crescita. Continua a migliorare il tuo profilo e cerca altre campagne.
+          </p>
+        </div>
+      </div>
+    );
+  }
+
+  // Match screen for successful match
   return (
     <div className="min-h-screen bg-gradient-to-br from-pink-50 via-purple-50 to-blue-50 flex flex-col items-center justify-center px-6">
       {/* Celebration Animation */}
@@ -39,44 +106,19 @@ const MatchConfirmationScreen: React.FC<MatchConfirmationScreenProps> = ({
         </h1>
         <p className="text-xl text-slate-600 mb-2">Congratulazioni!</p>
         <p className="text-slate-600 leading-relaxed max-w-md">
-          Tu e <span className="font-semibold text-slate-900">Sarah Johnson</span> avete fatto match. 
-          Inizia ora a costruire la tua connessione professionale.
+          Hai fatto match con questa campagna! Inizia ora a costruire la tua connessione professionale.
         </p>
       </div>
 
-      {/* Match Details Card */}
+      {/* Match Score Card */}
       <div className="bg-white rounded-3xl p-6 shadow-xl border border-slate-200 mb-8 w-full max-w-md">
-        <div className="flex items-center space-x-4 mb-6">
-          <div className="w-16 h-16 bg-slate-200 rounded-2xl overflow-hidden">
-            <img 
-              src="https://images.unsplash.com/photo-1649972904349-6e44c42644a7" 
-              alt="Sarah Johnson"
-              className="w-full h-full object-cover"
-            />
+        <div className="text-center">
+          <h3 className="text-xl font-bold text-slate-900 mb-4">Match Score</h3>
+          <div className="w-24 h-24 mx-auto mb-4 bg-gradient-to-br from-green-100 to-emerald-200 rounded-full flex items-center justify-center">
+            <span className="text-2xl font-bold text-green-700">{score}%</span>
           </div>
-          <div className="flex-1">
-            <h3 className="text-xl font-bold text-slate-900">Sarah Johnson</h3>
-            <p className="text-slate-600">Modella di Moda</p>
-            <p className="text-sm text-slate-500">Milano, Italia</p>
-          </div>
-        </div>
-
-        {/* Contact Information */}
-        <div className="space-y-3 mb-6">
-          <div className="flex items-center p-3 bg-slate-50 rounded-xl">
-            <Mail className="w-5 h-5 text-slate-600 mr-3" />
-            <span className="text-slate-700 font-medium">sarah.johnson@email.com</span>
-          </div>
-          <div className="flex items-center p-3 bg-slate-50 rounded-xl">
-            <Phone className="w-5 h-5 text-slate-600 mr-3" />
-            <span className="text-slate-700 font-medium">+39 345 123 4567</span>
-          </div>
-        </div>
-
-        <div className="bg-blue-50 border border-blue-200 rounded-xl p-4">
-          <p className="text-sm text-blue-800 font-medium mb-1">Nota Professionale:</p>
-          <p className="text-sm text-blue-700">
-            Questa connessione è esclusivamente per scopi professionali. Mantieni standard di comunicazione professionale.
+          <p className="text-slate-600">
+            Il tuo profilo ha una compatibilità del <span className="font-semibold">{score}%</span> con questa campagna.
           </p>
         </div>
       </div>

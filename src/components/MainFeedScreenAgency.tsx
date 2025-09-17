@@ -321,9 +321,16 @@ const MainFeedScreenAgency: React.FC<MainFeedScreenProps> = ({
                     }
                     className="text-left hover:underline transition-all"
                   >
-                    <h2 className="text-2xl font-bold text-gray-900 mb-1 hover:text-gray-700">
-                      {currentProfile.name}
-                    </h2>
+                    <div className="flex items-center gap-2 mb-1">
+                      <h2 className="text-2xl font-bold text-gray-900 hover:text-gray-700">
+                        {currentProfile.name}
+                      </h2>
+                      {currentProfile.is_pro === 1 && (
+                        <span className="bg-black text-white text-xs font-semibold px-2 py-1 rounded-full">
+                          PRO
+                        </span>
+                      )}
+                    </div>
                   </button>
                   <div className="flex items-center text-gray-500 mb-3">
                     <MapPin className="w-4 h-4 mr-1" />

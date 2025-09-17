@@ -232,9 +232,16 @@ useEffect(() => {
 
         {/* User Info */}
         <div className="bg-white rounded-2xl p-6 shadow-sm border border-slate-200">
-          <h2 className="text-2xl font-bold text-slate-900 mb-2">
-            {model.name}
-          </h2>
+          <div className="flex items-center gap-2 mb-2">
+            <h2 className="text-2xl font-bold text-slate-900">
+              {model.name}
+            </h2>
+            {model.is_pro === 1 && (
+              <span className="bg-black text-white text-xs font-semibold px-2 py-1 rounded-full">
+                PRO
+              </span>
+            )}
+          </div>
 
           <div className="flex items-center text-slate-600 mb-3">
             <MapPin className="w-4 h-4 mr-2" />

@@ -11,6 +11,7 @@ export interface Profile {
   description: string;
   category: 'model' | 'hostess' | 'agency' | 'photographer';
   videoThumbnail: string;
+  is_pro?: number;
 }
 
 interface BackendModel {
@@ -22,6 +23,7 @@ interface BackendModel {
   video_portfolio: string;
   videoThumbnail?: string;
   age:number;
+  is_pro?: number;
 }
 
 interface BackendResponse {
@@ -73,6 +75,7 @@ export const fetchModels = async (): Promise<Profile[]> => {
       age: m.age,
       video_portfolio: m.video_portfolio,
       videoThumbnail: m.videoThumbnail || (m.video_portfolio ? await generateThumbnail(m.video_portfolio) : ""),
+      is_pro: m.is_pro,
     }))
   );
 
@@ -105,6 +108,7 @@ export async function getPendingModels(): Promise<Profile[]> {
     age: m.age || 0,
     video_portfolio: m.video_portfolio,
     videoThumbnail: m.videoThumbnail || (m.video_portfolio ? `${m.video_portfolio}#t=1` : ""),
+    is_pro: m.is_pro,
   }));
 }
 

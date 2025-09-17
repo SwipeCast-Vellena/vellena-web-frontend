@@ -16,6 +16,7 @@ import { uploadVideo } from "@/services/uploadVideo";
 import { fetchMyModelPhotos } from "@/services/modelPhotos";
 import axios from "axios";
 import { upgradeToPro } from "@/services/stripeService";
+import { useAuthStore } from "@/stores/authStore";
 
 interface ProfileSettingsScreenProps {
   onBack: () => void;
@@ -170,11 +171,12 @@ const ProfileSettingsScreen: React.FC<ProfileSettingsScreenProps> = ({
   };
 
   const handleUpgrade = () => {
-    if (!userProfile?.id) {
+    const { user } = useAuthStore.getState();
+    if (!user?.id) {
       alert("You must be logged in to upgrade.");
       return;
     }
-    upgradeToPro(userProfile.id);
+    upgradeToPro(user.id); // Use user ID from JWT, not model ID
   };
 
   const handleUpdateProfile = async () => {
@@ -283,9 +285,16 @@ const ProfileSettingsScreen: React.FC<ProfileSettingsScreenProps> = ({
               )}
             </div>
             <div className="flex-1">
-              <h2 className="text-xl font-bold text-slate-900">
-                {userProfile.name}
-              </h2>
+              <div className="flex items-center gap-2 mb-1">
+                <h2 className="text-xl font-bold text-slate-900">
+                  {userProfile.name}
+                </h2>
+                {userProfile.is_pro === 1 && (
+                  <span className="bg-black text-white text-xs font-semibold px-2 py-1 rounded-full">
+                    PRO
+                  </span>
+                )}
+              </div>
               <p className="text-slate-600">{userProfile.profession}</p>
               <p className="text-sm text-slate-500">{userProfile.location}</p>
             </div>
