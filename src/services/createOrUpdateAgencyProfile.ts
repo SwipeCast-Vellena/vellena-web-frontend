@@ -7,6 +7,8 @@ export interface AgencyProfileFormData {
   location: string;
   professional_bio: string;
   website?: string | null;
+  vat_number?: string | null;
+  pdf_path?: string | null;
 }
 
 export const createOrUpdateAgencyProfile = async (formData: AgencyProfileFormData) => {

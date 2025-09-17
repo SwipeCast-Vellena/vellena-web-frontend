@@ -403,6 +403,24 @@ const translations = {
     'agencyFeed.noProfilesAvailable': 'Nessun profilo disponibile',
     'agencyFeed.discover': 'scopri',
     'agencyFeed.liked': 'Mi piace!',
+    
+    // Agency Profile
+    'agencyProfile.additionalInfo': 'Informazioni Aggiuntive',
+    'agencyProfile.vatNumber': 'Numero Partita IVA',
+    'agencyProfile.vatNumberPlaceholder': 'IT12345678901',
+    'agencyProfile.vatNumberOptional': 'Opzionale',
+    'agencyProfile.companyDocuments': 'Documenti Aziendali',
+    'agencyProfile.uploadPdf': 'Carica Documento PDF',
+    'agencyProfile.pdfDescription': 'Carica certificati, licenze o altri documenti aziendali',
+    'agencyProfile.selectPdf': 'Seleziona PDF',
+    'agencyProfile.pdfOptional': 'Opzionale',
+    'agencyProfile.pdfUploaded': 'PDF caricato con successo',
+    'agencyProfile.replacePdf': 'Sostituisci PDF',
+    'agencyProfile.removePdf': 'Rimuovi PDF',
+    'agencyProfile.uploadingPdf': 'Caricamento PDF...',
+    'agencyProfile.invalidFileType': 'Seleziona solo file PDF',
+    'agencyProfile.existingPdf': 'PDF esistente',
+    'agencyProfile.pdfAlreadyUploaded': 'PDF già caricato',
   },
   en: {
     // Splash Screen
@@ -770,5 +788,23 @@ const translations = {
     'agencyFeed.noProfilesAvailable': 'No profiles available',
     'agencyFeed.discover': 'discover',
     'agencyFeed.liked': 'Liked!',
+    
+    // Agency Profile
+    'agencyProfile.additionalInfo': 'Additional Information',
+    'agencyProfile.vatNumber': 'VAT Number',
+    'agencyProfile.vatNumberPlaceholder': 'IT12345678901',
+    'agencyProfile.vatNumberOptional': 'Optional',
+    'agencyProfile.companyDocuments': 'Company Documents',
+    'agencyProfile.uploadPdf': 'Upload PDF Document',
+    'agencyProfile.pdfDescription': 'Upload certificates, licenses or other company documents',
+    'agencyProfile.selectPdf': 'Select PDF',
+    'agencyProfile.pdfOptional': 'Optional',
+    'agencyProfile.pdfUploaded': 'PDF uploaded successfully',
+    'agencyProfile.replacePdf': 'Replace PDF',
+    'agencyProfile.removePdf': 'Remove PDF',
+    'agencyProfile.uploadingPdf': 'Uploading PDF...',
+    'agencyProfile.invalidFileType': 'Please select only PDF files',
+    'agencyProfile.existingPdf': 'Existing PDF',
+    'agencyProfile.pdfAlreadyUploaded': 'PDF already uploaded',
   }
 };
