@@ -16,6 +16,8 @@ import {
   addFavorite,
   removeFavorite,
 } from "@/services/favoriteService";
+import { useLanguage } from "@/contexts/LanguageContext";
+import LanguageSelector from "./LanguageSelector";
 
 interface UserDetailScreenProps {
   userId: number;
@@ -37,6 +39,7 @@ interface Model {
   height: number;
   category: string;
   video_portfolio: string;
+  is_pro?: number;
   // add other fields your backend returns
 }
 
@@ -46,6 +49,7 @@ const UserDetailScreen: React.FC<UserDetailScreenProps> = ({
   userId,
   onBack,
 }) => {
+  const { t } = useLanguage();
   // // Mock user data - in a real app this would come from an API
   // const user = {
   //   id: userId || 1,
@@ -159,18 +163,18 @@ useEffect(() => {
 
 
   if (loading) {
-    return <div className="p-4">Loading model details...</div>;
+    return <div className="p-4">{t('userDetail.loading')}</div>;
   }
 
   if (!model) {
     return (
       <div className="p-4">
-        <p>Model not found.</p>
+        <p>{t('userDetail.modelNotFound')}</p>
         <button
           onClick={onBack}
           className="mt-2 px-4 py-2 bg-gray-500 text-white rounded"
         >
-          Back
+          {t('userDetail.back')}
         </button>
       </div>
     );
@@ -180,14 +184,19 @@ useEffect(() => {
     <div className="min-h-screen bg-slate-50 pb-20">
       {/* Header */}
       <div className="bg-white border-b border-slate-200 px-6 pt-12 pb-3">
-        <div className="flex items-center">
-          <button
-            onClick={() => navigate(-1)}
-            className="w-8 h-8 bg-slate-100 rounded-lg flex items-center justify-center mr-3"
-          >
-            <ArrowLeft className="w-4 h-4 text-slate-700" />
-          </button>
-          <h1 className="text-xl font-bold text-slate-900">Profilo</h1>
+        <div className="flex items-center justify-between">
+          <div className="flex items-center">
+            <button
+              onClick={() => navigate(-1)}
+              className="w-8 h-8 bg-slate-100 rounded-lg flex items-center justify-center mr-3"
+            >
+              <ArrowLeft className="w-4 h-4 text-slate-700" />
+            </button>
+            <h1 className="text-xl font-bold text-slate-900">{t('user.profile')}</h1>
+          </div>
+          <div className="flex items-center">
+            <LanguageSelector />
+          </div>
         </div>
       </div>
 
@@ -208,7 +217,7 @@ useEffect(() => {
             />
           ) : (
             <div className="flex items-center justify-center h-full text-slate-500">
-              No video available
+{t('userDetail.noVideoAvailable')}
             </div>
           )}
         </div>
@@ -260,18 +269,18 @@ useEffect(() => {
         {/* Details */}
         <div className="bg-white rounded-2xl p-6 shadow-sm border border-slate-200">
           <h3 className="text-lg font-semibold text-slate-900 mb-4">
-            Dettagli
+            {t('user.details')}
           </h3>
 
           <div className="grid grid-cols-2 gap-4">
             <div>
-              <p className="text-sm text-slate-600">Age</p>
+              <p className="text-sm text-slate-600">{t('userDetail.age')}</p>
               <p className="font-medium text-slate-900">
                 {model.age }
               </p>
             </div>
             <div>
-              <p className="text-sm text-slate-600">Altezza</p>
+              <p className="text-sm text-slate-600">{t('userDetail.height')}</p>
               <p className="font-medium text-slate-900">{model.height}</p>
             </div>
           </div>
@@ -280,7 +289,7 @@ useEffect(() => {
         {/* Skills */}
         <div className="bg-white rounded-2xl p-6 shadow-sm border border-slate-200">
           <h3 className="text-lg font-semibold text-slate-900 mb-4">
-            Genere
+            {t('userDetail.skills')}
           </h3>
 
           <div className="flex flex-wrap gap-2">
@@ -293,10 +302,10 @@ useEffect(() => {
         {/* Portfolio (from API photos) */}
         <div className="bg-white rounded-2xl p-6 shadow-sm border border-slate-200">
           <h3 className="text-lg font-semibold text-slate-900 mb-4">
-            Portfolio
+{t('userDetail.portfolio')}
           </h3>
           {loadingPhotos ? (
-            <p className="text-slate-500 text-sm">Loading photos...</p>
+            <p className="text-slate-500 text-sm">{t('search.loading')}</p>
           ) : photos.length > 0 ? (
             <div className="grid grid-cols-3 gap-3">
               {photos.map((url, index) => (
@@ -313,7 +322,7 @@ useEffect(() => {
               ))}
             </div>
           ) : (
-            <p className="text-slate-500 text-sm">No portfolio images</p>
+            <p className="text-slate-500 text-sm">{t('userDetail.noPortfolioImages')}</p>
           )}
         </div>
 
@@ -326,7 +335,7 @@ useEffect(() => {
             }`}
           >
             <Heart className="w-5 h-5 mr-2" />
-            {favorite ? "Aggiunto ai preferiti" : "Aggiungi ai preferiti"}
+            {favorite ? t('userDetail.addedToFavorites') : t('userDetail.addToFavorites')}
           </button>
           
         </div>

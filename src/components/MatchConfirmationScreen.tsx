@@ -1,6 +1,8 @@
 
 import React from 'react';
 import { Heart, MessageCircle, Star, ArrowRight, X } from 'lucide-react';
+import { useLanguage } from '@/contexts/LanguageContext';
+import LanguageSelector from './LanguageSelector';
 
 interface MatchConfirmationScreenProps {
   onStartChat: () => void;
@@ -17,6 +19,7 @@ const MatchConfirmationScreen: React.FC<MatchConfirmationScreenProps> = ({
   onContinueSwiping,
   matchData 
 }) => {
+  const { t } = useLanguage();
   const isMatched = matchData?.matched || false;
   const score = matchData?.score || 0;
 
@@ -24,6 +27,10 @@ const MatchConfirmationScreen: React.FC<MatchConfirmationScreenProps> = ({
     // Oops screen for no match
     return (
       <div className="min-h-screen bg-gradient-to-br from-gray-50 via-slate-50 to-blue-50 flex flex-col items-center justify-center px-6">
+        {/* Language Selector */}
+        <div className="absolute top-6 right-6 z-10">
+          <LanguageSelector variant="overlay" />
+        </div>
         {/* Oops Animation */}
         <div className="relative mb-8">
           {/* Main Icon */}
@@ -35,11 +42,11 @@ const MatchConfirmationScreen: React.FC<MatchConfirmationScreenProps> = ({
         {/* Oops Message */}
         <div className="text-center mb-8">
           <h1 className="text-4xl font-bold text-slate-900 mb-4">
-            Oops! 😔
+            {t('match.oops')}
           </h1>
-          <p className="text-xl text-slate-600 mb-2">Nessun Match</p>
+          <p className="text-xl text-slate-600 mb-2">{t('match.noMatch')}</p>
           <p className="text-slate-600 leading-relaxed max-w-md">
-            Non hai fatto match con questa campagna. Non preoccuparti, ci sono molte altre opportunità!
+            {t('match.noMatchDescription')}
           </p>
         </div>
 
@@ -62,7 +69,7 @@ const MatchConfirmationScreen: React.FC<MatchConfirmationScreenProps> = ({
             onClick={onContinueSwiping}
             className="w-full bg-slate-900 text-white py-4 rounded-2xl font-semibold text-lg flex items-center justify-center space-x-2 hover:bg-slate-800 transition-colors"
           >
-            <span>Continua a Scoprire</span>
+            <span>{t('match.continueExploring')}</span>
             <ArrowRight className="w-5 h-5" />
           </button>
         </div>
@@ -80,6 +87,10 @@ const MatchConfirmationScreen: React.FC<MatchConfirmationScreenProps> = ({
   // Match screen for successful match
   return (
     <div className="min-h-screen bg-gradient-to-br from-pink-50 via-purple-50 to-blue-50 flex flex-col items-center justify-center px-6">
+      {/* Language Selector */}
+      <div className="absolute top-6 right-6 z-10">
+        <LanguageSelector variant="overlay" />
+      </div>
       {/* Celebration Animation */}
       <div className="relative mb-8">
         {/* Floating Hearts */}
@@ -102,11 +113,11 @@ const MatchConfirmationScreen: React.FC<MatchConfirmationScreenProps> = ({
       {/* Success Message */}
       <div className="text-center mb-8">
         <h1 className="text-4xl font-bold text-slate-900 mb-4">
-          🎉 È un Match!
+          🎉 {t('match.title')}
         </h1>
-        <p className="text-xl text-slate-600 mb-2">Congratulazioni!</p>
+        <p className="text-xl text-slate-600 mb-2">{t('match.greatMatch')}</p>
         <p className="text-slate-600 leading-relaxed max-w-md">
-          Hai fatto match con questa campagna! Inizia ora a costruire la tua connessione professionale.
+          {t('match.matchDescription')}
         </p>
       </div>
 
@@ -130,14 +141,14 @@ const MatchConfirmationScreen: React.FC<MatchConfirmationScreenProps> = ({
           className="w-full bg-slate-900 text-white py-4 rounded-2xl font-semibold text-lg flex items-center justify-center space-x-2 hover:bg-slate-800 transition-colors"
         >
           <MessageCircle className="w-6 h-6" />
-          <span>Inizia Chat Professionale</span>
+          <span>{t('match.startChat')}</span>
         </button>
         
         <button
           onClick={onContinueSwiping}
           className="w-full bg-white text-slate-900 py-4 rounded-2xl font-semibold text-lg border-2 border-slate-200 flex items-center justify-center space-x-2 hover:border-slate-300 transition-colors"
         >
-          <span>Continua a Scoprire</span>
+          <span>{t('match.continueExploring')}</span>
           <ArrowRight className="w-5 h-5" />
         </button>
       </div>

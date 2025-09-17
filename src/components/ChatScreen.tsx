@@ -3,16 +3,18 @@ import React, { useEffect, useRef, useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { ArrowLeft, Send, Phone, Video, MoreVertical } from "lucide-react";
 import { ChatService, MessageView } from "../services/chatService";
+import { useLanguage } from '../contexts/LanguageContext';
+import LanguageSelector from './LanguageSelector';
 
 export default function ChatScreen({ onBack }: { onBack?: () => void }) {
-  
+  const { t } = useLanguage();
   const { chatId: chatIdParam } = useParams<{ chatId?: string }>();
   const chatId = chatIdParam || "";
   const navigate = useNavigate();
 
   const [messages, setMessages] = useState<MessageView[]>([]);
   const [newMessage, setNewMessage] = useState("");
-  const [title, setTitle] = useState<string>("Chat");
+  const [title, setTitle] = useState<string>(t('chat.title'));
   const [loading, setLoading] = useState(false);
   const [agencyInfo, setAgencyInfo] = useState<any>(null);
 
@@ -129,7 +131,7 @@ export default function ChatScreen({ onBack }: { onBack?: () => void }) {
 
               <div>
                 <h1 className="text-lg font-bold text-slate-900">
-                  {agencyInfo?.name || "Loading..."}
+                  {agencyInfo?.name || t('chat.loading')}
                 </h1>
                 {agencyInfo && (
                   <p className="text-sm text-slate-500">
@@ -138,11 +140,11 @@ export default function ChatScreen({ onBack }: { onBack?: () => void }) {
                 )}
                 {agencyInfo && (
                   <p className="text-sm text-slate-500">
-                     {agencyInfo?.professional_bio  || "loading..."}
+                     {agencyInfo?.professional_bio  || t('chat.loading')}
                   </p>
                 )}
                 <p className="text-sm text-green-600 font-medium">
-                  Online ora
+{t('chat.online')}
                 </p>
               </div>
 
@@ -150,6 +152,7 @@ export default function ChatScreen({ onBack }: { onBack?: () => void }) {
           </div>
 
           <div className="flex items-center space-x-2">
+            <LanguageSelector />
             <button className="w-10 h-10 bg-slate-100 rounded-xl flex items-center justify-center">
               <MoreVertical className="w-5 h-5 text-slate-700" />
             </button>

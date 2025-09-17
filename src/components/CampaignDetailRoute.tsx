@@ -4,6 +4,7 @@ import CampaignDetailScreen from "../components/CampaignDetailScreen";
 import MatchConfirmationScreen from "../components/MatchConfirmationScreen";
 import { useCampaignStore } from "../stores/campaignStore"; // ✅ Zustand store
 import { applyToCampaign } from "../services/applicationService"; // import service
+import { useLanguage } from "../contexts/LanguageContext";
 
 
 export const CampaignDetailRoute = ({
@@ -16,6 +17,7 @@ export const CampaignDetailRoute = ({
   onStartChat?: () => void;
 }) => {
   const { id } = useParams<{ id: string }>();
+  const { t } = useLanguage();
   const campaigns = useCampaignStore((state) => state.campaigns); // get all campaigns
   const [matchData, setMatchData] = React.useState<any>(null);
 
@@ -34,7 +36,7 @@ export const CampaignDetailRoute = ({
   const deadlineDate = new Date(campaignData.deadline);
   const diffTime = deadlineDate.getTime() - new Date().getTime();
   const daysLeft = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
-  const timeLeft = daysLeft > 0 ? `${daysLeft} giorni rimasti` : "Scaduto";
+  const timeLeft = daysLeft > 0 ? `${daysLeft} ${t('modelFeed.daysLeft')}` : t('modelFeed.expired');
 
   // Map to CampaignDetailScreen expected shape
   const campaign = {

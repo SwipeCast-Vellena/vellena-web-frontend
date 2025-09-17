@@ -39,11 +39,11 @@ const ProfileCreationScreenModel: React.FC<ProfileCreationScreenProps> = ({ onBa
         video_portfolio: videoUrl,
       });
 
-      alert("Profile saved!");
+      alert(t('profileCreation.profileSaved'));
       onComplete();
 
     } catch (error: any) {
-      alert(error.message || "Error saving profile");
+      alert(error.message || t('profileCreation.errorSaving'));
     }
   };
 
@@ -67,7 +67,7 @@ const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
 
   // Validate file size (max 30MB)
   if (file.size > 30 * 1024 * 1024) {
-    alert("File size exceeds 30MB limit");
+    alert(t('profileCreation.fileSizeExceeds'));
     return;
   }
 
@@ -75,7 +75,7 @@ const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
     setLoading(true); // 🔹 Start loading
     const token = localStorage.getItem("token");
     if (!token) {
-      alert("You must be logged in to upload a video");
+      alert(t('profileCreation.mustBeLoggedIn'));
       return;
     }
 
@@ -83,7 +83,7 @@ const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
     setVideoUrl(data.videoUrl); // Backend returns video path/url
     setVideoUploaded(true);
   } catch (err: any) {
-    alert(err.message || "Video upload failed");
+    alert(err.message || t('profileCreation.videoUploadFailed'));
   } finally {
     setLoading(false); // 🔹 Stop loading
   }

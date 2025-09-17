@@ -17,6 +17,8 @@ import { fetchMyModelPhotos } from "@/services/modelPhotos";
 import axios from "axios";
 import { upgradeToPro } from "@/services/stripeService";
 import { useAuthStore } from "@/stores/authStore";
+import { useLanguage } from "@/contexts/LanguageContext";
+import LanguageSelector from "./LanguageSelector";
 
 interface ProfileSettingsScreenProps {
   onBack: () => void;
@@ -27,6 +29,7 @@ const ProfileSettingsScreen: React.FC<ProfileSettingsScreenProps> = ({
   onBack,
   onLogout,
 }) => {
+  const { t } = useLanguage();
   interface BackendProfile {
     id: number;
     is_pro: number;
@@ -205,10 +208,10 @@ const ProfileSettingsScreen: React.FC<ProfileSettingsScreenProps> = ({
       );
 
       setIsEditing(false);
-      alert("Profilo aggiornato con successo!");
+      alert(t('settings.profileUpdated'));
     } catch (err: any) {
       console.error("Error updating profile", err);
-      alert("Errore nell'aggiornamento del profilo");
+      alert(t('settings.profileUpdateError'));
     }
   };
 
@@ -225,11 +228,12 @@ const ProfileSettingsScreen: React.FC<ProfileSettingsScreenProps> = ({
               <ArrowLeft className="w-5 h-5 text-slate-700" />
             </button>
             <h1 className="text-2xl font-bold text-slate-900">
-              Profilo e Impostazioni
+              {t('settings.title')}
             </h1>
           </div>
 
           <div className="flex items-center gap-2">
+            <LanguageSelector />
             {/* Switch to Pro Button */}
             <button
               onClick={handleUpgrade}
@@ -240,7 +244,7 @@ const ProfileSettingsScreen: React.FC<ProfileSettingsScreenProps> = ({
                   : "bg-indigo-600 hover:bg-indigo-700" // normal style
                 }`}
             >
-              {userProfile.is_pro === 1 ? "You are already a Pro" : "Upgrade to Pro"}
+              {userProfile.is_pro === 1 ? t('settings.alreadyPro') : t('settings.upgradePro')}
             </button>
             {/* Edit Button */}
             <button
@@ -304,7 +308,7 @@ const ProfileSettingsScreen: React.FC<ProfileSettingsScreenProps> = ({
           <div className="space-y-4">
             <div>
               <label className="block text-sm font-medium text-slate-700 mb-2">
-                Nome
+                {t('settings.name')}
               </label>
               <input
                 type="text"
@@ -319,7 +323,7 @@ const ProfileSettingsScreen: React.FC<ProfileSettingsScreenProps> = ({
 
             <div>
               <label className="block text-sm font-medium text-slate-700 mb-2">
-                Email
+                {t('settings.email')}
               </label>
               <input
                 type="email"
@@ -332,7 +336,7 @@ const ProfileSettingsScreen: React.FC<ProfileSettingsScreenProps> = ({
             <div className="grid grid-cols-2 gap-4">
               <div>
                 <label className="block text-sm font-medium text-slate-700 mb-2">
-                  Età
+                  {t('settings.age')}
                 </label>
                 <input
                   type="number"
@@ -349,7 +353,7 @@ const ProfileSettingsScreen: React.FC<ProfileSettingsScreenProps> = ({
               </div>
               <div>
                 <label className="block text-sm font-medium text-slate-700 mb-2">
-                  Altezza
+                  {t('settings.height')}
                 </label>
                 <input
                   type="text"
@@ -369,7 +373,7 @@ const ProfileSettingsScreen: React.FC<ProfileSettingsScreenProps> = ({
 <div className="grid grid-cols-2 gap-4 mt-4">
 <div>
     <label className="block text-sm font-medium text-slate-700 mb-2">
-      Località
+      {t('settings.location')}
     </label>
     <input
       type="text"
@@ -383,7 +387,7 @@ const ProfileSettingsScreen: React.FC<ProfileSettingsScreenProps> = ({
   </div>
   <div>
     <label className="block text-sm font-medium text-slate-700 mb-2">
-      Numero Carta
+      {t('settings.cardNumber')}
     </label>
     <input
       type="text"
@@ -402,7 +406,7 @@ const ProfileSettingsScreen: React.FC<ProfileSettingsScreenProps> = ({
 
             <div>
               <label className="block text-sm font-medium text-slate-700 mb-2">
-                Bio Professionale
+                {t('settings.professionalBio')}
               </label>
               <textarea
                 value={userProfile.bio}
@@ -420,13 +424,13 @@ const ProfileSettingsScreen: React.FC<ProfileSettingsScreenProps> = ({
                   onClick={handleUpdateProfile}
                   className="flex-1 bg-slate-900 text-white py-3 rounded-xl font-semibold hover:bg-slate-800 transition-colors"
                 >
-                  Salva Modifiche
+{t('settings.saveChanges')}
                 </button>
                 <button
                   onClick={() => setIsEditing(false)}
                   className="flex-1 bg-slate-100 text-slate-700 py-3 rounded-xl font-semibold hover:bg-slate-200 transition-colors"
                 >
-                  Annulla
+{t('settings.cancel')}
                 </button>
               </div>
             )}
@@ -436,7 +440,7 @@ const ProfileSettingsScreen: React.FC<ProfileSettingsScreenProps> = ({
         <div className="bg-white rounded-2xl p-6 shadow-sm border border-slate-200">
           <h3 className="text-lg font-semibold text-slate-900 mb-4 flex items-center">
             <Video className="w-5 h-5 mr-2" />
-            Video Professionale
+{t('settings.professionalVideo')}
           </h3>
 
           {/* Hidden file input always rendered */}
@@ -457,7 +461,7 @@ const ProfileSettingsScreen: React.FC<ProfileSettingsScreenProps> = ({
                   className="w-full rounded-xl mb-3"
                 />
                 <p className="text-sm text-slate-600 mb-3">
-                  Presentazione professionale di 30 secondi
+                  {t('settings.professionalPresentation')}
                 </p>
                 <div className="flex justify-center gap-3">
                   {/* <button
@@ -480,14 +484,14 @@ const ProfileSettingsScreen: React.FC<ProfileSettingsScreenProps> = ({
               <div>
                 <Upload className="w-12 h-12 text-slate-400 mx-auto mb-3" />
                 <p className="font-medium text-slate-900 mb-2">
-                  Carica un video di presentazione
+                  {t('settings.uploadPresentationVideo')}
                 </p>
                 <button
                   type="button"
                   onClick={handleVideoUploadClick}
                   className="bg-slate-900 text-white px-6 py-3 rounded-xl font-medium hover:bg-slate-800 transition-colors"
                 >
-                  Carica Video
+{t('settings.uploadVideo')}
                 </button>
               </div>
             )}
@@ -501,7 +505,7 @@ const ProfileSettingsScreen: React.FC<ProfileSettingsScreenProps> = ({
               <div className="flex items-center">
                 <Shield className="w-5 h-5 text-slate-600 mr-3" />
                 <span className="font-medium text-slate-900">
-                  Impostazioni Privacy
+                  {t('settings.privacySettings')}
                 </span>
               </div>
               <span className="text-slate-400">›</span>
@@ -511,7 +515,7 @@ const ProfileSettingsScreen: React.FC<ProfileSettingsScreenProps> = ({
               <div className="flex items-center">
                 <FileText className="w-5 h-5 text-slate-600 mr-3" />
                 <span className="font-medium text-slate-900">
-                  Termini di Servizio
+                  {t('settings.termsOfService')}
                 </span>
               </div>
               <span className="text-slate-400">›</span>
@@ -521,7 +525,7 @@ const ProfileSettingsScreen: React.FC<ProfileSettingsScreenProps> = ({
               <div className="flex items-center">
                 <FileText className="w-5 h-5 text-slate-600 mr-3" />
                 <span className="font-medium text-slate-900">
-                  Informativa sulla Privacy
+                  {t('settings.privacyPolicy')}
                 </span>
               </div>
               <span className="text-slate-400">›</span>
@@ -531,7 +535,7 @@ const ProfileSettingsScreen: React.FC<ProfileSettingsScreenProps> = ({
               <div className="flex items-center">
                 <HelpCircle className="w-5 h-5 text-slate-600 mr-3" />
                 <span className="font-medium text-slate-900">
-                  Aiuto e Supporto
+                  {t('settings.helpSupport')}
                 </span>
               </div>
               <span className="text-slate-400">›</span>
@@ -546,7 +550,7 @@ const ProfileSettingsScreen: React.FC<ProfileSettingsScreenProps> = ({
             className="w-full bg-red-50 text-red-600 py-4 rounded-2xl font-semibold text-lg flex items-center justify-center space-x-2 hover:bg-red-100 transition-colors"
           >
             <LogOut className="w-5 h-5" />
-            <span>Disconnetti</span>
+            <span>{t('settings.disconnect')}</span>
           </button>
         </div>
 
@@ -554,7 +558,7 @@ const ProfileSettingsScreen: React.FC<ProfileSettingsScreenProps> = ({
         <div className="text-center py-4">
           <p className="text-sm text-slate-500">yo_work v1.0.0</p>
           <p className="text-xs text-slate-400 mt-1">
-            Piattaforma Professionale per il Matching di Talenti
+            {t('settings.appDescription')}
           </p>
         </div>
       </div>

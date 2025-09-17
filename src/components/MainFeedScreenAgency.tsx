@@ -15,6 +15,8 @@ import {
   getPendingModels,
 } from "@/services/modelService";
 import { addFavorite } from "@/services/favoriteService";
+import { useLanguage } from "@/contexts/LanguageContext";
+import LanguageSelector from "./LanguageSelector";
 
 type Category = "all" | "model" | "hostess" | "agency" | "pending";
 
@@ -29,6 +31,7 @@ const MainFeedScreenAgency: React.FC<MainFeedScreenProps> = ({
   onOpenChat,
   onUserSelect,
 }) => {
+  const { t } = useLanguage();
   const [allProfiles, setAllProfiles] = useState<Profile[]>([]);
   const [currentIndex, setCurrentIndex] = useState(0);
   const [activeCategory, setActiveCategory] = useState<Category>("all");
@@ -71,25 +74,25 @@ const MainFeedScreenAgency: React.FC<MainFeedScreenProps> = ({
   const currentProfile = filteredProfiles[currentIndex];
 
   const categories = [
-    { id: "all", label: "All", count: allProfiles.length },
+    { id: "all", label: t('agencyFeed.all'), count: allProfiles.length },
     {
       id: "model",
-      label: "Models",
+      label: t('agencyFeed.models'),
       count: allProfiles.filter((p) => p.category === "model").length,
     },
     {
       id: "hostess",
-      label: "Hostess",
+      label: t('agencyFeed.hostess'),
       count: allProfiles.filter((p) => p.category === "hostess").length,
     },
     {
       id: "photographer",
-      label: "Photographer",
+      label: t('agencyFeed.photographer'),
       count: allProfiles.filter((p) => p.category === "photographer").length,
     },
     {
       id: "pending",
-      label: "Pending Approval",
+      label: t('agencyFeed.pendingApproval'),
       count: pendingProfiles.length,
     },
   ] as const;
@@ -164,7 +167,7 @@ const MainFeedScreenAgency: React.FC<MainFeedScreenProps> = ({
       <div className="h-screen flex items-center justify-center bg-black">
         <div className="flex flex-col items-center space-y-4">
           <div className="w-12 h-12 border-4 border-white/30 border-t-white rounded-full animate-spin"></div>
-          <p className="text-white text-sm">Loading profiles...</p>
+          <p className="text-white text-sm">{t('agencyFeed.loadingProfiles')}</p>
         </div>
       </div>
     );
@@ -174,7 +177,7 @@ const MainFeedScreenAgency: React.FC<MainFeedScreenProps> = ({
   if (!currentProfile) {
     return (
       <div className="h-screen flex items-center justify-center bg-black">
-        <p className="text-white">No profiles available</p>
+        <p className="text-white">{t('agencyFeed.noProfilesAvailable')}</p>
       </div>
     );
   }
@@ -209,10 +212,11 @@ const MainFeedScreenAgency: React.FC<MainFeedScreenProps> = ({
         <div className="flex items-center space-x-3">
           <div className="w-2 h-2 bg-white rounded-full animate-pulse"></div>
           <h1 className="text-xl font-light text-white tracking-wide">
-            discover
+            {t('agencyFeed.discover')}
           </h1>
         </div>
         <div className="flex items-center space-x-3">
+          <LanguageSelector variant="inline" />
           <button
             onClick={() => setShowFilters(!showFilters)}
             className="w-11 h-11 bg-white/10 backdrop-blur-xl rounded-2xl flex items-center justify-center border border-white/20 hover:bg-white/20 transition-all duration-300"

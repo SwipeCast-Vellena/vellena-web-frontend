@@ -4,6 +4,7 @@ import { Button } from "@/components/ui/button";
 import { ImageIcon, Upload, Loader2 } from "lucide-react"; // ✅ Loader2 = spinner
 import { uploadModelPhotos, fetchMyModelPhotos } from "@/services/modelPhotos";
 import { getBaseUrl } from "@/services/utils/baseUrl";
+import { useLanguage } from "@/contexts/LanguageContext";
 
 interface PhotoUploaderProps {
   token: string;
@@ -11,6 +12,7 @@ interface PhotoUploaderProps {
 }
 
 export default function PhotoUploader({ token, onUploadSuccess }: PhotoUploaderProps) {
+  const { t } = useLanguage();
   const [selectedFiles, setSelectedFiles] = useState<File[]>([]);
   const [photos, setPhotos] = useState<any[]>([]);
   const [loading, setLoading] = useState(false);
@@ -63,7 +65,7 @@ export default function PhotoUploader({ token, onUploadSuccess }: PhotoUploaderP
 
     const maxPhotos = isPro ? 10 : 3;
     if (photos.length + newFiles.length > maxPhotos) {
-      alert(`Max limit reached. You can only upload up to ${maxPhotos} photos.${!isPro ? ' Upgrade to Pro for up to 10 photos.' : ''}`);
+      alert(`${t('photoUploader.maxLimitReached')} ${maxPhotos} ${t('photoUploader.photos')}.${!isPro ? t('photoUploader.upgradeToPro') : ''}`);
       return;
     }
     setSelectedFiles(newFiles);
@@ -77,7 +79,7 @@ export default function PhotoUploader({ token, onUploadSuccess }: PhotoUploaderP
       setLoading(false);
 
       if (err) {
-        alert(err === "MAX_LIMIT" ? "Max limit reached." : "Upload failed.");
+        alert(err === "MAX_LIMIT" ? t('photoUploader.maxLimitReachedSimple') : t('photoUploader.uploadFailed'));
         return;
       }
 
@@ -106,7 +108,7 @@ export default function PhotoUploader({ token, onUploadSuccess }: PhotoUploaderP
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-2">
             <ImageIcon className="w-5 h-5" />
-            <span className="font-semibold">Upload Photos (Max {isPro ? 10 : 3})</span>
+            <span className="font-semibold">{t('photoUploader.title')} (Max {isPro ? 10 : 3})</span>
             {isPro && <span className="text-xs bg-green-100 text-green-800 px-2 py-1 rounded">PRO</span>}
           </div>
           <div className="flex gap-2">
@@ -120,17 +122,17 @@ export default function PhotoUploader({ token, onUploadSuccess }: PhotoUploaderP
             />
             <label htmlFor="photo-input">
               <Button variant="outline" asChild>
-                <span>Select</span>
+                <span>{t('photoUploader.select')}</span>
               </Button>
             </label>
             <Button onClick={handleUpload} disabled={loading}>
               {loading ? (
                 <>
-                  <Loader2 className="w-4 h-4 mr-2 animate-spin" /> Uploading...
+                  <Loader2 className="w-4 h-4 mr-2 animate-spin" /> {t('photoUploader.uploading')}
                 </>
               ) : (
                 <>
-                  <Upload className="w-4 h-4 mr-1" /> Upload
+                  <Upload className="w-4 h-4 mr-1" /> {t('photoUploader.upload')}
                 </>
               )}
             </Button>
@@ -155,7 +157,7 @@ export default function PhotoUploader({ token, onUploadSuccess }: PhotoUploaderP
         {/* Already uploaded photos */}
         {photos.length > 0 && (
           <div className="mt-6">
-            <p className="text-sm text-slate-500 mb-2">Uploaded Photos:</p>
+            <p className="text-sm text-slate-500 mb-2">{t('photoUploader.uploadedPhotos')}</p>
             <div className="flex gap-3 flex-wrap">
               {photos.map((p, i) => (
                 <div key={i} className="w-24 h-24 rounded-lg overflow-hidden border">
@@ -174,7 +176,7 @@ export default function PhotoUploader({ token, onUploadSuccess }: PhotoUploaderP
         {loading && (
           <div className="absolute inset-0 bg-white/70 flex items-center justify-center rounded-lg">
             <Loader2 className="w-8 h-8 animate-spin text-slate-700" />
-            <span className="ml-2 font-medium text-slate-700">Uploading...</span>
+            <span className="ml-2 font-medium text-slate-700">{t('photoUploader.uploading')}</span>
           </div>
         )}
       </CardContent>

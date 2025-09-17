@@ -35,10 +35,10 @@ const ProfileCreationScreenAgency: React.FC<ProfileCreationScreenProps> = ({ onB
         website: formData.website || null,
       });
 
-      alert("Profile saved!");
+      alert(t('profileCreation.profileSaved'));
       onComplete();
     } catch (error: any) {
-      alert(error.message || "Error saving profile");
+      alert(error.message || t('profileCreation.errorSaving'));
     } finally {
       setLoading(false); // stop loading
     }
@@ -128,7 +128,7 @@ const ProfileCreationScreenAgency: React.FC<ProfileCreationScreenProps> = ({ onB
                 value={formData.location}
                 onChange={(e) => setFormData({...formData, location: e.target.value})}
                 className="w-full px-4 py-3 border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-slate-900"
-                placeholder="Milano, Italia"
+                placeholder={t('modelFeed.defaultCity')}
                 required
               />
             </div>
@@ -153,7 +153,7 @@ const ProfileCreationScreenAgency: React.FC<ProfileCreationScreenProps> = ({ onB
             disabled={loading}
             className="w-full bg-slate-900 text-white py-4 rounded-xl font-semibold text-lg hover:bg-slate-800 transition-colors disabled:bg-slate-300 disabled:cursor-not-allowed"
           >
-            {loading ? "Saving..." : t('profile-creation.complete')}
+            {loading ? t('settings.save') : t('profile-creation.complete')}
           </button>
         </div>
       </form>

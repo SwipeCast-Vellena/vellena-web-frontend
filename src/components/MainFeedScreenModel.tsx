@@ -22,6 +22,8 @@ import { useCampaignStore } from "../stores/campaignStore";
 import PhotoUploader from "../components/PhotoUploader";
 import { toast } from "@/components/ui/use-toast"; 
 import { getModelProfile } from "@/services/modelService";// adjust the path if needed
+import { useLanguage } from "@/contexts/LanguageContext";
+import LanguageSelector from "./LanguageSelector";
 
 // --- Types from backend ---
 type BackendCampaign = {
@@ -87,10 +89,10 @@ const isFutureOrToday = (iso: string) => {
   return d.getTime() >= today.getTime();
 };
 
-const mapToUICampaign = (c: BackendCampaign): Campaign => ({
+const mapToUICampaign = (c: BackendCampaign, t: (key: string) => string): Campaign => ({
   id: c.id,
   title: c.title,
-  agency: c.agency ?? c.agency_name ?? "Unknown Agency",
+  agency: c.agency ?? c.agency_name ?? t('modelFeed.unknownAgency'),
   city: c.city,
   address: c.address,
   startDate: c.start_date,
@@ -111,6 +113,7 @@ interface MainFeedScreenModelProps {
 
 // --- Component ---
 export default function MainFeedScreenModel({ onCampaignSelect, onEditProfile }: MainFeedScreenModelProps) {
+  const { t } = useLanguage();
   const [view, setView] = useState<"list" | "swipe">("list");
   const { campaigns, fetchCampaigns } = useCampaignStore();
   const [token, setToken] = useState("");
@@ -147,8 +150,8 @@ export default function MainFeedScreenModel({ onCampaignSelect, onEditProfile }:
       height: "1.75m",
       measurements: "84-62-90",
       video: true,
-      category: "Model",
-      city: "Milano, IT",
+      category: t('modelFeed.categoryModel'),
+      city: t('modelFeed.defaultCity'),
   });
 
 
@@ -170,7 +173,7 @@ export default function MainFeedScreenModel({ onCampaignSelect, onEditProfile }:
     const raw = (Array.isArray(campaigns) ? campaigns : []) as BackendCampaign[];
 
     return raw
-      .map(mapToUICampaign)
+      .map(c => mapToUICampaign(c, t))
       .filter((c) => c.deadline && !Number.isNaN(new Date(c.deadline).getTime()))
       .filter((c) => isFutureOrToday(c.deadline))
       .sort((a, b) => new Date(a.deadline).getTime() - new Date(b.deadline).getTime())
@@ -184,8 +187,8 @@ export default function MainFeedScreenModel({ onCampaignSelect, onEditProfile }:
 
   const skipCampaign = (id: number) => {
     toast({
-      title: "Job skipped",
-      description: `You skipped job #${id}`,
+      title: t('modelFeed.jobSkipped'),
+      description: `${t('modelFeed.youSkippedJob')} #${id}`,
       variant: "destructive", // optional, or "default"
     });
   };
@@ -195,7 +198,7 @@ export default function MainFeedScreenModel({ onCampaignSelect, onEditProfile }:
   };
 
   const uploadVideo = () => {
-    alert("Open 30s vertical video uploader");
+    alert(t('modelFeed.openVideoUploader'));
   };
 
   return (
@@ -206,11 +209,14 @@ export default function MainFeedScreenModel({ onCampaignSelect, onEditProfile }:
           <div className="flex items-center gap-3">
             <User2 className="w-5 h-5 text-slate-700" />
             <div>
-              <div className="text-sm text-slate-500">Welcome back</div>
+              <div className="text-sm text-slate-500">{t('modelFeed.welcomeBack')}</div>
               <div className="font-semibold text-slate-900">
                 {modelProfile?.name} <span className="text-slate-600">{modelProfile?.category}</span>
               </div>
             </div>
+          </div>
+          <div className="flex items-center">
+            <LanguageSelector />
           </div>
         </div>
       </div>
@@ -222,22 +228,22 @@ export default function MainFeedScreenModel({ onCampaignSelect, onEditProfile }:
           <Card className="md:col-span-2">
             <CardContent className="p-5">
               <div className="flex items-center justify-between mb-4">
-                <div className="font-semibold text-slate-900">Profile completeness</div>
+                <div className="font-semibold text-slate-900">{t('modelFeed.profileCompleteness')}</div>
                 <div className="text-sm text-slate-500">{completion}%</div>
               </div>
               <Progress value={completion} className="mb-4" />
               <div className="grid sm:grid-cols-3 gap-3 text-sm">
-                <ChecklistItem done={profilePhotoUploaded} label="Profile photo" />
-                <ChecklistItem done={!!profile.age} label="Age" />
-                <ChecklistItem done={!!profile.height} label="Height" />
-                <ChecklistItem done={!!profile.measurements} label="Measurements" />
-                <ChecklistItem done={profile.video} label="30s intro video" />
-                <ChecklistItem done={!!profile.category} label="Category selected" />
+                <ChecklistItem done={profilePhotoUploaded} label={t('modelFeed.profilePhoto')} />
+                <ChecklistItem done={!!profile.age} label={t('modelFeed.age')} />
+                <ChecklistItem done={!!profile.height} label={t('modelFeed.height')} />
+                <ChecklistItem done={!!profile.measurements} label={t('modelFeed.measurements')} />
+                <ChecklistItem done={profile.video} label={t('modelFeed.introVideo')} />
+                <ChecklistItem done={!!profile.category} label={t('modelFeed.categorySelected')} />
               </div>
               <div className="flex flex-wrap gap-2 mt-4">
                 <Button variant="outline" className="gap-2" onClick={onEditProfile}>
                   <User2 className="w-4 h-4" />
-                  Edit profile
+                  {t('modelFeed.editProfile')}
                 </Button>
               </div>
             </CardContent>
@@ -250,18 +256,18 @@ export default function MainFeedScreenModel({ onCampaignSelect, onEditProfile }:
           {token ? <PhotoUploader
             token={token}
             onUploadSuccess={(hasPhoto) => setProfilePhotoUploaded(hasPhoto)}
-          /> : <p>Please log in to upload photos.</p>}
+          /> : <p>{t('modelFeed.pleaseLogin')}</p>}
         </div>
 
         {/* Jobs feed: toggle Swipe/List */}
         <div className="flex items-center justify-between">
-          <div className="font-semibold text-slate-900">Available Jobs</div>
+          <div className="font-semibold text-slate-900">{t('modelFeed.availableJobs')}</div>
           <div className="flex items-center gap-2">
             <Button variant={view === "list" ? "default" : "outline"} onClick={() => setView("list")}>
-              List
+              {t('modelFeed.list')}
             </Button>
             <Button variant={view === "swipe" ? "default" : "outline"} onClick={() => setView("swipe")}>
-              Swipe
+              {t('modelFeed.swipe')}
             </Button>
           </div>
         </div>
@@ -272,7 +278,7 @@ export default function MainFeedScreenModel({ onCampaignSelect, onEditProfile }:
               const deadlineDate = new Date(item.deadline);
               const diffTime = deadlineDate.getTime() - new Date().getTime();
               const daysLeft = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
-              const timeLeft = daysLeft > 0 ? `${daysLeft} giorni rimasti` : daysLeft === 0 ? "Oggi" : "Scaduto";
+              const timeLeft = daysLeft > 0 ? `${daysLeft} ${t('modelFeed.daysLeft')}` : daysLeft === 0 ? t('modelFeed.today') : t('modelFeed.expired');
 
               return (
                 <div
@@ -303,10 +309,10 @@ export default function MainFeedScreenModel({ onCampaignSelect, onEditProfile }:
                       <span className="w-4 h-4 mr-2 text-center">👤</span>
                       <span>
                         {item.genderPreference === "any"
-                          ? "Qualsiasi"
+                          ? t('modelFeed.genderAny')
                           : item.genderPreference === "women"
-                          ? "Femminile"
-                          : "Maschile"}
+                          ? t('modelFeed.genderWomen')
+                          : t('modelFeed.genderMen')}
                       </span>
                     </div>
                     <div className="flex items-center text-sm text-slate-600">
@@ -322,7 +328,7 @@ export default function MainFeedScreenModel({ onCampaignSelect, onEditProfile }:
                     <div className="flex items-center space-x-2">
                       <CalendarDays className="w-5 h-5 text-blue-500" />
                       <span>
-                        Start:{" "}
+                        {t('modelFeed.start')}:{" "}
                         {new Date(item.startDate).toLocaleDateString("en-US", {
                           year: "numeric",
                           month: "short",
@@ -335,7 +341,7 @@ export default function MainFeedScreenModel({ onCampaignSelect, onEditProfile }:
                       <div className="flex items-center space-x-2">
                         <CalendarDays className="w-5 h-5 text-red-500" />
                         <span>
-                          End:{" "}
+                          {t('modelFeed.end')}:{" "}
                           {new Date(item.endDate).toLocaleDateString("en-US", {
                             year: "numeric",
                             month: "short",
@@ -358,7 +364,7 @@ export default function MainFeedScreenModel({ onCampaignSelect, onEditProfile }:
                           })}
                         </span>
                       </div>
-                      <div className="text-sm text-slate-600">{item.applicants} candidati</div>
+                      <div className="text-sm text-slate-600">{item.applicants} {t('modelFeed.applicants')}</div>
                     </div>
                     <div className="text-lg font-bold text-slate-900">
                       {(item.currency ?? "€") + item.compensation}
@@ -372,7 +378,7 @@ export default function MainFeedScreenModel({ onCampaignSelect, onEditProfile }:
                         applyToCampaign(item);
                       }}
                     >
-                      <ThumbsUp className="w-4 h-4" /> Apply
+                      <ThumbsUp className="w-4 h-4" /> {t('modelFeed.apply')}
                     </Button>
                   </div>
                 </div>
@@ -380,7 +386,7 @@ export default function MainFeedScreenModel({ onCampaignSelect, onEditProfile }:
             })}
           </div>
         ) : (
-          <SwipeDeck items={uiCampaigns} onApply={applyToCampaign} onSkip={skipCampaign} onSelect={handleCampaignClick} />
+          <SwipeDeck items={uiCampaigns} onApply={applyToCampaign} onSkip={skipCampaign} onSelect={handleCampaignClick} t={t} />
         )}
 
         {/* Matches / Chat preview */}
@@ -389,10 +395,10 @@ export default function MainFeedScreenModel({ onCampaignSelect, onEditProfile }:
           <Card>
             <CardContent className="p-5 space-y-3">
               <div className="font-semibold text-slate-900 flex items-center gap-2">
-                <Star className="w-5 h-5" /> Rate Agency
+                <Star className="w-5 h-5" /> {t('modelFeed.rateAgency')}
               </div>
               <p className="text-sm text-slate-600">
-                How was your last job with <span className="font-medium">Streetwear Labs</span>?
+                {t('modelFeed.howWasJob')} <span className="font-medium">Streetwear Labs</span>?
               </p>
               <div className="flex items-center gap-2">
                 {[1, 2, 3, 4, 5].map((i) => (
@@ -401,7 +407,7 @@ export default function MainFeedScreenModel({ onCampaignSelect, onEditProfile }:
                   </Button>
                 ))}
               </div>
-              <Button className="w-full">Submit rating</Button>
+              <Button className="w-full">{t('modelFeed.submitRating')}</Button>
             </CardContent>
           </Card>
         </div>
@@ -432,11 +438,13 @@ function SwipeDeck({
   onApply,
   onSkip,
   onSelect,
+  t,
 }: {
   items: Campaign[];
   onApply: (campaign: Campaign) => void; // changed from id:number
   onSkip: (id: number) => void;
   onSelect?: (c: Campaign) => void;
+  t: (key: string) => string;
 }) {
   const [index, setIndex] = useState(0);
   const safeItems = Array.isArray(items) ? items : [];
@@ -446,7 +454,7 @@ function SwipeDeck({
     return (
       <Card>
         <CardContent className="p-10 text-center text-slate-600">
-          No more jobs. Check back later.
+          {t('modelFeed.noMoreJobs')}
         </CardContent>
       </Card>
     );
@@ -470,26 +478,26 @@ function SwipeDeck({
         <CardContent className="p-6 space-y-3">
           <div className="flex items-start justify-between">
             <div>
-              <div className="text-slate-900 font-semibold text-lg">{current.title ?? "Untitled"}</div>
-              <div className="text-sm text-slate-600">{current.agency ?? "Unknown Agency"}</div>
+              <div className="text-slate-900 font-semibold text-lg">{current.title ?? t('modelFeed.untitled')}</div>
+              <div className="text-sm text-slate-600">{current.agency ?? t('modelFeed.unknownAgency')}</div>
             </div>
-            <Badge variant="secondary">{current.tags?.[0] ?? "Open"}</Badge>
+            <Badge variant="secondary">{current.tags?.[0] ?? t('modelFeed.open')}</Badge>
           </div>
 
-          <p className="text-slate-700 text-sm">{current.description ?? "—"}</p>
+          <p className="text-slate-700 text-sm">{current.description ?? t('modelFeed.noDescription')}</p>
 
           <div className="grid grid-cols-2 gap-2 text-sm text-slate-600">
             <div className="flex items-center gap-1">
               <MapPin className="w-4 h-4" />
-              {current.city ?? "—"}
+              {current.city ?? t('modelFeed.noLocation')}
             </div>
             <div className="flex items-center gap-1">
               <Clock className="w-4 h-4" />
-              {safeDeadline ? <>Deadline {fmtDate(safeDeadline)} ({daysUntil(safeDeadline)}d)</> : "Deadline —"}
+              {safeDeadline ? <>{t('modelFeed.deadline')} {fmtDate(safeDeadline)} ({daysUntil(safeDeadline)}d)</> : `${t('modelFeed.deadline')} —`}
             </div>
             <div className="flex items-center gap-1">
               <CalendarDays className="w-4 h-4" />
-              Start: {fmtDate(safeStart)}
+{t('modelFeed.start')}: {fmtDate(safeStart)}
             </div>
             <div className="flex items-center gap-1">
               <DollarSign className="w-4 h-4" /> {money(current.compensation, current.currency)}
@@ -505,7 +513,7 @@ function SwipeDeck({
                 setIndex((i) => i + 1);
               }}
             >
-              <ThumbsUp className="w-4 h-4" /> Apply
+              <ThumbsUp className="w-4 h-4" /> {t('modelFeed.apply')}
             </Button>
             <Button
               variant="outline"
@@ -516,7 +524,7 @@ function SwipeDeck({
                 setIndex((i) => i + 1);
               }}
             >
-              <ThumbsDown className="w-4 h-4" /> Pass
+              <ThumbsDown className="w-4 h-4" /> {t('modelFeed.pass')}
             </Button>
           </div>
         </CardContent>

@@ -2,7 +2,7 @@ import React from 'react';
 import { useLanguage, Language } from '../contexts/LanguageContext';
 
 interface LanguageSelectorProps {
-  variant?: 'default' | 'overlay';
+  variant?: 'default' | 'overlay' | 'inline';
 }
 
 const LanguageSelector: React.FC<LanguageSelectorProps> = ({ variant = 'default' }) => {
@@ -17,6 +17,8 @@ const LanguageSelector: React.FC<LanguageSelectorProps> = ({ variant = 'default'
 
   const baseClasses = variant === 'overlay' 
     ? "absolute top-8 right-6 z-10 bg-white/20 backdrop-blur-sm border border-white/20 text-white"
+    : variant === 'inline'
+    ? "bg-white/10 backdrop-blur-xl border border-white/20 text-white"
     : "bg-white border border-slate-200 text-slate-900";
 
   return (
@@ -33,7 +35,7 @@ const LanguageSelector: React.FC<LanguageSelectorProps> = ({ variant = 'default'
         ))}
       </select>
       <div className={`absolute right-2 top-1/2 transform -translate-y-1/2 pointer-events-none ${
-        variant === 'overlay' ? 'text-white/70' : 'text-slate-400'
+        variant === 'overlay' || variant === 'inline' ? 'text-white/70' : 'text-slate-400'
       }`}>
         <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />

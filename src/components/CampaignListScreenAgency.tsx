@@ -3,6 +3,8 @@ import React, { useEffect, useState } from 'react';
 import { ArrowLeft, MapPin, CalendarDays, Calendar } from 'lucide-react';
 import { useCampaignStore2 } from '../stores/campaignStore';
 import { useNavigate } from 'react-router-dom';
+import { useLanguage } from '../contexts/LanguageContext';
+import LanguageSelector from './LanguageSelector';
 
 interface Campaign {
   id: number;
@@ -32,6 +34,7 @@ const CampaignListScreenAgency: React.FC<CampaignListScreenProps> = ({
   onCampaignSelect,
   onCreateCampaign,
 }) => {
+  const { t } = useLanguage();
   const campaigns = useCampaignStore2((state) => state.campaigns);
   const loading = useCampaignStore2((state) => state.loading);
   const fetchCampaigns = useCampaignStore2((state) => state.fetchCampaigns);
@@ -82,18 +85,19 @@ const CampaignListScreenAgency: React.FC<CampaignListScreenProps> = ({
                   >
                     <ArrowLeft className="w-4 h-4 text-slate-700" />
                   </button>
-                  <h1 className="text-xl font-bold text-slate-900">Campagne</h1>
+                  <h1 className="text-xl font-bold text-slate-900">{t('campaigns.title')}</h1>
                 </div>
       
-                {/* Right side: Search + Add Button */}
+                {/* Right side: Language Selector + Search + Add Button */}
                 <div className="flex items-center space-x-2">
                   <input
                     type="text"
                     value={search}
                     onChange={handleSearch}
-                    placeholder="Search campaigns..."
+                    placeholder={t('campaigns.searchPlaceholder')}
                     className="w-96 border border-slate-300 rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
                   />
+                  <LanguageSelector />
                   {onCreateCampaign && (
                     <button
                       onClick={onCreateCampaign}
@@ -113,7 +117,7 @@ const CampaignListScreenAgency: React.FC<CampaignListScreenProps> = ({
           const deadlineDate = new Date(item.deadline);
           const diffTime = deadlineDate.getTime() - new Date().getTime();
           const daysLeft = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
-          const timeLeft = daysLeft > 0 ? `${daysLeft} giorni rimasti` : 'Scaduto';
+          const timeLeft = daysLeft > 0 ? `${daysLeft} ${t('modelFeed.daysLeft')}` : t('modelFeed.expired');
 
           const campaign: Campaign = {
             id: item.id,
@@ -125,10 +129,10 @@ const CampaignListScreenAgency: React.FC<CampaignListScreenProps> = ({
             requirements: {
               gender:
                 item.gender_preference === 'any'
-                  ? 'Qualsiasi'
+                  ? t('modelFeed.genderAny')
                   : item.gender_preference === 'women'
-                  ? 'Femminile'
-                  : 'Maschile',
+                  ? t('modelFeed.genderWomen')
+                  : t('modelFeed.genderMen'),
               location: `${item.city}${item.address ? ', ' + item.address : ''}`,
               startDate: item.start_date,
               endDate: item.end_date || '',
@@ -177,7 +181,7 @@ const CampaignListScreenAgency: React.FC<CampaignListScreenProps> = ({
                 <div className="flex items-center space-x-2">
                     <CalendarDays className="w-5 h-5 text-blue-500" />
                     <span>
-                    Start: {new Date(campaign.requirements.startDate).toLocaleDateString('en-US', {
+                    {t('modelFeed.start')}: {new Date(campaign.requirements.startDate).toLocaleDateString('en-US', {
                       year: 'numeric',
                       month: 'short',
                       day: 'numeric'
@@ -188,7 +192,7 @@ const CampaignListScreenAgency: React.FC<CampaignListScreenProps> = ({
                 <div className="flex items-center space-x-2">
                     <CalendarDays className="w-5 h-5 text-red-500" />
                     <span>
-                      End: {new Date(campaign.requirements.endDate).toLocaleDateString('en-US', {
+                      {t('modelFeed.end')}: {new Date(campaign.requirements.endDate).toLocaleDateString('en-US', {
                         year: 'numeric',
                         month: 'short',
                         day: 'numeric'
@@ -210,7 +214,7 @@ const CampaignListScreenAgency: React.FC<CampaignListScreenProps> = ({
                     </span>
                   </div>
                   <div className="text-sm text-slate-600">
-                    {campaign.applicants} candidati
+                    {campaign.applicants} {t('modelFeed.applicants')}
                   </div>
                 </div>
                 <div className="text-lg font-bold text-slate-900">
@@ -221,7 +225,7 @@ const CampaignListScreenAgency: React.FC<CampaignListScreenProps> = ({
                   onClick={() => onCampaignSelect(campaign)}
                   className="w-full mt-4 bg-slate-900 text-white py-3 rounded-xl font-semibold hover:bg-slate-800 transition-colors"
                 >
-                  Modificare
+{t('campaigns.edit')}
                 </button>
             </div>
           );

@@ -38,7 +38,7 @@ const ProfileEditScreenAgency: React.FC<ProfileEditScreenProps> = ({ onBack, onC
           
         }
       } catch (error: any) {
-        console.error("Failed to load profile", error.message);
+        console.error(t('profileCreation.errorSaving'), error.message);
       }
     };
 
@@ -58,11 +58,11 @@ const ProfileEditScreenAgency: React.FC<ProfileEditScreenProps> = ({ onBack, onC
         website: formData.website || null,
       });
 
-      alert("Profile updated!");
+      alert(t('settings.profileUpdated'));
       onComplete();
 
     } catch (error: any) {
-      alert(error.message || "Error updating profile");
+      alert(error.message || t('settings.profileUpdateError'));
     }
   };
 
@@ -166,7 +166,7 @@ const ProfileEditScreenAgency: React.FC<ProfileEditScreenProps> = ({ onBack, onC
           
 
         {/* Submit Button */}
-        <div className="pt-4">
+        <div className="pt-4 pb-10">
           <button
             type="submit"
             className="w-full bg-slate-900 text-white py-4 rounded-xl font-semibold text-lg hover:bg-slate-800 transition-colors"

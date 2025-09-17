@@ -3,6 +3,8 @@ import { ArrowLeft, Loader2 } from 'lucide-react';
 import { updateCampaign } from "../services/createCampaign";
 import { getBaseUrl } from '@/services/utils/baseUrl';
 import axios from 'axios';
+import { useLanguage } from '../contexts/LanguageContext';
+import LanguageSelector from './LanguageSelector';
 
 interface CampaignEditScreenProps {
     campaignId: string;
@@ -28,6 +30,7 @@ interface CampaignPayload {
   }
 
 const CampaignEditScreen: React.FC<CampaignEditScreenProps> = ({ campaignId,onBack, onSave }) => {
+  const { t } = useLanguage();
   const [formData, setFormData] = useState({
     title: '',
     description: '',
@@ -79,11 +82,11 @@ const CampaignEditScreen: React.FC<CampaignEditScreenProps> = ({ campaignId,onBa
       if (!token) throw new Error("User not authenticated");
 
       await updateCampaign(campaignId, formData, token);
-      alert("Campagna aggiornata con successo!");
+      alert(t('campaigns.updatedSuccessfully'));
       onSave();
     } catch (error: any) {
       console.error(error);
-      alert("Errore nella modifica della campagna: " + (error.message || error));
+      alert(t('campaigns.updateError') + ": " + (error.message || error));
     } finally {
       setLoading(false);
     }
@@ -102,42 +105,45 @@ const CampaignEditScreen: React.FC<CampaignEditScreenProps> = ({ campaignId,onBa
     <div className="min-h-screen bg-slate-50 pb-20">
       {/* Header */}
       <div className="bg-white border-b border-slate-200 px-6 pt-8 pb-3">
-        <div className="flex items-center">
-          <button
-            onClick={onBack}
-            className="w-8 h-8 bg-slate-100 rounded-lg flex items-center justify-center mr-3"
-          >
-            <ArrowLeft className="w-4 h-4 text-slate-700" />
-          </button>
-          <h1 className="text-xl font-bold text-slate-900">modifica campagna</h1>
+        <div className="flex items-center justify-between">
+          <div className="flex items-center">
+            <button
+              onClick={onBack}
+              className="w-8 h-8 bg-slate-100 rounded-lg flex items-center justify-center mr-3"
+            >
+              <ArrowLeft className="w-4 h-4 text-slate-700" />
+            </button>
+            <h1 className="text-xl font-bold text-slate-900">{t('campaigns.edit')}</h1>
+          </div>
+          <LanguageSelector />
         </div>
       </div>
 
       <form onSubmit={handleSubmit} className="px-6 py-4 space-y-6">
         {/* Basic Information */}
         <div className="bg-white rounded-2xl p-6 shadow-sm border border-slate-200">
-          <h2 className="text-lg font-semibold text-slate-900 mb-4">Dettagli Campagna</h2>
+          <h2 className="text-lg font-semibold text-slate-900 mb-4">{t('campaigns.details')}</h2>
           
           <div className="space-y-4">
             <div>
-              <label className="block text-sm font-medium text-slate-700 mb-2">Titolo Campagna</label>
+              <label className="block text-sm font-medium text-slate-700 mb-2">{t('campaigns.name')}</label>
               <input
                 type="text"
                 value={formData.title}
                 onChange={(e) => setFormData({...formData, title: e.target.value})}
                 className="w-full px-4 py-3 border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-slate-900"
-                placeholder="Fashion Week Estate 2024"
+                placeholder={t('campaigns.titlePlaceholder')}
                 required
               />
             </div>
 
             <div>
-              <label className="block text-sm font-medium text-slate-700 mb-2">Descrizione</label>
+              <label className="block text-sm font-medium text-slate-700 mb-2">{t('campaigns.description')}</label>
               <textarea
                 value={formData.description}
                 onChange={(e) => setFormData({...formData, description: e.target.value})}
                 className="w-full px-4 py-3 border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-slate-900 h-24 resize-none"
-                placeholder="Descrivi i requisiti della tua campagna..."
+                placeholder={t('campaigns.descriptionPlaceholder')}
                 maxLength={500}
                 required
               />
@@ -145,24 +151,24 @@ const CampaignEditScreen: React.FC<CampaignEditScreenProps> = ({ campaignId,onBa
 
             <div className="grid grid-cols-2 gap-4">
               <div>
-                <label className="block text-sm font-medium text-slate-700 mb-2">Categoria</label>
+                <label className="block text-sm font-medium text-slate-700 mb-2">{t('profile-creation.category')}</label>
                 <select
                   value={formData.category}
                   onChange={(e) => setFormData({...formData, category: e.target.value})}
                   className="w-full px-4 py-3 border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-slate-900"
                   required
                 >
-                  <option value="">Seleziona Categoria</option>
-                  <option value="Hostess">Hostess</option>
-                  <option value="Model">Model</option>
-                  <option value="Photographer">Photographer</option>
-                  <option value="Promoter">Promoter</option>
-                  <option value="Waiter">Waiter</option>
-                  <option value="Other">Other</option>
+                  <option value="">{t('profile-creation.category.select')}</option>
+                  <option value="Hostess">{t('profile-creation.category.hostess')}</option>
+                  <option value="Model">{t('profile-creation.category.model')}</option>
+                  <option value="Photographer">{t('profile-creation.category.photographer')}</option>
+                  <option value="Promoter">{t('profile-creation.category.promotar')}</option>
+                  <option value="Waiter">{t('profile-creation.category.waiter')}</option>
+                  <option value="Other">{t('profile-creation.category.other')}</option>
                 </select>
               </div>
               <div>
-                <label className="block text-sm font-medium text-slate-700 mb-2">Scadenza</label>
+                <label className="block text-sm font-medium text-slate-700 mb-2">{t('campaigns.deadline')}</label>
                 <input
                   type="date"
                   value={formData.deadline}
@@ -175,7 +181,7 @@ const CampaignEditScreen: React.FC<CampaignEditScreenProps> = ({ campaignId,onBa
 
             <div className="grid grid-cols-2 gap-4">
               <div>
-                <label className="block text-sm font-medium text-slate-700 mb-2">Data Inizio</label>
+                <label className="block text-sm font-medium text-slate-700 mb-2">{t('campaignDetail.startDate')}</label>
                 <input
                   type="date"
                   value={formData.start_date}
@@ -185,7 +191,7 @@ const CampaignEditScreen: React.FC<CampaignEditScreenProps> = ({ campaignId,onBa
                 />
               </div>
               <div>
-                <label className="block text-sm font-medium text-slate-700 mb-2">Data Fine</label>
+                <label className="block text-sm font-medium text-slate-700 mb-2">{t('campaignDetail.endDate')}</label>
                 <input
                   type="date"
                   value={formData.end_date}
@@ -197,7 +203,7 @@ const CampaignEditScreen: React.FC<CampaignEditScreenProps> = ({ campaignId,onBa
 
             <div className="grid grid-cols-2 gap-4">
               <div>
-                <label className="block text-sm font-medium text-slate-700 mb-2">Orario Inizio</label>
+                <label className="block text-sm font-medium text-slate-700 mb-2">{t('campaigns.startTime')}</label>
                 <input
                   type="text"
                   value={formData.start_time}
@@ -206,7 +212,7 @@ const CampaignEditScreen: React.FC<CampaignEditScreenProps> = ({ campaignId,onBa
                 />
               </div>
               <div>
-                <label className="block text-sm font-medium text-slate-700 mb-2">Orario Fine</label>
+                <label className="block text-sm font-medium text-slate-700 mb-2">{t('campaigns.endTime')}</label>
                 <input
                   type="text"
                   value={formData.end_time}
@@ -218,31 +224,31 @@ const CampaignEditScreen: React.FC<CampaignEditScreenProps> = ({ campaignId,onBa
 
             <div className="grid grid-cols-2 gap-4">
               <div>
-                <label className="block text-sm font-medium text-slate-700 mb-2">Città</label>
+                <label className="block text-sm font-medium text-slate-700 mb-2">{t('campaigns.city')}</label>
                 <input
                   type="text"
                   value={formData.city}
                   onChange={(e) => setFormData({...formData, city: e.target.value})}
                   className="w-full px-4 py-3 border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-slate-900"
-                  placeholder="Milano"
+                  placeholder={t('modelFeed.defaultCity')}
                   required
                 />
               </div>
               <div>
-                <label className="block text-sm font-medium text-slate-700 mb-2">Indirizzo</label>
+                <label className="block text-sm font-medium text-slate-700 mb-2">{t('campaigns.address')}</label>
                 <input
                   type="text"
                   value={formData.address}
                   onChange={(e) => setFormData({...formData, address: e.target.value})}
                   className="w-full px-4 py-3 border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-slate-900"
-                  placeholder="Via, CAP, Italia"
+                  placeholder={t('campaigns.addressPlaceholder')}
                 />
               </div>
             </div>
 
             <div className="grid grid-cols-2 gap-4">
               <div>
-                <label className="block text-sm font-medium text-slate-700 mb-2">Compenso (€)</label>
+                <label className="block text-sm font-medium text-slate-700 mb-2">{t('campaigns.compensation')}</label>
                 <input
                   type="text"
                   value={formData.compensation}
@@ -253,7 +259,7 @@ const CampaignEditScreen: React.FC<CampaignEditScreenProps> = ({ campaignId,onBa
                 />
               </div>
               <div>
-                <label className="block text-sm font-medium text-slate-700 mb-2">Numero Persone Richieste</label>
+                <label className="block text-sm font-medium text-slate-700 mb-2">{t('campaigns.requiredPeople')}</label>
                 <input
                   type="number"
                   value={formData.required_people}
@@ -273,18 +279,18 @@ const CampaignEditScreen: React.FC<CampaignEditScreenProps> = ({ campaignId,onBa
                   onChange={(e) => setFormData({...formData, pro_only: e.target.checked})}
                   className="h-4 w-4"
                 />
-                <label className="text-sm font-medium text-slate-700">Pro profiles only</label>
+                <label className="text-sm font-medium text-slate-700">{t('campaigns.proOnly')}</label>
               </div>
               <div>
-                <label className="block text-sm font-medium text-slate-700 mb-2">Genere Preferito</label>
+                <label className="block text-sm font-medium text-slate-700 mb-2">{t('campaignDetail.gender')}</label>
                 <select
                   value={formData.gender_preference}
                   onChange={(e) => setFormData({...formData, gender_preference: e.target.value as 'any' | 'women' | 'men'})}
                   className="w-full px-4 py-3 border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-slate-900"
                 >
-                  <option value="any">Qualsiasi</option>
-                  <option value="women">Femminile</option>
-                  <option value="men">Maschile</option>
+                  <option value="any">{t('modelFeed.genderAny')}</option>
+                  <option value="women">{t('modelFeed.genderWomen')}</option>
+                  <option value="men">{t('modelFeed.genderMen')}</option>
                 </select>
               </div>
             </div>
@@ -301,10 +307,10 @@ const CampaignEditScreen: React.FC<CampaignEditScreenProps> = ({ campaignId,onBa
           {loading ? (
             <>
               <Loader2 className="w-5 h-5 mr-2 animate-spin" />
-              Salvataggio in corso...
+              {t('campaigns.creating')}
             </>
           ) : (
-            "Save Changes"
+            t('settings.saveChanges')
           )}
         </button>
       </form>

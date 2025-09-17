@@ -4,6 +4,8 @@ import { Search, Filter, MapPin, Briefcase } from 'lucide-react';
 import { getBaseUrl } from '@/services/utils/baseUrl';
 import axios from 'axios';
 import { fetchPhotosByModelId } from '@/services/modelPhotos';
+import LanguageSelector from './LanguageSelector';
+import { useLanguage } from '@/contexts/LanguageContext';
 
 interface SearchScreenProps {
   onUserSelect?: (userId: number) => void;
@@ -26,6 +28,7 @@ interface BackendResponse {
 }
 
 const SearchScreen: React.FC<SearchScreenProps> = ({ onUserSelect }) => {
+  const { t } = useLanguage();
   const [searchQuery, setSearchQuery] = useState('');
   const [activeFilter, setActiveFilter] = useState<'all' | 'model' | 'hostess' | 'agency'>('all');
   const [profiles, setProfiles] = useState<BackendModel[]>([]);
@@ -164,7 +167,12 @@ useEffect(() => {
     <div className="min-h-screen bg-slate-50 pb-24">
       {/* Header */}
       <div className="bg-white border-b border-slate-200 px-6 pt-8 pb-4">
-        <h1 className="text-2xl font-bold text-slate-900 mb-4">Cerca</h1>
+        <div className="flex items-center justify-between mb-4">
+          <h1 className="text-2xl font-bold text-slate-900">{t('search.title')}</h1>
+          <div className="flex items-center">
+            <LanguageSelector />
+          </div>
+        </div>
         
         {/* Search Bar */}
         <div className="relative mb-4">
@@ -174,18 +182,18 @@ useEffect(() => {
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
             className="w-full pl-10 pr-4 py-3 border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-slate-900"
-            placeholder="Cerca professionisti..."
+            placeholder={t('search.placeholder')}
           />
         </div>
 
         {/* Filter Buttons */}
         <div className="flex space-x-2">
           {[
-            { id: 'all', label: 'Tutti' },
-            { id: 'model', label: 'Modelle' },
-            { id: 'hostess', label: 'Hostess' },
-            { id: 'photographer', label: 'Fotografo' },
-            {id: 'other', label:'Altra'}
+            { id: 'all', label: t('search.all') },
+            { id: 'model', label: t('search.models') },
+            { id: 'hostess', label: t('search.hostess') },
+            { id: 'photographer', label: t('search.photographer') },
+            {id: 'other', label: t('search.other')}
           ].map((filter) => (
             <button
               key={filter.id}
@@ -205,7 +213,7 @@ useEffect(() => {
       {/* Results */}
       <div className="px-6 py-6 space-y-4">
         {loading ? (
-          <p className="text-center text-slate-500">Caricamento...</p>
+          <p className="text-center text-slate-500">{t('search.loading')}</p>
         ) : filteredResults.length > 0 ?(filteredResults.map((result) => (
           <div key={result.id} className="bg-white rounded-2xl p-4 shadow-sm border border-slate-200">
             <div className="flex items-center space-x-4">
@@ -246,13 +254,13 @@ useEffect(() => {
                 onClick={() => handleUserClick(result.id)}
                 className="bg-slate-900 text-white px-4 py-2 rounded-xl font-medium hover:bg-slate-800 transition-colors"
               >
-                Visualizza
+{t('search.view')}
               </button>
             </div>
           </div>
         ))
       ): (
-        <p className="text-center text-slate-500">Nessun risultato trovato</p>
+        <p className="text-center text-slate-500">{t('search.noResults')}</p>
       )}
       </div>
     </div>
