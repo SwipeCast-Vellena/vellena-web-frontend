@@ -1,6 +1,5 @@
 
 import React, { useEffect, useState } from 'react';
-import { Play } from 'lucide-react';
 
 interface SplashScreenProps {
   onComplete: () => void;
@@ -36,12 +35,15 @@ const SplashScreen: React.FC<SplashScreenProps> = ({ onComplete }) => {
       {/* Logo Section */}
       <div className="text-center mb-16 animate-fade-in">
         <div className="mb-6 relative">
-          <div className="w-24 h-24 bg-white rounded-2xl mx-auto flex items-center justify-center shadow-2xl">
-            <Play className="w-12 h-12 text-slate-900" fill="currentColor" />
+          <div className="mx-auto flex items-center justify-center shadow-2xl">
+            <img 
+              src="/YOWORKS LOGO.png" 
+              alt="Yo.Works" 
+              className="h-20 w-auto object-contain"
+            />
           </div>
           <div className="absolute -inset-4 bg-white/10 rounded-3xl blur-xl"></div>
         </div>
-        <h1 className="text-4xl font-bold text-white mb-2 tracking-tight">yo_work</h1>
         <p className="text-slate-300 text-lg font-medium">Connessioni Professionali per Talenti</p>
       </div>
 

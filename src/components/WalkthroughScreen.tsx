@@ -92,6 +92,15 @@ const WalkthroughScreen: React.FC<WalkthroughScreenProps> = ({ onComplete }) => 
         </button>
       </div>
 
+      {/* Logo */}
+      <div className="absolute top-6 left-1/2 transform -translate-x-1/2 z-20">
+        <img 
+          src="/YOWORKS LOGO.png" 
+          alt="Yo.Works" 
+          className="h-8 w-auto object-contain"
+        />
+      </div>
+
       {/* Language Selector */}
       <div className="absolute top-6 right-6 z-20">
         <LanguageSelector variant="overlay" />

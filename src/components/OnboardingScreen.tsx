@@ -39,10 +39,13 @@ const OnboardingScreen: React.FC<OnboardingScreenProps> = ({ onSignUp, onLogin }
       
       {/* Header */}
       <div className="pt-3 pb-2 px-6 text-center">
-        <div className="w-16 h-16 bg-slate-900 rounded-2xl mx-auto mb-6 flex items-center justify-center">
-          <Video className="w-8 h-8 text-white" />
+        <div className="mx-auto mb-6 flex items-center justify-center">
+          <img 
+            src="/YOWORKS LOGO.png" 
+            alt="Yo.Works" 
+            className="h-16 w-auto object-contain"
+          />
         </div>
-        <h1 className="text-3xl font-bold text-slate-900 mb-2">{t('onboarding.title')}</h1>
         <p className="text-slate-600 text-lg leading-relaxed max-w-sm mx-auto">
           {t('onboarding.subtitle')}
         </p>
