@@ -115,14 +115,22 @@ interface MainFeedScreenModelProps {
 export default function MainFeedScreenModel({ onCampaignSelect, onEditProfile }: MainFeedScreenModelProps) {
   const { t } = useLanguage();
   const [view, setView] = useState<"list" | "swipe">("list");
-  const { campaigns, fetchCampaigns } = useCampaignStore();
+  const { campaigns, fetchCampaigns, loading, error } = useCampaignStore();
   const [token, setToken] = useState("");
   const [profilePhotoUploaded, setProfilePhotoUploaded] = useState(false);
   const [modelProfile,setModelProfile]=useState<ModelProfile|null>(null);
 
   useEffect(() => {
-    fetchCampaigns();
-  }, [fetchCampaigns]);
+    const loadCampaigns = async () => {
+      try {
+        await fetchCampaigns();
+        console.log('Campaigns loaded:', campaigns.length);
+      } catch (error) {
+        console.error('Failed to fetch campaigns:', error);
+      }
+    };
+    loadCampaigns();
+  }, []);
 
   useEffect(() => {
     const t = localStorage.getItem("token");
@@ -171,14 +179,42 @@ export default function MainFeedScreenModel({ onCampaignSelect, onEditProfile }:
   // Normalize campaigns for UI
   const uiCampaigns = useMemo<Campaign[]>(() => {
     const raw = (Array.isArray(campaigns) ? campaigns : []) as BackendCampaign[];
-
-    return raw
-      .map(c => mapToUICampaign(c, t))
-      .filter((c) => c.deadline && !Number.isNaN(new Date(c.deadline).getTime()))
-      .filter((c) => isFutureOrToday(c.deadline))
-      .sort((a, b) => new Date(a.deadline).getTime() - new Date(b.deadline).getTime())
-      .slice(0, 3);
-  }, [campaigns]);
+    console.log('📊 Raw campaigns from store:', raw.length, raw);
+    
+    if (raw.length === 0) {
+      console.log('⚠️ No campaigns in store');
+      return [];
+    }
+    
+    const mapped = raw.map(c => mapToUICampaign(c, t));
+    console.log('📋 Mapped campaigns:', mapped.length);
+    
+    // Show all campaigns with valid deadline (remove expired filter temporarily for debugging)
+    const withValidDeadline = mapped.filter((c) => {
+      if (!c.deadline) {
+        console.log('⚠️ Campaign missing deadline:', c.id, c.title);
+        return false;
+      }
+      const date = new Date(c.deadline);
+      if (Number.isNaN(date.getTime())) {
+        console.log('⚠️ Campaign invalid deadline format:', c.id, c.deadline);
+        return false;
+      }
+      return true;
+    });
+    console.log('✅ Campaigns with valid deadline:', withValidDeadline.length);
+    
+    // For now, show all valid campaigns (remove expired filter to see what we have)
+    // Later we can add it back: const notExpired = withValidDeadline.filter((c) => isFutureOrToday(c.deadline));
+    const notExpired = withValidDeadline; // TEMPORARY: Show all campaigns regardless of deadline
+    console.log('📅 Campaigns (including expired):', notExpired.length);
+    
+    const sorted = notExpired.sort((a, b) => new Date(a.deadline).getTime() - new Date(b.deadline).getTime());
+    const limited = sorted.slice(0, 20); // Show up to 20 campaigns
+    console.log('🎯 Final campaigns to display:', limited.length);
+    
+    return limited;
+  }, [campaigns, t]);
 
   // --- Actions ---
   const applyToCampaign = (campaign: Campaign) => {
@@ -274,7 +310,22 @@ export default function MainFeedScreenModel({ onCampaignSelect, onEditProfile }:
 
         {view === "list" ? (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-            {uiCampaigns.map((item) => {
+            {loading ? (
+              <div className="col-span-full text-center py-12">
+                <p className="text-slate-500 text-lg">{t('modelFeed.loadingJobs') || 'Loading jobs...'}</p>
+              </div>
+            ) : error ? (
+              <div className="col-span-full text-center py-12">
+                <p className="text-red-500 text-lg">{t('modelFeed.errorLoadingJobs') || 'Error loading jobs'}</p>
+                <p className="text-slate-400 text-sm mt-2">{error}</p>
+              </div>
+            ) : uiCampaigns.length === 0 ? (
+              <div className="col-span-full text-center py-12">
+                <p className="text-slate-500 text-lg">{t('modelFeed.noJobsAvailable') || 'No jobs available at the moment'}</p>
+                <p className="text-slate-400 text-sm mt-2">{t('modelFeed.checkBackLater') || 'Check back later for new opportunities'}</p>
+              </div>
+            ) : (
+              uiCampaigns.map((item) => {
               const deadlineDate = new Date(item.deadline);
               const diffTime = deadlineDate.getTime() - new Date().getTime();
               const daysLeft = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
@@ -383,7 +434,8 @@ export default function MainFeedScreenModel({ onCampaignSelect, onEditProfile }:
                   </div>
                 </div>
               );
-            })}
+            })
+            )}
           </div>
         ) : (
           <SwipeDeck items={uiCampaigns} onApply={applyToCampaign} onSkip={skipCampaign} onSelect={handleCampaignClick} t={t} />
